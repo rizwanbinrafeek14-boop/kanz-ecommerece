@@ -8,11 +8,12 @@ and related products.
 ## What's in this repo
 
 ```
-theme/kanz-corner/     The WordPress theme — upload this to Hostinger
-data/products-import.csv   40 products extracted from the catalogue PDF, ready for Products → Import
-preview/                Standalone HTML/CSS/JS mockups (no WordPress needed) used to design/QA the UI
-docs/DEPLOYMENT-GUIDE.md   Step-by-step: Hostinger + plugins + WooCommerce setup + going live
-docs/ADMIN-GUIDE.md        Day-to-day: adding products, handling quotes, approving B2B accounts, editing content
+theme/kanz-corner/          The WordPress theme — upload this to Hostinger
+data/products-import.csv    90 products extracted from the catalogue PDF, ready for Products → Import
+data/product-images/        One real photo per product, cropped from the catalogue PDF, filename = SKU
+preview/                     Standalone HTML/CSS/JS mockups (no WordPress needed) used to design/QA the UI
+docs/DEPLOYMENT-GUIDE.md    Step-by-step: Hostinger + plugins + WooCommerce setup + going live
+docs/ADMIN-GUIDE.md         Day-to-day: adding products, handling quotes, approving B2B accounts, editing content
 ```
 
 ## Key features
@@ -29,9 +30,9 @@ docs/ADMIN-GUIDE.md        Day-to-day: adding products, handling quotes, approvi
 - **Freight Quote shipping method**: alongside standard Local Pickup, for
   bulk/heavy orders that need custom delivery pricing.
 - **WhatsApp + live chat** floating widgets, newsletter capture.
-- Branded placeholder graphics for every product category (no unlicensed
-  stock photos used) — swap in real photos any time via the normal
-  WordPress product editor.
+- 90 products, each with a real photo cropped directly from the catalogue
+  PDF (not stock images) — plus branded placeholder icons as a fallback
+  for any product you add later without a photo yet.
 
 ## Start here
 
@@ -44,14 +45,12 @@ docs/ADMIN-GUIDE.md        Day-to-day: adding products, handling quotes, approvi
 
 ## Known gaps / next steps
 
-- **Logo**: the real KANZ CORNER logo PNG wasn't available as an
-  uploadable file when this was built, so the site currently uses a
-  placeholder wordmark in the brand colors. Upload the real logo via
-  `Appearance → Customize → Site Identity` once you have the file.
-- **Only 40 catalogue-derived product lines exist** — no prices, no real
-  photos, matching what the catalogue PDF actually contained (category
-  spec sheets, not individual priced SKUs). Everything else is designed
-  for you to fill in through the normal WordPress admin.
+- **90 catalogue-derived product lines exist, each with a real photo,
+  but no prices** — the catalogue PDF is a technical spec sheet, not a
+  priced SKU list, so every product defaults to "Request Quote" until you
+  set a real price. Everything else (pricing, stock, additional
+  sizes/variants as separate SKUs) is designed for you to fill in through
+  the normal WordPress admin — see `docs/ADMIN-GUIDE.md`.
 - **Payment gateway, trade-tier pricing, and multilingual content
   translation** all require choices/accounts only you can set up
   (merchant account sign-up, pricing tiers, translator review) — see the

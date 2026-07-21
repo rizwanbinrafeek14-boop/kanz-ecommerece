@@ -13,8 +13,10 @@ Hostinger. Follow it top to bottom the first time; after that, only the
   (`/theme/kanz-corner`) — bilingual-ready (Arabic/English, RTL), with a
   hybrid "Buy Now / Request a Quote" storefront, B2B trade accounts, and a
   Request-a-Quote system.
-- A **product import file** (`/data/products-import.csv`) with 40 product
-  lines pulled from your catalogue PDF, organized into categories.
+- A **product import file** (`/data/products-import.csv`) with 90 product
+  lines pulled from your catalogue PDF, organized into categories, each
+  paired with a real photo cropped from the catalogue in
+  `/data/product-images/`.
 - Starter **Arabic translations** for the core UI (`/theme/kanz-corner/languages`).
 
 This theme was built and code-reviewed in a sandbox without a live
@@ -175,18 +177,25 @@ gives you control over order and labels.
 2. `Products → Import` → upload `/data/products-import.csv` → map columns
    (WooCommerce auto-detects them, since the header row uses its standard
    names) → Run the importer.
-3. This creates **40 product lines** covering every category in your
-   catalogue (Pipes, Fittings, Flanges, Valves, Fasteners, Gaskets,
-   Gauges & Instruments, Other Products), each with:
+3. This creates **90 product lines** covering every individually
+   photographed/labeled item in your catalogue — not just the 8 top-level
+   categories, but every distinct fitting, flange type, fastener, gauge,
+   and "other product" the catalogue actually shows a labeled photo for
+   (e.g. Forged Elbow 90° — Threaded and Forged Elbow 90° — Socket Weld
+   are separate lines, each with its own real photo). Each product has:
    - A description built from the catalogue's spec tables (sizes,
      schedules, grades, standards, brands)
    - **No price** — they'll show "Request Quote" automatically until you
      set a real price (see ADMIN-GUIDE.md → "Pricing a product")
-   - A branded placeholder icon (no real product photos exist yet — see
-     ADMIN-GUIDE.md → "Adding real product photos")
-4. Everything beyond these 40 lines — individual sizes/variants as
-   separate SKUs, real prices, real photos, stock quantities — is yours
-   to add, as discussed. ADMIN-GUIDE.md walks through exactly how.
+   - **A real photo cropped from the catalogue PDF** — see
+     `/data/product-images/` (one JPG per product, filename = SKU) and
+     ADMIN-GUIDE.md → "Adding real product photos" for how to attach them
+     in bulk. A few category-level items (Pipes by material, Valves,
+     Gaskets) share one representative photo since the catalogue itself
+     only shows one photo for those, not per-size/per-variant.
+4. Everything beyond these 90 lines — individual sizes/variants as
+   separate SKUs, real prices, stock quantities — is yours to add, as
+   discussed. ADMIN-GUIDE.md walks through exactly how.
 
 ---
 

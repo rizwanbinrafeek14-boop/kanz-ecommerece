@@ -47,6 +47,26 @@ image** (main photo) and **Product gallery** (additional angles), and
 Update. The branded placeholder icon is only a fallback for products
 with no photo yet.
 
+**The 90 catalogue products already have real photos** cropped directly
+from your catalogue PDF — they live in `/data/product-images/`, one JPG
+per product, **named exactly after that product's SKU** (e.g.
+`KC-FLG-BLIND.jpg` is the Blind Flange). To attach them:
+
+1. `Media → Add New` → drag in the whole `product-images` folder at once
+   (WordPress accepts a multi-file drop) → wait for all 90 to finish
+   uploading.
+2. Open a product → **Product image** → **Set product image** → in the
+   Media Library search box, type the product's SKU (shown on the
+   Products list, or in the CSV) → its photo is the only result → select
+   it → **Update** the product.
+3. Repeat per product. Tedious for 90 products in one sitting, but each
+   one only takes a few seconds since the SKU search narrows it to one
+   exact match — no scrolling through a huge media library.
+
+If you'd rather not do this by hand, this is also exactly the kind of
+repetitive task a freelance VA or a WordPress developer can knock out in
+under an hour with the files already prepared this way.
+
 ### Bulk-editing many products
 
 `Products` list → select several → **Bulk actions → Edit** lets you
