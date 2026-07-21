@@ -95,6 +95,24 @@ function kc_get_product_placeholder_image( $product_id ) {
 }
 
 /**
+ * Replace WooCommerce's generic gray "Placeholder" image with the branded
+ * category icon, everywhere WooCommerce would otherwise show it: shop/
+ * category grid thumbnails, the single-product gallery, cart/related
+ * products, etc. WooCommerce always renders this through wc_placeholder_img()
+ * with the current product available as the `$product` global, for any
+ * product that has no featured image set — which today is all 40 imported
+ * catalogue products (see data/products-import.csv).
+ */
+function kc_woocommerce_placeholder_src( $src ) {
+	global $product;
+	if ( $product instanceof WC_Product ) {
+		return kc_get_product_placeholder_image( $product->get_id() );
+	}
+	return $src;
+}
+add_filter( 'woocommerce_placeholder_img_src', 'kc_woocommerce_placeholder_src' );
+
+/**
  * Maps a WooCommerce product_cat term to one of the 8 illustrated category
  * icons shipped in assets/images/categories/. Walks up to the top-level
  * ancestor first, since most real products sit in a sub-category (e.g.

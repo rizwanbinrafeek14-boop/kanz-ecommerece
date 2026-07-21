@@ -71,6 +71,7 @@
 .woocommerce div.product{ display:grid; grid-template-columns:.9fr 1.1fr; gap:var(--sp-8); }
 .woocommerce div.product div.images{ position:sticky; top:96px; align-self:start; }
 .woocommerce div.product div.images img{ border-radius:var(--radius-md); background:var(--bg-subtle); }
+.woocommerce div.product div.images img.woocommerce-placeholder{ padding:15%; box-sizing:border-box; object-fit:contain; }
 .woocommerce div.product .summary{ max-width:none; }
 .woocommerce div.product .summary .product_title{ font-size:var(--fs-xl); margin-bottom:var(--sp-3); }
 .woocommerce div.product .summary p.price{ font-size:var(--fs-2xl); font-weight:800; color:var(--kc-navy); margin-bottom:var(--sp-2); }
