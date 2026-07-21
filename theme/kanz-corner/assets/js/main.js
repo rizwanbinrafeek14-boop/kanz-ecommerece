@@ -173,4 +173,120 @@
       document.documentElement.setAttribute('lang', isAr ? 'ar' : 'en');
     });
   });
+
+  /* ================= v1.1 STOREFRONT ENHANCEMENTS =================
+   * Everything below only activates on the live WordPress site, where the
+   * kcAjax object (localised in inc/setup.php) is present. In the static
+   * /preview build these blocks no-op, so the preview keeps working. */
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* ---------------- Live search overlay ---------------- */
+  (function () {
+    var overlay = document.getElementById('kc-search-overlay');
+    if (!overlay || !hasBackend) return;
+    var input = document.getElementById('kc-search-input');
+    var results = document.getElementById('kc-search-results');
+    var triggers = document.querySelectorAll('[data-open-search]');
+    var closers = overlay.querySelectorAll('[data-close-search]');
+    var debounce, controller;
+
+    function open(e) { if (e) e.preventDefault(); overlay.classList.add('is-open'); overlay.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; setTimeout(function () { input.focus(); }, 50); }
+    function close() { overlay.classList.remove('is-open'); overlay.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }
+
+    triggers.forEach(function (t) { t.addEventListener('click', open); });
+    closers.forEach(function (c) { c.addEventListener('click', close); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && overlay.classList.contains('is-open')) close(); });
+
+    input.addEventListener('input', function () {
+      var q = input.value.trim();
+      clearTimeout(debounce);
+      if (q.length < 2) { results.innerHTML = ''; return; }
+      results.innerHTML = '<p class="kc-search-status">' + esc(kcAjax.i18n.searching) + '</p>';
+      debounce = setTimeout(function () {
+        if (controller) controller.abort();
+        controller = ('AbortController' in window) ? new AbortController() : null;
+        var url = kcAjax.ajaxUrl + '?action=kc_search&nonce=' + encodeURIComponent(kcAjax.searchNonce) + '&q=' + encodeURIComponent(q);
+        fetch(url, controller ? { signal: controller.signal } : {})
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data.results || !data.results.length) { results.innerHTML = '<p class="kc-search-status">' + esc(kcAjax.i18n.noResults) + '</p>'; return; }
+            results.innerHTML = data.results.map(function (p) {
+              return '<a class="kc-search-item" href="' + esc(p.url) + '">' +
+                '<span class="kc-search-thumb"><img src="' + esc(p.image) + '" alt="" loading="lazy"></span>' +
+                '<span class="kc-search-meta"><span class="kc-search-cat">' + esc(p.category) + '</span>' +
+                '<strong>' + esc(p.name) + '</strong><span class="kc-search-price">' + esc(p.price) + '</span></span></a>';
+            }).join('') + '<a class="kc-search-all" href="' + esc(data.shopUrl) + '">' + esc('View all results') + ' →</a>';
+          })
+          .catch(function (err) { if (err && err.name === 'AbortError') return; results.innerHTML = '<p class="kc-search-status">' + esc(kcAjax.i18n.noResults) + '</p>'; });
+      }, 260);
+    });
+  })();
+
+  /* ---------------- Quick-view modal ---------------- */
+  (function () {
+    var modal = document.getElementById('kc-quickview-modal');
+    if (!modal || !hasBackend) return;
+    var content = document.getElementById('kc-quickview-content');
+    var closers = modal.querySelectorAll('[data-close-modal]');
+
+    function open() { modal.classList.add('is-open'); modal.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; }
+    function close() { modal.classList.remove('is-open'); modal.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; content.innerHTML = ''; }
+
+    closers.forEach(function (c) { c.addEventListener('click', close); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('is-open')) close(); });
+
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-quickview]');
+      if (!btn) return;
+      e.preventDefault();
+      var id = btn.getAttribute('data-quickview');
+      content.innerHTML = '<p class="kc-modal-loading">' + esc(kcAjax.i18n.searching) + '</p>';
+      open();
+      fetch(kcAjax.ajaxUrl + '?action=kc_quickview&nonce=' + encodeURIComponent(kcAjax.quickvNonce) + '&id=' + encodeURIComponent(id))
+        .then(function (r) { return r.json(); })
+        .then(function (data) { if (data && data.success) { content.innerHTML = data.data.html; } else { close(); } })
+        .catch(function () { close(); });
+    });
+  })();
+
+  /* ---------------- Recently viewed ---------------- */
+  (function () {
+    var KEY = 'kc_recently_viewed';
+    function get() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+    function save(list) { try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 8))); } catch (e) {} }
+
+    // Seed from the current product page.
+    var seed = document.getElementById('kc-current-product');
+    if (seed) {
+      try {
+        var p = JSON.parse(seed.textContent);
+        var list = get().filter(function (x) { return String(x.id) !== String(p.id); });
+        list.unshift(p);
+        save(list);
+      } catch (e) {}
+    }
+
+    // Render the strip (excluding the product currently being viewed).
+    var mount = document.querySelector('.js-recently-viewed');
+    var section = document.querySelector('.kc-recently-viewed');
+    if (!mount || !section) return;
+    var currentId = null;
+    if (seed) { try { currentId = String(JSON.parse(seed.textContent).id); } catch (e) {} }
+    var items = get().filter(function (x) { return String(x.id) !== currentId; });
+    if (!items.length) return;
+
+    mount.innerHTML = items.slice(0, 4).map(function (p) {
+      return '<div class="product-card"><a href="' + esc(p.url) + '" class="thumb"><img src="' + esc(p.image) + '" alt="" loading="lazy"></a>' +
+        '<div class="body"><span class="cat-label">' + esc(p.category) + '</span>' +
+        '<h3><a href="' + esc(p.url) + '" style="color:inherit">' + esc(p.name) + '</a></h3>' +
+        '<div class="price-row"><span class="price on-request">' + esc(p.price) + '</span>' +
+        '<a href="' + esc(p.url) + '" class="btn btn-primary btn-sm cta">View</a></div></div></div>';
+    }).join('');
+    section.hidden = false;
+  })();
 })();

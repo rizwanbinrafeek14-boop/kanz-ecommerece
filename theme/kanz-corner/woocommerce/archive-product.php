@@ -38,11 +38,18 @@ do_action( 'woocommerce_before_main_content' );
 <?php if ( woocommerce_product_loop() ) : ?>
 
 	<div class="shop-layout">
-		<?php if ( is_active_sidebar( 'shop-sidebar' ) ) : ?>
-		<aside class="filter-panel">
-			<?php dynamic_sidebar( 'shop-sidebar' ); ?>
-		</aside>
-		<?php endif; ?>
+		<?php
+		// Custom working filters (category + availability). If the admin has
+		// instead populated the "Shop Filters" widget area with WooCommerce
+		// attribute-filter widgets, render those.
+		if ( is_active_sidebar( 'shop-sidebar' ) ) {
+			echo '<aside class="filter-panel">';
+			dynamic_sidebar( 'shop-sidebar' );
+			echo '</aside>';
+		} else {
+			kc_render_shop_filters();
+		}
+		?>
 
 		<div>
 			<div class="product-toolbar">

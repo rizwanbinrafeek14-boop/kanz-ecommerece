@@ -65,18 +65,38 @@ function kc_enqueue_assets() {
 	wp_enqueue_style( 'kc-main', KC_THEME_URI . '/assets/css/main.css', array(), KC_THEME_VERSION );
 
 	if ( class_exists( 'WooCommerce' ) ) {
-		wp_enqueue_style( 'kc-woocommerce', KC_THEME_URI . '/assets/css/woocommerce.css', array( 'kc-main' ), KC_THEME_VERSION );
+		// Load the theme's WooCommerce layer with an explicit dependency on the
+		// remaining WooCommerce default stylesheet, so ours always cascades
+		// last and wins. (The float-grid stylesheets that broke the product
+		// grid are removed in kc_dequeue_wc_layout_styles below.)
+		wp_enqueue_style( 'kc-woocommerce', KC_THEME_URI . '/assets/css/woocommerce.css', array( 'kc-main', 'woocommerce-general' ), KC_THEME_VERSION );
 	}
 
 	if ( is_rtl() ) {
 		wp_enqueue_style( 'kc-rtl', KC_THEME_URI . '/assets/css/rtl.css', array( 'kc-main' ), KC_THEME_VERSION );
 	}
 
-	wp_enqueue_script( 'kc-main', KC_THEME_URI . '/assets/js/main.js', array(), KC_THEME_VERSION, true );
+	wp_enqueue_script(
+		'kc-main',
+		KC_THEME_URI . '/assets/js/main.js',
+		array(),
+		KC_THEME_VERSION,
+		array( 'in_footer' => true, 'strategy' => 'defer' ) // defer for faster first paint (WP 6.3+)
+	);
 
 	wp_localize_script( 'kc-main', 'kcAjax', array(
-		'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-		'nonce'   => wp_create_nonce( 'kc_quote_nonce' ),
+		'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+		'nonce'        => wp_create_nonce( 'kc_quote_nonce' ),
+		'searchNonce'  => wp_create_nonce( 'kc_search_nonce' ),
+		'quickvNonce'  => wp_create_nonce( 'kc_quickview_nonce' ),
+		'homeUrl'      => home_url( '/' ),
+		'i18n'         => array(
+			'searchPlaceholder' => __( 'Search pipes, fittings, valves…', 'kanz-corner' ),
+			'noResults'         => __( 'No products found. Try a different term or request a quote.', 'kanz-corner' ),
+			'searching'         => __( 'Searching…', 'kanz-corner' ),
+			'recentlyViewed'    => __( 'Recently viewed', 'kanz-corner' ),
+			'priceOnRequest'    => __( 'Price on request', 'kanz-corner' ),
+		),
 	) );
 
 	if ( is_singular() && comments_open() ) {
@@ -84,6 +104,50 @@ function kc_enqueue_assets() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'kc_enqueue_assets' );
+
+/**
+ * Performance: preconnect to Google Fonts hosts so the webfont starts
+ * downloading sooner, reducing render-blocking time.
+ */
+function kc_resource_hints( $hints, $relation ) {
+	if ( 'preconnect' === $relation ) {
+		$hints[] = array( 'href' => 'https://fonts.googleapis.com' );
+		$hints[] = array( 'href' => 'https://fonts.gstatic.com', 'crossorigin' => 'anonymous' );
+	}
+	return $hints;
+}
+add_filter( 'wp_resource_hints', 'kc_resource_hints', 10, 2 );
+
+/**
+ * Performance: make WordPress lazy-load and async-decode all content images
+ * (WooCommerce product images, blog images, etc.). WP core already adds
+ * loading="lazy" to most images; this also adds decoding="async".
+ */
+add_filter( 'wp_get_attachment_image_attributes', function ( $attr ) {
+	if ( empty( $attr['loading'] ) ) {
+		$attr['loading'] = 'lazy';
+	}
+	$attr['decoding'] = 'async';
+	return $attr;
+} );
+
+/**
+ * CRITICAL FIX: remove WooCommerce's default *layout* stylesheets.
+ *
+ * WooCommerce ships three CSS files. Its "layout" and "smallscreen" files
+ * lay products out with old-school floats and percentage widths, which
+ * fought this theme's CSS grid and collapsed product cards into narrow
+ * slivers (and left large gaps on the single-product page). The theme
+ * ships a complete replacement in assets/css/woocommerce.css, so we drop
+ * only those two layout files while keeping "woocommerce-general" (which
+ * styles form controls, the select2 dropdowns used at checkout, etc.).
+ */
+function kc_dequeue_wc_layout_styles( $enqueue_styles ) {
+	unset( $enqueue_styles['woocommerce-layout'] );
+	unset( $enqueue_styles['woocommerce-smallscreen'] );
+	return $enqueue_styles;
+}
+add_filter( 'woocommerce_enqueue_styles', 'kc_dequeue_wc_layout_styles' );
 
 /**
  * Body classes: expose whether the visitor is browsing in Arabic/RTL so

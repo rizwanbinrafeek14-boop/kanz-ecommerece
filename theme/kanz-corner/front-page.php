@@ -86,7 +86,7 @@ get_header();
 					$icon_slug = kc_map_category_to_icon_slug( $cat->slug );
 					?>
 					<a href="<?php echo esc_url( get_term_link( $cat ) ); ?>" class="cat-card">
-						<div class="cat-icon"><img src="<?php echo esc_url( KC_THEME_URI . '/assets/images/categories/' . $icon_slug . '.svg' ); ?>" alt="" width="30" height="30"></div>
+						<div class="cat-icon"><img src="<?php echo esc_url( KC_THEME_URI . '/assets/images/categories/' . $icon_slug . '.svg' ); ?>" alt="" width="30" height="30" loading="lazy"></div>
 						<h3><?php echo esc_html( $cat->name ); ?></h3>
 						<p><?php echo esc_html( wp_trim_words( $cat->description, 12, '…' ) ); ?></p>
 						<span class="cat-link"><?php esc_html_e( 'Explore', 'kanz-corner' ); ?> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
@@ -139,6 +139,24 @@ get_header();
 </section>
 <?php endif; ?>
 
+<!-- ============ Certifications & standards ============ -->
+<section class="section-tight">
+	<div class="container">
+		<div class="kc-certs">
+			<div class="kc-certs-intro">
+				<span class="eyebrow"><?php esc_html_e( 'Quality you can verify', 'kanz-corner' ); ?></span>
+				<h3><?php esc_html_e( 'Built to international standards', 'kanz-corner' ); ?></h3>
+				<p><?php esc_html_e( 'Every product line is manufactured to recognised standards and sourced from certified mills. Mill test certificates available on request.', 'kanz-corner' ); ?></p>
+			</div>
+			<div class="kc-certs-badges">
+				<?php foreach ( array( 'ASTM', 'ASME', 'API', 'DIN', 'BS', 'ISO', 'MSS-SP', 'EN' ) as $std ) : ?>
+					<span class="kc-cert-badge"><?php echo esc_html( $std ); ?></span>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</div>
+</section>
+
 <section class="section">
 	<div class="container">
 		<div class="quote-cta" id="quote">
@@ -172,6 +190,46 @@ get_header();
 				<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
 				<div><b><?php esc_html_e( 'Pickup & freight support', 'kanz-corner' ); ?></b><span><?php esc_html_e( 'Collect from our Al-Khobar warehouse or request a freight quote for bulk/heavy orders.', 'kanz-corner' ); ?></span></div>
 			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ============ Stats band ============ -->
+<section class="section-tight section-dark">
+	<div class="container">
+		<div class="kc-stats-band">
+			<div class="hero-stat"><b><?php echo esc_html( get_theme_mod( 'kc_stat_1_number', '2,500+' ) ); ?></b><span><?php esc_html_e( 'SKUs across 8 categories', 'kanz-corner' ); ?></span></div>
+			<div class="hero-stat"><b><?php echo esc_html( get_theme_mod( 'kc_stat_2_number', '30+' ) ); ?></b><span><?php esc_html_e( 'Certified brands', 'kanz-corner' ); ?></span></div>
+			<div class="hero-stat"><b><?php echo esc_html( get_theme_mod( 'kc_stat_3_number', '24h' ) ); ?></b><span><?php esc_html_e( 'Quote turnaround', 'kanz-corner' ); ?></span></div>
+			<div class="hero-stat"><b><?php esc_html_e( 'KSA', 'kanz-corner' ); ?></b><span><?php esc_html_e( 'Al-Khobar, Eastern Province', 'kanz-corner' ); ?></span></div>
+		</div>
+	</div>
+</section>
+
+<!-- ============ Projects teaser ============ -->
+<section class="section">
+	<div class="container">
+		<div class="section-head">
+			<div>
+				<span class="eyebrow"><?php esc_html_e( 'Our work', 'kanz-corner' ); ?></span>
+				<h2 class="section-title"><?php esc_html_e( 'Trusted on projects across the Kingdom', 'kanz-corner' ); ?></h2>
+				<p class="section-desc"><?php esc_html_e( 'From oil & gas and petrochemical to construction and water infrastructure — contractors and procurement teams rely on Kanz Corner for on-spec supply, on time.', 'kanz-corner' ); ?></p>
+			</div>
+			<a href="<?php echo esc_url( home_url( '/projects/' ) ); ?>" class="btn btn-outline"><?php esc_html_e( 'View Projects', 'kanz-corner' ); ?></a>
+		</div>
+		<div class="kc-sectors">
+			<?php
+			$sectors = array(
+				__( 'Oil & Gas', 'kanz-corner' ),
+				__( 'Petrochemical', 'kanz-corner' ),
+				__( 'Construction', 'kanz-corner' ),
+				__( 'Water Treatment', 'kanz-corner' ),
+				__( 'Infrastructure', 'kanz-corner' ),
+			);
+			foreach ( $sectors as $sector ) :
+				?>
+				<div class="kc-sector"><span class="kc-sector-dot"></span><?php echo esc_html( $sector ); ?></div>
+			<?php endforeach; ?>
 		</div>
 	</div>
 </section>

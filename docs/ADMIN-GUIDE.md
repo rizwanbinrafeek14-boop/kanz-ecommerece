@@ -5,6 +5,39 @@ one-time setup in `DEPLOYMENT-GUIDE.md` is already done.
 
 ---
 
+## What's new in theme v1.1
+
+These work automatically once the updated theme is active — nothing to
+configure:
+
+- **Fixed shop layout** — the earlier broken product grid (images showing
+  as tall slivers) is resolved; product cards, single-product pages and
+  category pages now render correctly.
+- **Live search** — the header search icon opens an instant search overlay
+  that suggests products as customers type.
+- **Quick view** — hovering a product card shows an eye icon; clicking it
+  opens a popup with specs and a Request-Quote / Add-to-Cart action.
+- **Category sub-tiles** — categories with sub-categories show clickable
+  tiles at the top of the category page.
+- **Working filters** — the shop sidebar filters by sub-category and by
+  availability (in-stock vs request-a-quote). *For size/schedule/material
+  filters,* create those as WooCommerce product **attributes** (Products →
+  Attributes), assign them to products, then add WooCommerce's "Filter
+  Products by Attribute" widget to the "Shop Filters" widget area
+  (Appearance → Widgets) — the theme will use those instead.
+- **Recently viewed** — a strip of recently viewed products appears on the
+  shop and product pages.
+- **WhatsApp enquiry** on every product, pre-filled with the product name.
+- **SEO** — meta descriptions, Open Graph/Twitter cards, and Google
+  Product / Organization / Breadcrumb structured data are output
+  automatically. If you install Yoast or Rank Math, the theme steps aside
+  and lets the plugin handle meta so there are no duplicate tags.
+- **Faster loading** — images lazy-load, JavaScript is deferred, and fonts
+  preconnect. For best results on shared hosting, still enable LiteSpeed
+  Cache (see the deployment guide).
+
+---
+
 ## Adding a new product
 
 `Products → Add New`:

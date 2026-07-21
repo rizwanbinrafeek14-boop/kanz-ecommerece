@@ -510,3 +510,30 @@ p{ margin:0; }
 @media (max-width:900px){ .footer-grid{ grid-template-columns:1fr 1fr; } }
 @media (max-width:560px){ .footer-grid{ grid-template-columns:1fr; } }
 
+
+/* ==========================================================================
+   v1.1 homepage additions: certifications, stats band, sectors
+   ========================================================================== */
+.kc-certs{ display:grid; grid-template-columns:1fr 1.4fr; gap:var(--sp-6); align-items:center; }
+.kc-certs-intro h3{ font-size:var(--fs-lg); margin:6px 0 8px; }
+.kc-certs-intro p{ color:var(--text-muted); font-size:var(--fs-sm); }
+.kc-certs-badges{ display:flex; flex-wrap:wrap; gap:var(--sp-3); }
+.kc-cert-badge{
+  display:inline-flex; align-items:center; justify-content:center; min-width:96px; padding:16px 20px;
+  border:1px solid var(--border); border-radius:var(--radius-md); font-weight:800; font-size:var(--fs-md);
+  color:var(--kc-navy); background:var(--kc-white); letter-spacing:.02em;
+  transition:transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast), color var(--dur-fast);
+}
+.kc-cert-badge:hover{ transform:translateY(-3px); border-color:var(--kc-red); color:var(--kc-red); }
+@media (max-width:768px){ .kc-certs{ grid-template-columns:1fr; } }
+
+.kc-stats-band{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--sp-5); text-align:center; }
+.kc-stats-band .hero-stat b{ font-size:var(--fs-2xl); }
+@media (max-width:640px){ .kc-stats-band{ grid-template-columns:repeat(2,1fr); gap:var(--sp-6); } }
+
+.kc-sectors{ display:flex; flex-wrap:wrap; gap:var(--sp-3); }
+.kc-sector{
+  display:inline-flex; align-items:center; gap:10px; padding:14px 22px; border-radius:var(--radius-pill);
+  background:var(--bg-subtle); font-weight:700; color:var(--kc-navy); font-size:var(--fs-sm);
+}
+.kc-sector-dot{ width:8px; height:8px; border-radius:50%; background:var(--kc-red); }
