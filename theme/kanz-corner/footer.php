@@ -16,7 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php if ( has_custom_logo() ) : ?>
 					<div style="filter:brightness(0) invert(1)"><?php the_custom_logo(); ?></div>
 				<?php else : ?>
-					<img src="<?php echo esc_url( KC_THEME_URI . '/assets/images/logo-placeholder.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" style="height:40px;filter:brightness(0) invert(1)">
+					<div style="display:flex;align-items:center;gap:12px">
+						<img src="<?php echo esc_url( KC_THEME_URI . '/assets/images/logo-icon.png' ); ?>" alt="" style="height:44px;width:auto">
+						<span style="color:#fff;font-weight:800;font-size:18px;line-height:1.2">KANZ CORNER<br><span style="font-weight:600;font-size:11px;letter-spacing:3px;color:var(--kc-grey-400)">TRADING</span></span>
+					</div>
 				<?php endif; ?>
 				<p><?php echo esc_html( get_theme_mod( 'kc_footer_tagline', __( 'Full-range industrial supplier of pipes, fittings, valves, flanges & safety solutions across Saudi Arabia.', 'kanz-corner' ) ) ); ?></p>
 				<div class="footer-social">

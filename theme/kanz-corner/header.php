@@ -50,7 +50,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				if ( has_custom_logo() ) {
 					the_custom_logo();
 				} else {
-					echo '<img src="' . esc_url( KC_THEME_URI . '/assets/images/logo-placeholder.svg' ) . '" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '">';
+					echo '<img src="' . esc_url( KC_THEME_URI . '/assets/images/logo-icon.png' ) . '" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '">';
+					echo '<span class="site-logo-text">Kanz Corner<span>' . esc_html__( 'Trading', 'kanz-corner' ) . '</span></span>';
 				}
 				?>
 			</a>
