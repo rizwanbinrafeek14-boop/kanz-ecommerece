@@ -1,0 +1,40 @@
+/* ==========================================================================
+   RTL refinements for Arabic
+   Most spacing/positioning already uses logical CSS properties (inset-inline-*,
+   margin-inline, padding-inline, text-align:start) in main.css, so they mirror
+   automatically once <html dir="rtl"> is set. This file only fixes the few
+   things logical properties don't cover: letter-spacing / uppercase (both are
+   Latin-script conventions that break Arabic glyph shaping) and a couple of
+   literal left/right values.
+   Load AFTER main.css, only when the active language is Arabic.
+   ========================================================================== */
+
+[dir="rtl"] body{
+  font-family:'Cairo', -apple-system, 'Segoe UI', Tahoma, sans-serif;
+}
+
+[dir="rtl"] .hero-eyebrow,
+[dir="rtl"] .eyebrow,
+[dir="rtl"] .cat-card .cat-link,
+[dir="rtl"] .header-top,
+[dir="rtl"] .footer-grid h4,
+[dir="rtl"] .payment-icons span{
+  letter-spacing:0;
+  text-transform:none;
+}
+
+[dir="rtl"] .lang-switch button.is-active{
+  border-bottom-width:2px;
+}
+
+[dir="rtl"] .btn{
+  letter-spacing:0;
+}
+
+[dir="rtl"] .qty-stepper button:first-child{ order:2; }
+[dir="rtl"] .qty-stepper button:last-child{ order:0; }
+
+/* Chevron / arrow glyphs drawn pointing right by default get mirrored via
+   the [dir="rtl"] rules already present in main.css (cat-card, marquee).
+   Anything added later that visually implies direction (arrows, back
+   buttons) should get the same treatment: `[dir="rtl"] .thing{ transform:scaleX(-1); }` */

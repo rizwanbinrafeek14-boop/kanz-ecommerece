@@ -1,0 +1,845 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Kanz Corner Theme 1.0.0\n"
+"Report-Msgid-Bugs-To: sales@kanzcorner.com\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: kanz-corner\n"
+
+#: inc/quote-system.php:326
+msgid "(No specific items attached — see project details below.)"
+msgstr ""
+
+#: inc/spec-fields.php:58
+msgid "+ Add Row"
+msgstr ""
+
+#: 404.php:14
+msgid "404 Error"
+msgstr ""
+
+#: page-projects.php:30
+msgid "A look at the contractors, developers and industrial operators we've supplied across the Eastern Province and beyond."
+msgstr ""
+
+#: inc/quote-system.php:333
+msgid "A new quote request was submitted on the website."
+msgstr ""
+
+#: front-page.php:157 page-about-us.php:26
+msgid "About Kanz Corner"
+msgstr ""
+
+#: footer.php:53 page-about-us.php:20 inc/setup.php:150
+msgid "About Us"
+msgstr ""
+
+#: inc/b2b-accounts.php:122
+msgid "Account Type"
+msgstr ""
+
+#: inc/b2b-accounts.php:23
+msgid "Account type"
+msgstr ""
+
+#: front-page.php:136
+msgid "Add products in Products → Add New to feature them here."
+msgstr ""
+
+#: inc/woocommerce.php:158
+msgid "Added ✓"
+msgstr ""
+
+#: page-contact.php:38
+msgid "Address"
+msgstr ""
+
+#: page-projects.php:48
+msgid "Admin: add entries to the $projects array in page-projects.php, or ask your developer to convert this into an editable post type once you have several."
+msgstr ""
+
+#: header.php:38
+msgid "Al-Khobar, Saudi Arabia"
+msgstr ""
+
+#: footer.php:80
+msgid "All rights reserved."
+msgstr ""
+
+#: inc/b2b-accounts.php:168
+msgid "Approval status"
+msgstr ""
+
+#: inc/b2b-accounts.php:139 inc/b2b-accounts.php:172
+msgid "Approved"
+msgstr ""
+
+#: inc/b2b-accounts.php:219
+msgid "Approved trade account"
+msgstr ""
+
+#: inc/woocommerce.php:165
+msgid "Ask on WhatsApp"
+msgstr ""
+
+#: page-about-us.php:34
+msgid "At KANZ CORNER EST., we are committed to supporting Saudi Arabia's Vision 2030 by providing innovative, high-quality products and services that contribute to the nation's growth and sustainability. Through strategic partnerships and cutting-edge solutions, we aim to play an integral role in shaping a prosperous future, fostering economic diversification, and empowering industries across Saudi Arabia."
+msgstr ""
+
+#: page-about-us.php:33
+msgid "At KANZ CORNER EST., we go beyond simply supplying products. Our team of experienced professionals provides technical guidance, product selection support, and responsive after-sales service — ensuring your project runs on time and within specification. We take pride in being the partner that contractors, engineers, and procurement specialists can count on."
+msgstr ""
+
+#: 404.php:18
+msgid "Back to Home"
+msgstr ""
+
+#: single.php:17 footer.php:56
+msgid "Blog"
+msgstr ""
+
+#: inc/spec-fields.php:41
+msgid "Brands Available"
+msgstr ""
+
+#: front-page.php:20 404.php:19
+msgid "Browse Products"
+msgstr ""
+
+#: front-page.php:37
+msgid "Bulk & project freight quoting"
+msgstr ""
+
+#: inc/b2b-accounts.php:31
+msgid "Business / Trade account"
+msgstr ""
+
+#: inc/b2b-accounts.php:51
+msgid "Business accounts are reviewed by our team before trade pricing is enabled. You can still browse and use Request-a-Quote immediately."
+msgstr ""
+
+#: inc/b2b-accounts.php:160
+msgid "CR number"
+msgstr ""
+
+#: front-page.php:18
+msgid "Carbon & stainless steel pipes, fittings, valves, flanges, fasteners, gaskets and safety solutions — sourced from internationally certified manufacturers, backed by technical guidance you can rely on."
+msgstr ""
+
+#: header.php:84
+msgid "Cart"
+msgstr ""
+
+#: woocommerce/archive-product.php:28 inc/quote-system.php:148
+msgid "Category"
+msgstr ""
+
+#: footer.php:54
+msgid "Certifications"
+msgstr ""
+
+#: page-certifications.php:26 inc/setup.php:151
+msgid "Certifications & Brands"
+msgstr ""
+
+#: front-page.php:25 page-about-us.php:55
+msgid "Certified brands"
+msgstr ""
+
+#: front-page.php:165
+msgid "Certified sourcing"
+msgstr ""
+
+#: page-certifications.php:33
+msgid "Certified standards, trusted brands."
+msgstr ""
+
+#: footer.php:91 page-contact.php:45
+msgid "Chat on WhatsApp"
+msgstr ""
+
+#: footer.php:105 footer.php:118
+msgid "Close"
+msgstr ""
+
+#: front-page.php:173
+msgid "Collect from our Al-Khobar warehouse or request a freight quote for bulk/heavy orders."
+msgstr ""
+
+#: inc/b2b-accounts.php:43
+msgid "Commercial Registration (CR) number"
+msgstr ""
+
+#: footer.php:48 inc/quote-system.php:133 inc/quote-system.php:335
+msgid "Company"
+msgstr ""
+
+#: inc/quote-system.php:214
+msgid "Company (optional)"
+msgstr ""
+
+#: inc/b2b-accounts.php:38 inc/b2b-accounts.php:156
+msgid "Company name"
+msgstr ""
+
+#: page-certifications.php:40
+msgid "Compliant product lines available"
+msgstr ""
+
+#: page-about-us.php:41
+msgid "Construction"
+msgstr ""
+
+#: footer.php:57 page-contact.php:16 inc/setup.php:153 inc/quote-system.php:81
+msgid "Contact"
+msgstr ""
+
+#: inc/customizer.php:19
+msgid "Contact Info"
+msgstr ""
+
+#: front-page.php:73
+msgid "Eight core product lines covering the full spectrum of industrial piping and safety needs."
+msgstr ""
+
+#: page-contact.php:34 inc/quote-system.php:134 inc/quote-system.php:218 inc/quote-system.php:385 inc/quote-system.php:418
+msgid "Email"
+msgstr ""
+
+#: front-page.php:158 page-about-us.php:27
+msgid "Empowering industries, shaping futures."
+msgstr ""
+
+#: page-certifications.php:34
+msgid "Every product line we carry is manufactured to internationally recognized standards and sourced from mills and manufacturers with verifiable quality certifications. Mill test certificates (MTC) are available on request for any order."
+msgstr ""
+
+#: front-page.php:165
+msgid "Every product meets rigorous ASTM/ASME/API standards from internationally certified manufacturers."
+msgstr ""
+
+#: front-page.php:31
+msgid "Everything you need for oil & gas, petrochemical, construction and water infrastructure projects — under one roof."
+msgstr ""
+
+#: front-page.php:92
+msgid "Explore"
+msgstr ""
+
+#: front-page.php:169
+msgid "Fast quote turnaround"
+msgstr ""
+
+#: front-page.php:110
+msgid "Featured products"
+msgstr ""
+
+#: page-certifications.php:18
+msgid "Fittings & Flanges"
+msgstr ""
+
+#: inc/customizer.php:51
+msgid "Footer & Newsletter"
+msgstr ""
+
+#: inc/customizer.php:58
+msgid "Footer tagline"
+msgstr ""
+
+#: inc/setup.php:35
+msgid "Footer — Company"
+msgstr ""
+
+#: inc/setup.php:34
+msgid "Footer — Products"
+msgstr ""
+
+#: inc/woocommerce.php:210
+msgid "Freight Quote (bulk/heavy items)"
+msgstr ""
+
+#: inc/woocommerce.php:271
+msgid "Freight quote needed"
+msgstr ""
+
+#: inc/customizer.php:27
+msgid "Full address (footer/contact page)"
+msgstr ""
+
+#: inc/quote-system.php:210 inc/quote-system.php:381
+msgid "Full name"
+msgstr ""
+
+#: footer.php:21 inc/customizer.php:55
+msgid "Full-range industrial supplier of pipes, fittings, valves, flanges & safety solutions across Saudi Arabia."
+msgstr ""
+
+#: page-contact.php:23
+msgid "Get in touch"
+msgstr ""
+
+#: footer.php:64
+msgid "Get notified about new product lines and offers."
+msgstr ""
+
+#: page-about-us.php:64
+msgid "Have a project in mind?"
+msgstr ""
+
+#: inc/spec-fields.php:77
+msgid "Hide \"Add to Cart\" — show \"Request Quote\" instead"
+msgstr ""
+
+#: page-projects.php:21 single.php:16 page-contact.php:15 page-certifications.php:25 page-about-us.php:19
+msgid "Home"
+msgstr ""
+
+#: inc/b2b-accounts.php:27 inc/b2b-accounts.php:133
+msgid "Individual"
+msgstr ""
+
+#: front-page.php:17
+msgid "Industrial supply, <em>engineered</em> for the Kingdom's biggest builds."
+msgstr ""
+
+#: page-about-us.php:38
+msgid "Industries we serve"
+msgstr ""
+
+#: index.php:18
+msgid "Industry News & Updates"
+msgstr ""
+
+#: page-about-us.php:41
+msgid "Infrastructure"
+msgstr ""
+
+#: inc/setup.php:225
+msgid "Instagram"
+msgstr ""
+
+#: front-page.php:35
+msgid "Internationally certified manufacturers"
+msgstr ""
+
+#: inc/quote-system.php:82
+msgid "Items"
+msgstr ""
+
+#: inc/quote-system.php:337
+msgid "Items requested"
+msgstr ""
+
+#: front-page.php:159
+msgid "KANZ CORNER EST. is a full-range industrial supplier headquartered in Al-Khobar, Eastern Province, Saudi Arabia. We serve the Kingdom's most demanding sectors — oil & gas, petrochemical, construction, water treatment and infrastructure — with an unwavering commitment to quality, reliability, and support for Saudi Vision 2030."
+msgstr ""
+
+#: page-about-us.php:31
+msgid "KANZ CORNER EST. is a full-range industrial supplier headquartered in Al-Khobar, Eastern Province, Saudi Arabia. We serve the Kingdom's most demanding sectors — oil & gas, petrochemical, construction, water treatment, and infrastructure — with an unwavering commitment to quality and reliability."
+msgstr ""
+
+#: index.php:17
+msgid "Kanz Corner Blog"
+msgstr ""
+
+#: inc/customizer.php:13
+msgid "Kanz Corner Settings"
+msgstr ""
+
+#: inc/b2b-accounts.php:153
+msgid "Kanz Corner — Business Account"
+msgstr ""
+
+#: inc/spec-fields.php:47
+msgid "Label"
+msgstr ""
+
+#: inc/spec-fields.php:79
+msgid "Leave checked for products without a set price. Uncheck once you set a real price and this product should sell instantly."
+msgstr ""
+
+#: inc/setup.php:230
+msgid "LinkedIn"
+msgstr ""
+
+#: inc/quote-system.php:116 inc/quote-system.php:164
+msgid "Lost"
+msgstr ""
+
+#: header.php:89
+msgid "Menu"
+msgstr ""
+
+#: inc/quote-system.php:394
+msgid "Message"
+msgstr ""
+
+#: inc/quote-system.php:373
+msgid "Message sent — thank you. We'll reply within 1 business day."
+msgstr ""
+
+#: inc/woocommerce.php:226
+msgid "Method title"
+msgstr ""
+
+#: front-page.php:147
+msgid "Most of our industrial catalogue is quoted per project. Add items to your quote list and our engineers will get back to you within 24 hours with pricing and lead time."
+msgstr ""
+
+#: header.php:76
+msgid "My Account"
+msgstr ""
+
+#: inc/quote-system.php:132 inc/quote-system.php:334 inc/quote-system.php:418
+msgid "Name"
+msgstr ""
+
+#: inc/quote-system.php:113 inc/quote-system.php:161
+msgid "New"
+msgstr ""
+
+#: inc/b2b-accounts.php:103
+msgid "New business account pending review: %s"
+msgstr ""
+
+#: inc/quote-system.php:417
+msgid "New message"
+msgstr ""
+
+#: inc/quote-system.php:330
+msgid "New quote request from %s"
+msgstr ""
+
+#: inc/customizer.php:62
+msgid "Newsletter signup shortcode (optional)"
+msgstr ""
+
+#: inc/woocommerce.php:211
+msgid "No cost is charged at checkout. Orders using this method are flagged for the sales team to arrange and price freight separately."
+msgstr ""
+
+#: inc/quote-system.php:361
+msgid "No items added yet. Browse products and tap \"Request Quote\" to add them here."
+msgstr ""
+
+#: inc/quote-system.php:154
+msgid "No line items were attached — the customer contacted you via the general quote form."
+msgstr ""
+
+#: inc/b2b-accounts.php:221
+msgid "Not approved — contact us"
+msgstr ""
+
+#: index.php:49
+msgid "Nothing found."
+msgstr ""
+
+#: page-about-us.php:41
+msgid "Oil & Gas"
+msgstr ""
+
+#: page-about-us.php:32
+msgid "Our product portfolio spans the complete spectrum of industrial needs: valves, carbon steel and stainless steel pipes, pipe fittings, flanges, sheets, tubes, fasteners, gaskets, gauges, safety equipment, and welding solutions. Every product we supply is sourced from internationally certified manufacturers and meets the rigorous standards required by Saudi Arabia's industrial landscape."
+msgstr ""
+
+#: page-request-a-quote.php:25
+msgid "Our technical sales team reviews every request and typically replies within 24 hours with pricing, lead time, and any technical questions. If you added items via \"Request Quote\" while browsing, they'll be attached automatically."
+msgstr ""
+
+#: front-page.php:169
+msgid "Our technical team responds to project inquiries within 24 hours, most days sooner."
+msgstr ""
+
+#: page-projects.php:28
+msgid "Our work"
+msgstr ""
+
+#: inc/customizer.php:63
+msgid "Paste a shortcode from Mailchimp/Klaviyo/etc. to replace the built-in basic signup form."
+msgstr ""
+
+#: inc/b2b-accounts.php:138 inc/b2b-accounts.php:171 inc/b2b-accounts.php:223
+msgid "Pending review"
+msgstr ""
+
+#: page-about-us.php:41
+msgid "Petrochemical"
+msgstr ""
+
+#: page-contact.php:30 inc/quote-system.php:135 inc/quote-system.php:336
+msgid "Phone"
+msgstr ""
+
+#: inc/quote-system.php:222
+msgid "Phone / WhatsApp"
+msgstr ""
+
+#: inc/customizer.php:24
+msgid "Phone number"
+msgstr ""
+
+#: front-page.php:173
+msgid "Pickup & freight support"
+msgstr ""
+
+#: page-certifications.php:17
+msgid "Pipes"
+msgstr ""
+
+#: inc/b2b-accounts.php:76
+msgid "Please enter your Commercial Registration (CR) number."
+msgstr ""
+
+#: inc/b2b-accounts.php:73
+msgid "Please enter your company name for a business account."
+msgstr ""
+
+#: front-page.php:109
+msgid "Popular right now"
+msgstr ""
+
+#: inc/woocommerce.php:55
+msgid "Price on request"
+msgstr ""
+
+#: inc/spec-fields.php:25
+msgid "Pricing Mode"
+msgstr ""
+
+#: header.php:58
+msgid "Primary"
+msgstr ""
+
+#: inc/setup.php:33
+msgid "Primary Navigation"
+msgstr ""
+
+#: inc/quote-system.php:148
+msgid "Product"
+msgstr ""
+
+#: front-page.php:98
+msgid "Product categories will appear here once added in Products → Categories."
+msgstr ""
+
+#: footer.php:32 inc/setup.php:138
+msgid "Products"
+msgstr ""
+
+#: page-projects.php:47
+msgid "Project case studies are coming soon."
+msgstr ""
+
+#: inc/quote-system.php:136 inc/quote-system.php:338
+msgid "Project details"
+msgstr ""
+
+#: inc/quote-system.php:227
+msgid "Project details, quantities, delivery location"
+msgstr ""
+
+#: page-request-a-quote.php:23
+msgid "Project pricing"
+msgstr ""
+
+#: page-projects.php:22 footer.php:55 inc/setup.php:152
+msgid "Projects"
+msgstr ""
+
+#: page-projects.php:29
+msgid "Projects & clients."
+msgstr ""
+
+#: page-certifications.php:32
+msgid "Quality you can verify"
+msgstr ""
+
+#: inc/quote-system.php:125
+msgid "Quote Details"
+msgstr ""
+
+#: inc/quote-system.php:26
+msgid "Quote Request"
+msgstr ""
+
+#: inc/quote-system.php:25 inc/quote-system.php:27
+msgid "Quote Requests"
+msgstr ""
+
+#: footer.php:95 header.php:79
+msgid "Quote list"
+msgstr ""
+
+#: footer.php:102
+msgid "Quote request list"
+msgstr ""
+
+#: inc/customizer.php:29
+msgid "Quote requests notification email"
+msgstr ""
+
+#: front-page.php:26
+msgid "Quote turnaround"
+msgstr ""
+
+#: inc/quote-system.php:114 inc/quote-system.php:162
+msgid "Quoted"
+msgstr ""
+
+#: page-contact.php:25
+msgid "Reach our technical sales team directly, or send a message and we will get back to you within 1 business day."
+msgstr ""
+
+#: index.php:41
+msgid "Read More"
+msgstr ""
+
+#: front-page.php:160
+msgid "Read Our Story"
+msgstr ""
+
+#: inc/quote-system.php:80
+msgid "Reference"
+msgstr ""
+
+#: inc/b2b-accounts.php:140 inc/b2b-accounts.php:173
+msgid "Rejected"
+msgstr ""
+
+#: inc/woocommerce.php:219 inc/woocommerce.php:228
+msgid "Request Delivery Quote"
+msgstr ""
+
+#: inc/woocommerce.php:159 inc/woocommerce.php:160
+msgid "Request Quote"
+msgstr ""
+
+#: front-page.php:21 page-request-a-quote.php:17
+msgid "Request a Quote"
+msgstr ""
+
+#: inc/quote-system.php:146
+msgid "Requested items"
+msgstr ""
+
+#: front-page.php:38
+msgid "Responsive after-sales service"
+msgstr ""
+
+#: front-page.php:24 page-about-us.php:54
+msgid "SKUs across 8 categories"
+msgstr ""
+
+#: inc/customizer.php:25
+msgid "Sales email"
+msgstr ""
+
+#: header.php:73
+msgid "Search"
+msgstr ""
+
+#: index.php:18
+msgid "Search Results"
+msgstr ""
+
+#: inc/setup.php:203
+msgid "Security check failed."
+msgstr ""
+
+#: inc/quote-system.php:264 inc/quote-system.php:406
+msgid "Security check failed. Please go back and try again."
+msgstr ""
+
+#: inc/quote-system.php:397
+msgid "Send Message"
+msgstr ""
+
+#: inc/quote-system.php:230
+msgid "Send Quote Request"
+msgstr ""
+
+#: page-contact.php:52
+msgid "Send a message"
+msgstr ""
+
+#: page-about-us.php:56
+msgid "Serving Al-Khobar & the Eastern Province"
+msgstr ""
+
+#: woocommerce/archive-product.php:28
+msgid "Shop"
+msgstr ""
+
+#: inc/setup.php:46
+msgid "Shop Filters"
+msgstr ""
+
+#: front-page.php:72
+msgid "Shop by category"
+msgstr ""
+
+#: footer.php:115
+msgid "Shopping cart"
+msgstr ""
+
+#: inc/customizer.php:26
+msgid "Short address (header)"
+msgstr ""
+
+#: inc/customizer.php:37
+msgid "Show floating WhatsApp button"
+msgstr ""
+
+#: inc/setup.php:48
+msgid "Shown on the shop/category pages. Add WooCommerce's \"Filter Products by Attribute\" and \"Active Filters\" widgets here once you've set up Size / Schedule / Standard as product attributes — see docs/ADMIN-GUIDE.md."
+msgstr ""
+
+#: inc/spec-fields.php:39
+msgid "Size Range"
+msgstr ""
+
+#: header.php:20
+msgid "Skip to content"
+msgstr ""
+
+#: inc/customizer.php:41
+msgid "Social Links"
+msgstr ""
+
+#: inc/spec-fields.php:16
+msgid "Specification Table"
+msgstr ""
+
+#: inc/spec-fields.php:40
+msgid "Standard"
+msgstr ""
+
+#: front-page.php:149 page-about-us.php:67
+msgid "Start a Quote Request"
+msgstr ""
+
+#: inc/quote-system.php:83 inc/quote-system.php:126
+msgid "Status"
+msgstr ""
+
+#: footer.php:63
+msgid "Stay Updated"
+msgstr ""
+
+#: inc/quote-system.php:390
+msgid "Subject"
+msgstr ""
+
+#: footer.php:109
+msgid "Submit Quote Request"
+msgstr ""
+
+#: footer.php:71
+msgid "Subscribe"
+msgstr ""
+
+#: front-page.php:36
+msgid "Technical guidance & product selection support"
+msgstr ""
+
+#: page-about-us.php:65
+msgid "Tell us what you need and our technical team will follow up within 24 hours."
+msgstr ""
+
+#: page-request-a-quote.php:24
+msgid "Tell us what you need."
+msgstr ""
+
+#: inc/quote-system.php:197
+msgid "Thank you — your quote request has been received. Our team will reply within 24 hours."
+msgstr ""
+
+#: inc/spec-fields.php:45
+msgid "These rows render as the spec table on the product page (Size, Schedule, Grade, Standard, Brands — whatever applies to this product line)."
+msgstr ""
+
+#: front-page.php:16
+msgid "Trusted since day one · Al-Khobar, KSA"
+msgstr ""
+
+#: inc/customizer.php:46
+msgid "URL"
+msgstr ""
+
+#: inc/b2b-accounts.php:164
+msgid "VAT number"
+msgstr ""
+
+#: inc/b2b-accounts.php:47
+msgid "VAT registration number"
+msgstr ""
+
+#: inc/spec-fields.php:47
+msgid "Value"
+msgstr ""
+
+#: page-certifications.php:19
+msgid "Valves"
+msgstr ""
+
+#: inc/woocommerce.php:70
+msgid "View"
+msgstr ""
+
+#: front-page.php:112
+msgid "View All"
+msgstr ""
+
+#: front-page.php:75
+msgid "View All Products"
+msgstr ""
+
+#: page-about-us.php:41
+msgid "Water Treatment"
+msgstr ""
+
+#: inc/quote-system.php:344
+msgid "We received your quote request — %s"
+msgstr ""
+
+#: front-page.php:71
+msgid "What we supply"
+msgstr ""
+
+#: inc/customizer.php:28
+msgid "WhatsApp number (digits only, country code, no +)"
+msgstr ""
+
+#: front-page.php:30
+msgid "Why contractors choose Kanz Corner"
+msgstr ""
+
+#: inc/quote-system.php:115 inc/quote-system.php:163
+msgid "Won"
+msgstr ""
+
+#: inc/setup.php:235
+msgid "X (Twitter)"
+msgstr ""
+
+#: footer.php:117
+msgid "Your Cart"
+msgstr ""
+
+#: inc/b2b-accounts.php:199
+msgid "Your Kanz Corner trade account is approved"
+msgstr ""
+
+#: footer.php:104
+msgid "Your Quote List"
+msgstr ""
+
+#: footer.php:70
+msgid "Your email address"
+msgstr ""
+
+#: inc/woocommerce.php:42
+msgid "incl. VAT"
+msgstr ""
+

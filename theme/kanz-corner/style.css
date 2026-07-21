@@ -1,0 +1,21 @@
+/*
+Theme Name: Kanz Corner
+Theme URI: https://kanzcorner.com
+Author: Kanz Corner Trading
+Author URI: https://kanzcorner.com
+Description: Custom WooCommerce theme for KANZ CORNER TRADING — industrial pipes, fittings, valves, flanges and safety solutions. Bilingual (Arabic/English) with RTL support, B2B trade accounts, and a hybrid buy-now / request-a-quote storefront.
+Version: 1.0.0
+Requires at least: 6.4
+Tested up to: 6.7
+Requires PHP: 8.0
+Requires Plugins: woocommerce
+Text Domain: kanz-corner
+Domain Path: /languages
+License: GNU General Public License v2 or later
+License URI: LICENSE
+
+This theme intentionally keeps almost all styling in assets/css/main.css
+(and assets/css/rtl.css for Arabic), enqueued via inc/setup.php, so the same
+stylesheet can be reused by the /preview static mockups during development.
+This file exists to satisfy WordPress's theme-header requirement.
+*/

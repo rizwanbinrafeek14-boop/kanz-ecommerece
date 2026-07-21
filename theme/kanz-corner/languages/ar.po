@@ -1,0 +1,199 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Kanz Corner Theme 1.0.0\n"
+"Report-Msgid-Bugs-To: sales@kanzcorner.com\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"X-Domain: kanz-corner\n"
+
+msgid "Home"
+msgstr "الرئيسية"
+
+msgid "Products"
+msgstr "المنتجات"
+
+msgid "About Us"
+msgstr "من نحن"
+
+msgid "Certifications & Brands"
+msgstr "الشهادات والعلامات التجارية"
+
+msgid "Projects"
+msgstr "المشاريع"
+
+msgid "Blog"
+msgstr "المدونة"
+
+msgid "Contact"
+msgstr "تواصل معنا"
+
+msgid "Search"
+msgstr "بحث"
+
+msgid "My Account"
+msgstr "حسابي"
+
+msgid "Cart"
+msgstr "السلة"
+
+msgid "Quote list"
+msgstr "قائمة طلب عرض السعر"
+
+msgid "Menu"
+msgstr "القائمة"
+
+msgid "Request Quote"
+msgstr "طلب عرض سعر"
+
+msgid "Request a Quote"
+msgstr "اطلب عرض سعر"
+
+msgid "Submit Quote Request"
+msgstr "إرسال طلب عرض السعر"
+
+msgid "Send Quote Request"
+msgstr "إرسال طلب عرض السعر"
+
+msgid "Ask on WhatsApp"
+msgstr "تواصل عبر واتساب"
+
+msgid "Chat on WhatsApp"
+msgstr "الدردشة عبر واتساب"
+
+msgid "View All Products"
+msgstr "عرض جميع المنتجات"
+
+msgid "View All"
+msgstr "عرض الكل"
+
+msgid "Browse Products"
+msgstr "تصفح المنتجات"
+
+msgid "Add to Cart"
+msgstr "أضف إلى السلة"
+
+msgid "Price on request"
+msgstr "السعر عند الطلب"
+
+msgid "In Stock"
+msgstr "متوفر"
+
+msgid "Explore"
+msgstr "استكشف"
+
+msgid "Read Our Story"
+msgstr "اقرأ قصتنا"
+
+msgid "Read More"
+msgstr "اقرأ المزيد"
+
+msgid "Send Message"
+msgstr "إرسال الرسالة"
+
+msgid "Full name"
+msgstr "الاسم الكامل"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Phone"
+msgstr "الهاتف"
+
+msgid "Phone / WhatsApp"
+msgstr "الهاتف / واتساب"
+
+msgid "Company (optional)"
+msgstr "الشركة (اختياري)"
+
+msgid "Company name"
+msgstr "اسم الشركة"
+
+msgid "Subject"
+msgstr "الموضوع"
+
+msgid "Message"
+msgstr "الرسالة"
+
+msgid "Address"
+msgstr "العنوان"
+
+msgid "All rights reserved."
+msgstr "جميع الحقوق محفوظة."
+
+msgid "Stay Updated"
+msgstr "ابقَ على اطلاع"
+
+msgid "Get notified about new product lines and offers."
+msgstr "اشترك ليصلك كل جديد حول منتجاتنا وعروضنا."
+
+msgid "Your email address"
+msgstr "بريدك الإلكتروني"
+
+msgid "Company"
+msgstr "الشركة"
+
+msgid "Individual"
+msgstr "فرد"
+
+msgid "Business / Trade account"
+msgstr "حساب تجاري"
+
+msgid "Account type"
+msgstr "نوع الحساب"
+
+msgid "Sort by"
+msgstr "الترتيب حسب"
+
+msgid "Quantity"
+msgstr "الكمية"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Specifications"
+msgstr "المواصفات"
+
+msgid "Downloads"
+msgstr "التنزيلات"
+
+msgid "Related products"
+msgstr "منتجات ذات صلة"
+
+msgid "You may also need"
+msgstr "قد تحتاج أيضاً"
+
+msgid "Skip to content"
+msgstr "تخطَّ إلى المحتوى"
+
+msgid "Category"
+msgstr "الفئة"
+
+msgid "Shop"
+msgstr "المتجر"
+
+msgid "Shop by category"
+msgstr "تسوق حسب الفئة"
+
+msgid "Featured products"
+msgstr "منتجات مميزة"
+
+msgid "Popular right now"
+msgstr "الأكثر طلباً الآن"
+
+msgid "What we supply"
+msgstr "ما نوفره"
+
+msgid "Get in touch"
+msgstr "تواصل معنا"
+
+msgid "Send a message"
+msgstr "أرسل رسالة"
+
+msgid "Back to Home"
+msgstr "العودة للرئيسية"
+
+msgid "Page not found"
+msgstr "الصفحة غير موجودة"
