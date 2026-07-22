@@ -187,7 +187,7 @@ p{ margin:0; }
 .site-logo-text span{ display:block; font-size:var(--fs-xs); font-weight:600; letter-spacing:.18em; color:var(--kc-grey-500); }
 
 .main-nav{ flex:1; }
-.main-nav ul{ display:flex; gap:var(--sp-6); align-items:center; }
+.main-nav > ul{ display:flex; gap:var(--sp-6); align-items:center; }
 .main-nav a{ font-weight:600; font-size:var(--fs-sm); color:var(--kc-grey-700); position:relative; padding-block:6px; }
 .main-nav a::after{
   content:''; position:absolute; inset-inline:0; bottom:0; height:2px; background:var(--kc-red);
@@ -734,4 +734,41 @@ p{ margin:0; }
    Disable the blur on mobile so the drawer can span the full viewport. */
 @media (max-width:960px){
   .site-header{ backdrop-filter:none; background:var(--kc-white); }
+}
+
+/* ==========================================================================
+   v1.2.3 — WordPress-native menu support (Appearance → Menus with sub-items)
+   The theme's own fallback menu uses .has-mega/.mega-menu; menus the admin
+   builds in wp-admin output .menu-item-has-children/.sub-menu instead, which
+   previously had no styles and exploded out of the mobile drawer.
+   ========================================================================== */
+@media (min-width:961px){
+  .main-nav li.menu-item-has-children{ position:relative; }
+  .main-nav .sub-menu{
+    position:absolute; top:calc(100% + 14px); inset-inline-start:0; z-index:120;
+    min-width:230px; background:var(--kc-white); border-radius:var(--radius-md);
+    box-shadow:var(--shadow-lg); padding:var(--sp-3); display:none; flex-direction:column; gap:2px;
+  }
+  .main-nav li.menu-item-has-children:hover > .sub-menu,
+  .main-nav li.menu-item-has-children:focus-within > .sub-menu{ display:flex; }
+  .main-nav .sub-menu .sub-menu{ top:0; inset-inline-start:100%; }
+  .main-nav .sub-menu a{ display:block; padding:8px 12px; border-radius:var(--radius-sm); font-size:var(--fs-sm); color:var(--kc-grey-700); white-space:nowrap; }
+  .main-nav .sub-menu a:hover{ background:var(--kc-grey-100); color:var(--kc-red); }
+  .main-nav .sub-menu a::after{ display:none; }
+}
+@media (max-width:960px){
+  .main-nav .sub-menu{
+    position:static; display:none; min-width:0; box-shadow:none; background:none;
+    padding:0; padding-inline-start:14px; flex-direction:column; gap:2px;
+  }
+  .main-nav li.menu-item-has-children.is-expanded > .sub-menu{ display:flex; }
+  .main-nav .sub-menu a{ font-size:var(--fs-sm); color:var(--text-muted); padding:8px 10px; white-space:normal; }
+  /* expand caret on parents (both fallback and WP-native markup) */
+  .main-nav li.menu-item-has-children > a::before,
+  .main-nav li.has-mega > a::before{
+    content:'▾'; float:inline-end; color:var(--kc-grey-400);
+    transition:transform var(--dur-fast) var(--ease-out), color var(--dur-fast);
+  }
+  .main-nav li.menu-item-has-children.is-expanded > a::before,
+  .main-nav li.has-mega.is-expanded > a::before{ transform:rotate(180deg); color:var(--kc-red); }
 }

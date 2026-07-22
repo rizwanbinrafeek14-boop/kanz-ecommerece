@@ -46,7 +46,7 @@
     // On mobile, first tap on a mega-menu parent expands its sub-links
     mainNav.addEventListener('click', function (e) {
       if (!window.matchMedia('(max-width:960px)').matches) return;
-      var parentLink = e.target.closest('.has-mega > a');
+      var parentLink = e.target.closest('.has-mega > a, .menu-item-has-children > a');
       if (!parentLink) return;
       var li = parentLink.parentElement;
       if (!li.classList.contains('is-expanded')) {
