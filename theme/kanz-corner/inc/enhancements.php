@@ -352,9 +352,105 @@ function kc_filter_shop_query( $query ) {
 }
 add_action( 'pre_get_posts', 'kc_filter_shop_query' );
 
-/* ------------------------------------------------------------------------
- * 9. Search overlay + quick-view modal markup (printed once in the footer).
- * ---------------------------------------------------------------------- */
+/* ========================================================================
+ * v1.2 additions
+ * ====================================================================== */
+
+/* Shared wishlist-button attribute string for a product. */
+function kc_wish_attrs( $product ) {
+	return sprintf(
+		'data-wish data-id="%d" data-name="%s" data-url="%s" data-image="%s" data-category="%s"',
+		absint( $product->get_id() ),
+		esc_attr( $product->get_name() ),
+		esc_url( get_permalink( $product->get_id() ) ),
+		esc_url( kc_get_product_placeholder_image( $product->get_id() ) ),
+		esc_attr( kc_get_primary_category_name( $product->get_id() ) )
+	);
+}
+
+/* 10. Wishlist heart on product cards + bestseller badge. */
+function kc_loop_card_extras() {
+	global $product;
+	if ( ! $product ) {
+		return;
+	}
+	printf(
+		'<button type="button" class="kc-wish-btn" %s aria-label="%s"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>',
+		kc_wish_attrs( $product ), // phpcs:ignore -- pre-escaped
+		esc_attr__( 'Save to wishlist', 'kanz-corner' )
+	);
+	if ( '1' === get_post_meta( $product->get_id(), '_kc_bestseller', true ) ) {
+		echo '<span class="kc-bestseller-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>' . esc_html__( 'Best Seller', 'kanz-corner' ) . '</span>';
+	}
+}
+add_action( 'woocommerce_before_shop_loop_item_title', 'kc_loop_card_extras', 12 );
+
+/* 11. Single product: wishlist + share row. */
+function kc_single_wish_share_row() {
+	global $product;
+	if ( ! $product ) {
+		return;
+	}
+	$url   = get_permalink( $product->get_id() );
+	$title = $product->get_name();
+	?>
+	<div class="kc-share-row">
+		<button type="button" class="kc-wish-single" <?php echo kc_wish_attrs( $product ); // phpcs:ignore ?>>
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+			<?php esc_html_e( 'Save', 'kanz-corner' ); ?>
+		</button>
+		<span><?php esc_html_e( 'Share:', 'kanz-corner' ); ?></span>
+		<button type="button" class="kc-share-btn" data-share="whatsapp" data-url="<?php echo esc_url( $url ); ?>" data-title="<?php echo esc_attr( $title ); ?>" aria-label="WhatsApp">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.9-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20z"/></svg>
+		</button>
+		<button type="button" class="kc-share-btn" data-share="x" data-url="<?php echo esc_url( $url ); ?>" data-title="<?php echo esc_attr( $title ); ?>" aria-label="X">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h3l-7.5 8.6L22 22h-6.6l-5.2-6.8L4.2 22H1.2l8-9.2L2 2h6.8l4.7 6.2z"/></svg>
+		</button>
+		<button type="button" class="kc-share-btn" data-share="copy" data-url="<?php echo esc_url( $url ); ?>" aria-label="<?php esc_attr_e( 'Copy link', 'kanz-corner' ); ?>">
+			<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+		</button>
+	</div>
+	<?php
+}
+add_action( 'woocommerce_single_product_summary', 'kc_single_wish_share_row', 45 );
+
+/* 12. Sticky mobile buy/quote bar on single product pages. */
+function kc_single_sticky_bar() {
+	global $product;
+	if ( ! is_product() || ! $product ) {
+		return;
+	}
+	$is_quote = kc_product_is_quote_only( $product->get_id() );
+	$wa       = preg_replace( '/[^0-9]/', '', get_theme_mod( 'kc_whatsapp', '966507264938' ) );
+	?>
+	<div class="kc-sticky-bar">
+		<div class="kc-sticky-price">
+			<?php if ( $is_quote ) : ?>
+				<b style="color:var(--kc-red);font-size:13px"><?php esc_html_e( 'Price on request', 'kanz-corner' ); ?></b>
+			<?php else : ?>
+				<b><?php echo wp_kses_post( wc_price( (float) $product->get_price() ) ); ?></b>
+				<span><?php esc_html_e( 'incl. VAT', 'kanz-corner' ); ?></span>
+			<?php endif; ?>
+		</div>
+		<?php if ( $is_quote ) : ?>
+			<button class="btn btn-primary" data-add-to-quote
+				data-id="<?php echo esc_attr( $product->get_id() ); ?>"
+				data-name="<?php echo esc_attr( $product->get_name() ); ?>"
+				data-category="<?php echo esc_attr( kc_get_primary_category_name( $product->get_id() ) ); ?>"
+				data-image="<?php echo esc_url( kc_get_product_placeholder_image( $product->get_id() ) ); ?>"
+				data-added-label="<?php esc_attr_e( 'Added ✓', 'kanz-corner' ); ?>"
+				data-default-label="<?php esc_attr_e( 'Request Quote', 'kanz-corner' ); ?>"><?php esc_html_e( 'Request Quote', 'kanz-corner' ); ?></button>
+			<a class="btn btn-dark" target="_blank" rel="noopener" href="https://wa.me/<?php echo esc_attr( $wa ); ?>?text=<?php echo rawurlencode( sprintf( __( "Hi, I'd like a quote for: %s", 'kanz-corner' ), $product->get_name() . ' - ' . get_permalink( $product->get_id() ) ) ); ?>"><?php esc_html_e( 'WhatsApp', 'kanz-corner' ); ?></a>
+		<?php else : ?>
+			<a class="btn btn-primary" href="<?php echo esc_url( $product->add_to_cart_url() ); ?>"><?php esc_html_e( 'Add to Cart', 'kanz-corner' ); ?></a>
+			<a class="btn btn-dark" href="<?php echo esc_url( add_query_arg( 'add-to-cart', $product->get_id(), wc_get_checkout_url() ) ); ?>"><?php esc_html_e( 'Buy Now', 'kanz-corner' ); ?></a>
+		<?php endif; ?>
+	</div>
+	<?php
+}
+add_action( 'wp_footer', 'kc_single_sticky_bar', 5 );
+
+/* 13. Search overlay + quick-view modal markup (printed once in the footer). */
 function kc_render_overlays() {
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		return;

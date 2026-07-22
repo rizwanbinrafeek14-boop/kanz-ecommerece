@@ -58,7 +58,7 @@
 }
 .woocommerce ul.products li.product .button:hover{ background:var(--kc-red-dark); transform:translateY(-2px); }
 .woocommerce ul.products li.product .button.loading{ opacity:.6; }
-.woocommerce ul.products li.product .star-rating{ display:none; }
+/* star-rating shown as of v1.2 (styles in main.css) */
 /* Category label above the product title, injected via woocommerce.php */
 .woocommerce ul.products li.product .kc-cat-label{
   order:2; padding:var(--sp-3) var(--sp-4) 0; font-size:var(--fs-xs); font-weight:800;

@@ -57,6 +57,28 @@ function kc_customize_register( $wp_customize ) {
 	) );
 	$wp_customize->add_control( 'kc_footer_tagline', array( 'label' => __( 'Footer tagline', 'kanz-corner' ), 'section' => 'kc_misc', 'type' => 'textarea' ) );
 
+	/* ---- Homepage promo banners ---- */
+	$wp_customize->add_section( 'kc_banners', array(
+		'title'       => __( 'Homepage Banners', 'kanz-corner' ),
+		'description' => __( 'Upload up to 3 promo banner images (recommended 1600×500px). Each can link anywhere — a category, a product, an offer page. If none are set, the theme shows built-in branded banners.', 'kanz-corner' ),
+		'panel'       => 'kc_settings',
+	) );
+	for ( $b = 1; $b <= 3; $b++ ) {
+		$wp_customize->add_setting( "kc_banner_{$b}_image", array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
+		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, "kc_banner_{$b}_image", array(
+			/* translators: %d: banner number */
+			'label'   => sprintf( __( 'Banner %d image', 'kanz-corner' ), $b ),
+			'section' => 'kc_banners',
+		) ) );
+		$wp_customize->add_setting( "kc_banner_{$b}_link", array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
+		$wp_customize->add_control( "kc_banner_{$b}_link", array(
+			/* translators: %d: banner number */
+			'label'   => sprintf( __( 'Banner %d link URL', 'kanz-corner' ), $b ),
+			'section' => 'kc_banners',
+			'type'    => 'url',
+		) );
+	}
+
 	$wp_customize->add_setting( 'kc_newsletter_shortcode', array( 'default' => '', 'sanitize_callback' => 'wp_kses_post' ) );
 	$wp_customize->add_control( 'kc_newsletter_shortcode', array(
 		'label'       => __( 'Newsletter signup shortcode (optional)', 'kanz-corner' ),

@@ -5,6 +5,38 @@ one-time setup in `DEPLOYMENT-GUIDE.md` is already done.
 
 ---
 
+## IMPORTANT: if your store shows "Great things are on the horizon"
+
+That is WooCommerce's **Coming Soon mode** hiding your store from visitors.
+Go to **WooCommerce → Settings → Site visibility** → select **Live** → Save.
+
+---
+
+## What's new in theme v1.2
+
+- **Mobile menu fixed** — the ☰ button now opens a proper slide-out menu
+  with navigation, search, quote link and language switch. Search is
+  available on every screen size.
+- **noon-style homepage** — big search bar, promo banner carousel
+  (upload your own banners in **Appearance → Customize → Kanz Corner
+  Settings → Homepage Banners**; branded defaults show until you do),
+  photo category tiles (uses each category's thumbnail if set in
+  Products → Categories, else built-in catalogue photos), and
+  horizontally swipeable product rows on mobile.
+- **Sticky buy bar on mobile** product pages — price + Request Quote /
+  Add to Cart + WhatsApp always visible, like major shopping apps.
+- **Wishlist** — heart icon on products and in the header; saved items
+  live in the customer's browser and can be sent as a quote request.
+- **Ratings & reviews** — star ratings now display. To collect reviews,
+  make sure **WooCommerce → Settings → Products → Enable product
+  reviews** is ticked.
+- **"Best Seller" badge** — tick the checkbox in a product's *Pricing
+  Mode* box to show the badge on its card.
+- **Share buttons** on product pages (WhatsApp / X / copy link) and a
+  back-to-top button; many small mobile spacing fixes.
+
+---
+
 ## What's new in theme v1.1
 
 These work automatically once the updated theme is active — nothing to

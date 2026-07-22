@@ -101,6 +101,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</button>
 </div>
 
+<button type="button" class="kc-backtop" aria-label="<?php esc_attr_e( 'Back to top', 'kanz-corner' ); ?>">
+	<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<div class="drawer-overlay" data-for="wish-drawer"></div>
+<aside class="drawer" id="wish-drawer" aria-label="<?php esc_attr_e( 'Wishlist', 'kanz-corner' ); ?>">
+	<div class="drawer-head">
+		<strong><?php esc_html_e( 'Your Wishlist', 'kanz-corner' ); ?></strong>
+		<button data-drawer-close aria-label="<?php esc_attr_e( 'Close', 'kanz-corner' ); ?>">&times;</button>
+	</div>
+	<div class="drawer-body js-wish-body"></div>
+	<div class="drawer-foot">
+		<a href="<?php echo esc_url( home_url( '/request-a-quote/' ) ); ?>" class="btn btn-primary btn-block"><?php esc_html_e( 'Request Quote for Saved Items', 'kanz-corner' ); ?></a>
+	</div>
+</aside>
+
 <div class="drawer-overlay" data-for="quote-drawer"></div>
 <aside class="drawer" id="quote-drawer" aria-label="<?php esc_attr_e( 'Quote request list', 'kanz-corner' ); ?>">
 	<div class="drawer-head">

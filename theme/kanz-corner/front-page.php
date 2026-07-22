@@ -10,39 +10,61 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 ?>
 
-<section class="hero">
+<!-- ============ Search hero (noon-style) ============ -->
+<section class="kc-search-hero">
 	<div class="container">
-		<div>
-			<span class="hero-eyebrow"><span class="dot"></span> <?php echo esc_html( get_theme_mod( 'kc_hero_eyebrow', __( 'Trusted since day one · Al-Khobar, KSA', 'kanz-corner' ) ) ); ?></span>
-			<h1><?php echo wp_kses_post( get_theme_mod( 'kc_hero_title', __( 'Industrial supply, <em>engineered</em> for the Kingdom\'s biggest builds.', 'kanz-corner' ) ) ); ?></h1>
-			<p class="lead"><?php echo esc_html( get_theme_mod( 'kc_hero_subtitle', __( 'Carbon & stainless steel pipes, fittings, valves, flanges, fasteners, gaskets and safety solutions — sourced from internationally certified manufacturers, backed by technical guidance you can rely on.', 'kanz-corner' ) ) ); ?></p>
-			<div class="hero-ctas">
-				<a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '#' ); ?>" class="btn btn-primary"><?php esc_html_e( 'Browse Products', 'kanz-corner' ); ?></a>
-				<a href="<?php echo esc_url( home_url( '/request-a-quote/' ) ); ?>" class="btn btn-outline-light"><?php esc_html_e( 'Request a Quote', 'kanz-corner' ); ?></a>
-			</div>
-			<div class="hero-stats">
-				<div class="hero-stat"><b><?php echo esc_html( get_theme_mod( 'kc_stat_1_number', '2,500+' ) ); ?></b><span><?php echo esc_html( get_theme_mod( 'kc_stat_1_label', __( 'SKUs across 8 categories', 'kanz-corner' ) ) ); ?></span></div>
-				<div class="hero-stat"><b><?php echo esc_html( get_theme_mod( 'kc_stat_2_number', '30+' ) ); ?></b><span><?php echo esc_html( get_theme_mod( 'kc_stat_2_label', __( 'Certified brands', 'kanz-corner' ) ) ); ?></span></div>
-				<div class="hero-stat"><b><?php echo esc_html( get_theme_mod( 'kc_stat_3_number', '24h' ) ); ?></b><span><?php echo esc_html( get_theme_mod( 'kc_stat_3_label', __( 'Quote turnaround', 'kanz-corner' ) ) ); ?></span></div>
-			</div>
+		<button type="button" class="kc-searchbar" data-open-search>
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+			<?php esc_html_e( 'Search pipes, fittings, valves, flanges…', 'kanz-corner' ); ?>
+		</button>
+	</div>
+</section>
+
+<!-- ============ Promo banner carousel ============ -->
+<section class="kc-banners">
+	<div class="container">
+		<div class="kc-banner-track">
+			<?php
+			$has_custom_banner = false;
+			for ( $b = 1; $b <= 3; $b++ ) {
+				$img  = get_theme_mod( "kc_banner_{$b}_image", '' );
+				$link = get_theme_mod( "kc_banner_{$b}_link", '' );
+				if ( ! $img ) {
+					continue;
+				}
+				$has_custom_banner = true;
+				$tag  = $link ? 'a' : 'div';
+				$href = $link ? ' href="' . esc_url( $link ) . '"' : '';
+				echo "<{$tag}{$href} class=\"kc-banner\"><img src=\"" . esc_url( $img ) . '" alt="" loading="lazy"></' . $tag . '>';
+			}
+			if ( ! $has_custom_banner ) :
+				// Default branded banners until the admin uploads their own
+				// (Appearance -> Customize -> Kanz Corner Settings -> Homepage Banners).
+				?>
+				<a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '#' ); ?>" class="kc-banner">
+					<div class="kc-banner-text">
+						<span class="eyebrow"><?php esc_html_e( 'Full-range industrial supply', 'kanz-corner' ); ?></span>
+						<h3><?php esc_html_e( 'Pipes, fittings, valves & flanges — under one roof', 'kanz-corner' ); ?></h3>
+						<p><?php esc_html_e( 'Certified brands · ASTM / ASME / API standards · Al-Khobar, KSA', 'kanz-corner' ); ?></p>
+					</div>
+				</a>
+				<a href="<?php echo esc_url( home_url( '/request-a-quote/' ) ); ?>" class="kc-banner">
+					<div class="kc-banner-text">
+						<span class="eyebrow"><?php esc_html_e( 'Project & bulk orders', 'kanz-corner' ); ?></span>
+						<h3><?php esc_html_e( 'Get a project quote within 24 hours', 'kanz-corner' ); ?></h3>
+						<p><?php esc_html_e( 'Send your BOQ or item list — our engineers reply with pricing & lead time.', 'kanz-corner' ); ?></p>
+					</div>
+				</a>
+				<a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>" class="kc-banner">
+					<div class="kc-banner-text">
+						<span class="eyebrow"><?php esc_html_e( 'Pickup & freight', 'kanz-corner' ); ?></span>
+						<h3><?php esc_html_e( 'Collect from Al-Khobar or ship anywhere in KSA', 'kanz-corner' ); ?></h3>
+						<p><?php esc_html_e( 'Warehouse pickup, courier delivery, or freight quotes for heavy loads.', 'kanz-corner' ); ?></p>
+					</div>
+				</a>
+			<?php endif; ?>
 		</div>
-		<div class="hero-card">
-			<h3><?php esc_html_e( 'Why contractors choose Kanz Corner', 'kanz-corner' ); ?></h3>
-			<p><?php esc_html_e( 'Everything you need for oil & gas, petrochemical, construction and water infrastructure projects — under one roof.', 'kanz-corner' ); ?></p>
-			<ul class="hero-card-list">
-				<?php
-				$hero_points = array(
-					__( 'Internationally certified manufacturers', 'kanz-corner' ),
-					__( 'Technical guidance & product selection support', 'kanz-corner' ),
-					__( 'Bulk & project freight quoting', 'kanz-corner' ),
-					__( 'Responsive after-sales service', 'kanz-corner' ),
-				);
-				foreach ( $hero_points as $point ) :
-					?>
-					<li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <?php echo esc_html( $point ); ?></li>
-				<?php endforeach; ?>
-			</ul>
-		</div>
+		<div class="kc-banner-dots"></div>
 	</div>
 </section>
 
@@ -75,7 +97,7 @@ get_header();
 			<a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '#' ); ?>" class="btn btn-outline"><?php esc_html_e( 'View All Products', 'kanz-corner' ); ?></a>
 		</div>
 
-		<div class="cat-grid">
+		<div class="kc-photocat-grid">
 			<?php
 			$top_categories = taxonomy_exists( 'product_cat' )
 				? get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false, 'parent' => 0, 'exclude' => array( get_option( 'default_product_cat' ) ) ) )
@@ -83,13 +105,21 @@ get_header();
 
 			if ( ! is_wp_error( $top_categories ) && ! empty( $top_categories ) ) :
 				foreach ( $top_categories as $cat ) :
-					$icon_slug = kc_map_category_to_icon_slug( $cat->slug );
+					// Photo priority: the category's own thumbnail (set in
+					// Products -> Categories), else the bundled catalogue photo,
+					// else the line-art icon.
+					$thumb_id = get_term_meta( $cat->term_id, 'thumbnail_id', true );
+					if ( $thumb_id ) {
+						$photo = wp_get_attachment_image_url( $thumb_id, 'kc-card' );
+					} elseif ( file_exists( KC_THEME_DIR . '/assets/images/cat-photos/' . $cat->slug . '.jpg' ) ) {
+						$photo = KC_THEME_URI . '/assets/images/cat-photos/' . $cat->slug . '.jpg';
+					} else {
+						$photo = KC_THEME_URI . '/assets/images/categories/' . kc_map_category_to_icon_slug( $cat->slug ) . '.svg';
+					}
 					?>
-					<a href="<?php echo esc_url( get_term_link( $cat ) ); ?>" class="cat-card">
-						<div class="cat-icon"><img src="<?php echo esc_url( KC_THEME_URI . '/assets/images/categories/' . $icon_slug . '.svg' ); ?>" alt="" width="30" height="30" loading="lazy"></div>
-						<h3><?php echo esc_html( $cat->name ); ?></h3>
-						<p><?php echo esc_html( wp_trim_words( $cat->description, 12, '…' ) ); ?></p>
-						<span class="cat-link"><?php esc_html_e( 'Explore', 'kanz-corner' ); ?> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+					<a href="<?php echo esc_url( get_term_link( $cat ) ); ?>" class="kc-photocat">
+						<span class="ph"><img src="<?php echo esc_url( $photo ); ?>" alt="" loading="lazy"></span>
+						<span class="nm"><?php echo esc_html( $cat->name ); ?></span>
 					</a>
 					<?php
 				endforeach;
@@ -102,7 +132,7 @@ get_header();
 </section>
 
 <?php if ( class_exists( 'WooCommerce' ) ) : ?>
-<section class="section section-subtle">
+<section class="section section-subtle kc-hscroll">
 	<div class="container">
 		<div class="section-head">
 			<div>

@@ -77,6 +77,11 @@ function kc_render_quote_only_meta_box( $post ) {
 		<?php esc_html_e( 'Hide "Add to Cart" — show "Request Quote" instead', 'kanz-corner' ); ?>
 	</label>
 	<p class="description"><?php esc_html_e( 'Leave checked for products without a set price. Uncheck once you set a real price and this product should sell instantly.', 'kanz-corner' ); ?></p>
+	<hr>
+	<label>
+		<input type="checkbox" name="kc_bestseller" value="1" <?php checked( get_post_meta( $post->ID, '_kc_bestseller', true ), '1' ); ?>>
+		<?php esc_html_e( 'Mark as "Best Seller" (shows a badge on the product card)', 'kanz-corner' ); ?>
+	</label>
 	<?php
 }
 
@@ -94,6 +99,7 @@ function kc_save_product_meta( $post_id ) {
 		update_post_meta( $post_id, '_kc_spec_table', $rows );
 
 		update_post_meta( $post_id, '_kc_quote_only', isset( $_POST['kc_quote_only'] ) ? '1' : '' );
+		update_post_meta( $post_id, '_kc_bestseller', isset( $_POST['kc_bestseller'] ) ? '1' : '' );
 	}
 }
 add_action( 'save_post_product', 'kc_save_product_meta' );
