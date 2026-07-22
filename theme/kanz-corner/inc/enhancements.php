@@ -39,7 +39,7 @@ function kc_loop_category_label() {
 		echo '<span class="kc-cat-label">' . esc_html( $name ) . '</span>';
 	}
 }
-add_action( 'woocommerce_shop_loop_item_title', 'kc_loop_category_label', 5 );
+add_action( 'woocommerce_shop_loop_item_title', kc_guard( 'kc_loop_category_label' ), 5 );
 
 /* ------------------------------------------------------------------------
  * 3. Sub-category tiles on a category archive that has children.
@@ -77,7 +77,7 @@ function kc_render_subcategory_tiles() {
 	}
 	echo '</div>';
 }
-add_action( 'woocommerce_before_shop_loop', 'kc_render_subcategory_tiles', 5 );
+add_action( 'woocommerce_before_shop_loop', kc_guard( 'kc_render_subcategory_tiles' ), 5 );
 
 /* ------------------------------------------------------------------------
  * 4. Live AJAX search.
@@ -201,7 +201,7 @@ function kc_loop_quickview_button() {
 		esc_attr__( 'Quick view', 'kanz-corner' )
 	);
 }
-add_action( 'woocommerce_before_shop_loop_item_title', 'kc_loop_quickview_button', 15 );
+add_action( 'woocommerce_before_shop_loop_item_title', kc_guard( 'kc_loop_quickview_button' ), 15 );
 
 /* ------------------------------------------------------------------------
  * 6. Recently-viewed: expose current product data on single pages so the
@@ -224,13 +224,13 @@ function kc_single_recently_viewed_seed() {
 	);
 	echo '<script type="application/json" id="kc-current-product">' . wp_json_encode( $data ) . '</script>';
 }
-add_action( 'woocommerce_after_single_product', 'kc_single_recently_viewed_seed' );
+add_action( 'woocommerce_after_single_product', kc_guard( 'kc_single_recently_viewed_seed' ) );
 
 /* Recently-viewed strip mount point (rendered on shop + single pages). */
 function kc_recently_viewed_mount() {
 	echo '<section class="section kc-recently-viewed" hidden><div class="container"><div class="section-head"><div><span class="eyebrow">' . esc_html__( 'Recently viewed', 'kanz-corner' ) . '</span><h2 class="section-title">' . esc_html__( 'Pick up where you left off', 'kanz-corner' ) . '</h2></div></div><div class="product-grid js-recently-viewed"></div></div></section>';
 }
-add_action( 'woocommerce_after_main_content', 'kc_recently_viewed_mount', 20 );
+add_action( 'woocommerce_after_main_content', kc_guard( 'kc_recently_viewed_mount' ), 20 );
 
 /* ------------------------------------------------------------------------
  * 7. Per-product WhatsApp enquiry button on the single product summary
@@ -253,7 +253,7 @@ function kc_single_whatsapp_button() {
 		esc_html__( 'Enquire on WhatsApp', 'kanz-corner' )
 	);
 }
-add_action( 'woocommerce_single_product_summary', 'kc_single_whatsapp_button', 35 );
+add_action( 'woocommerce_single_product_summary', kc_guard( 'kc_single_whatsapp_button' ), 35 );
 
 /* ------------------------------------------------------------------------
  * 8b. Working shop filters (category + availability), wired to the query.
@@ -383,7 +383,7 @@ function kc_loop_card_extras() {
 		echo '<span class="kc-bestseller-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>' . esc_html__( 'Best Seller', 'kanz-corner' ) . '</span>';
 	}
 }
-add_action( 'woocommerce_before_shop_loop_item_title', 'kc_loop_card_extras', 12 );
+add_action( 'woocommerce_before_shop_loop_item_title', kc_guard( 'kc_loop_card_extras' ), 12 );
 
 /* 11. Single product: wishlist + share row. */
 function kc_single_wish_share_row() {
@@ -412,7 +412,7 @@ function kc_single_wish_share_row() {
 	</div>
 	<?php
 }
-add_action( 'woocommerce_single_product_summary', 'kc_single_wish_share_row', 45 );
+add_action( 'woocommerce_single_product_summary', kc_guard( 'kc_single_wish_share_row' ), 45 );
 
 /* 12. Sticky mobile buy/quote bar on single product pages. */
 function kc_single_sticky_bar() {
@@ -448,7 +448,7 @@ function kc_single_sticky_bar() {
 	</div>
 	<?php
 }
-add_action( 'wp_footer', 'kc_single_sticky_bar', 5 );
+add_action( 'wp_footer', kc_guard( 'kc_single_sticky_bar' ), 5 );
 
 /* 13. Search overlay + quick-view modal markup (printed once in the footer). */
 function kc_render_overlays() {
@@ -477,4 +477,4 @@ function kc_render_overlays() {
 	</div>
 	<?php
 }
-add_action( 'wp_footer', 'kc_render_overlays' );
+add_action( 'wp_footer', kc_guard( 'kc_render_overlays' ) );

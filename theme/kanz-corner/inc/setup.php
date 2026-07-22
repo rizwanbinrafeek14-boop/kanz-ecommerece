@@ -7,6 +7,35 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Crash guards. Every non-essential storefront add-on (badges, sticky bar,
+ * schema, drawers, tiles…) registers through these wrappers so that if one
+ * ever throws — bad data, a plugin conflict, a WooCommerce API change — the
+ * page still renders without that one widget instead of WordPress showing
+ * "There has been a critical error on this website." The real error is
+ * written to the PHP error log for diagnosis.
+ */
+function kc_guard( $fn ) {
+	return function ( ...$args ) use ( $fn ) {
+		try {
+			return call_user_func_array( $fn, $args );
+		} catch ( \Throwable $e ) {
+			error_log( sprintf( 'Kanz Corner theme suppressed error in %s: %s @ %s:%d', is_string( $fn ) ? $fn : 'closure', $e->getMessage(), $e->getFile(), $e->getLine() ) );
+			return null;
+		}
+	};
+}
+function kc_guard_filter( $fn ) {
+	return function ( ...$args ) use ( $fn ) {
+		try {
+			return call_user_func_array( $fn, $args );
+		} catch ( \Throwable $e ) {
+			error_log( sprintf( 'Kanz Corner theme suppressed error in %s: %s @ %s:%d', is_string( $fn ) ? $fn : 'closure', $e->getMessage(), $e->getFile(), $e->getLine() ) );
+			return isset( $args[0] ) ? $args[0] : null; // pass the value through unchanged
+		}
+	};
+}
+
 function kc_theme_setup() {
 	load_theme_textdomain( 'kanz-corner', KC_THEME_DIR . '/languages' );
 

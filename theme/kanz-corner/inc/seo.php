@@ -77,7 +77,7 @@ function kc_seo_meta_tags() {
 		printf( '<meta name="twitter:image" content="%s">' . "\n", esc_url( $image ) );
 	}
 }
-add_action( 'wp_head', 'kc_seo_meta_tags', 1 );
+add_action( 'wp_head', kc_guard( 'kc_seo_meta_tags' ), 1 );
 
 /* ------------------------------------------------------------------------
  * Organization structured data (site-wide).
@@ -112,7 +112,7 @@ function kc_schema_organization() {
 	}
 	echo '<script type="application/ld+json">' . wp_json_encode( $data ) . '</script>' . "\n";
 }
-add_action( 'wp_head', 'kc_schema_organization', 20 );
+add_action( 'wp_head', kc_guard( 'kc_schema_organization' ), 20 );
 
 /* ------------------------------------------------------------------------
  * Product structured data.
@@ -121,7 +121,9 @@ function kc_schema_product() {
 	if ( kc_seo_plugin_active() || ! function_exists( 'is_product' ) || ! is_product() ) {
 		return;
 	}
-	global $product;
+	// wp_head runs before the loop, so the $product global isn't set yet —
+	// resolve from the queried object instead.
+	$product = wc_get_product( get_queried_object_id() );
 	if ( ! $product ) {
 		return;
 	}
@@ -161,7 +163,7 @@ function kc_schema_product() {
 
 	echo '<script type="application/ld+json">' . wp_json_encode( $data ) . '</script>' . "\n";
 }
-add_action( 'wp_head', 'kc_schema_product', 20 );
+add_action( 'wp_head', kc_guard( 'kc_schema_product' ), 20 );
 
 /* ------------------------------------------------------------------------
  * Breadcrumb structured data on inner pages.
@@ -204,4 +206,4 @@ function kc_schema_breadcrumbs() {
 	);
 	echo '<script type="application/ld+json">' . wp_json_encode( $data ) . '</script>' . "\n";
 }
-add_action( 'wp_head', 'kc_schema_breadcrumbs', 21 );
+add_action( 'wp_head', kc_guard( 'kc_schema_breadcrumbs' ), 21 );

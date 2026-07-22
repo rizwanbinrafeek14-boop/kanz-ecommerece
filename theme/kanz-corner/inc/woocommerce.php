@@ -41,7 +41,7 @@ function kc_price_vat_suffix( $price, $product ) {
 	}
 	return $price . ' <small class="kc-vat-note">' . esc_html__( 'incl. VAT', 'kanz-corner' ) . '</small>';
 }
-add_filter( 'woocommerce_get_price_html', 'kc_price_vat_suffix', 20, 2 );
+add_filter( 'woocommerce_get_price_html', kc_guard_filter( 'kc_price_vat_suffix' ), 20, 2 );
 
 /* ------------------------------------------------------------------------
  * Buy Now vs Request Quote
@@ -56,7 +56,7 @@ function kc_maybe_quote_price_html( $price_html, $product ) {
 	}
 	return $price_html;
 }
-add_filter( 'woocommerce_get_price_html', 'kc_maybe_quote_price_html', 5, 2 );
+add_filter( 'woocommerce_get_price_html', kc_guard_filter( 'kc_maybe_quote_price_html' ), 5, 2 );
 
 function kc_maybe_quote_loop_button( $button, $product ) {
 	if ( kc_product_is_quote_only( $product->get_id() ) ) {
@@ -72,7 +72,7 @@ function kc_maybe_quote_loop_button( $button, $product ) {
 	}
 	return $button;
 }
-add_filter( 'woocommerce_loop_add_to_cart_link', 'kc_maybe_quote_loop_button', 10, 2 );
+add_filter( 'woocommerce_loop_add_to_cart_link', kc_guard_filter( 'kc_maybe_quote_loop_button' ), 10, 2 );
 
 function kc_get_primary_category_name( $product_id ) {
 	$terms = get_the_terms( $product_id, 'product_cat' );
@@ -110,7 +110,7 @@ function kc_woocommerce_placeholder_src( $src ) {
 	}
 	return $src;
 }
-add_filter( 'woocommerce_placeholder_img_src', 'kc_woocommerce_placeholder_src' );
+add_filter( 'woocommerce_placeholder_img_src', kc_guard_filter( 'kc_woocommerce_placeholder_src' ) );
 
 /**
  * Maps a WooCommerce product_cat term to one of the 8 illustrated category
@@ -160,9 +160,9 @@ function kc_maybe_replace_single_add_to_cart() {
 		return;
 	}
 	remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
-	add_action( 'woocommerce_single_product_summary', 'kc_render_single_quote_button', 30 );
+	add_action( 'woocommerce_single_product_summary', kc_guard( 'kc_render_single_quote_button' ), 30 );
 }
-add_action( 'woocommerce_single_product_summary', 'kc_maybe_replace_single_add_to_cart', 1 );
+add_action( 'woocommerce_single_product_summary', kc_guard( 'kc_maybe_replace_single_add_to_cart' ), 1 );
 
 function kc_render_single_quote_button() {
 	global $product;
@@ -207,7 +207,7 @@ function kc_render_single_product_spec_table() {
 	}
 	echo '</table>';
 }
-add_action( 'woocommerce_single_product_summary', 'kc_render_single_product_spec_table', 25 );
+add_action( 'woocommerce_single_product_summary', kc_guard( 'kc_render_single_product_spec_table' ), 25 );
 
 /* ------------------------------------------------------------------------
  * Custom "Freight Quote" shipping method — for bulk/heavy pipe & valve
