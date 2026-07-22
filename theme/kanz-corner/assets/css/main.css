@@ -90,6 +90,11 @@
 *, *::before, *::after{ box-sizing:border-box; }
 html{ scroll-behavior:smooth; }
 html, body{ max-width:100%; overflow-x:hidden; }
+/* iOS Safari ignores overflow-x:hidden on html/body and zooms the page out
+   to fit any overflowing element; overflow:clip (plus a positioned body) is
+   respected and doesn't create a scroll container that breaks sticky. */
+@supports (overflow-x:clip){ html, body{ overflow-x:clip; } }
+body{ position:relative; }
 body{
   margin:0;
   font-family:var(--font-base);
@@ -771,4 +776,17 @@ p{ margin:0; }
   }
   .main-nav li.menu-item-has-children.is-expanded > a::before,
   .main-nav li.has-mega.is-expanded > a::before{ transform:rotate(180deg); color:var(--kc-red); }
+}
+
+/* ==========================================================================
+   v1.2.4 — mobile horizontal-overflow hardening
+   Every wide/animated element is clamped so no section can push the layout
+   wider than the phone screen (the cause of the "zoomed-out" mobile render).
+   ========================================================================== */
+.brand-strip{ max-width:100%; }
+.kc-banners, .kc-banner-track, .kc-hscroll, .kc-photocat-grid{ max-width:100%; min-width:0; }
+.site-main img, .site-main video, .site-main iframe{ max-width:100%; }
+@media (max-width:960px){
+  .container{ max-width:100%; }
+  .section, .kc-search-hero, .kc-stats-band{ overflow-x:clip; }
 }
