@@ -12,6 +12,29 @@ Go to **WooCommerce → Settings → Site visibility** → select **Live** → S
 
 ---
 
+## What's new in theme v1.3
+
+- **Special Offers on the homepage** — edit any product, and in the
+  **Pricing Mode** box (right-hand side) tick **"Show in Special Offers"**.
+  The product appears in a "Special Offers" row on the homepage with a red
+  deal badge. Optional extras in the same box: custom badge text (e.g.
+  "20% Off") and an old price that renders crossed out next to the current
+  price. Untick to remove; the row hides itself when nothing is ticked.
+- **Motion pack** — sections gently float in as visitors scroll, the stats
+  numbers count up, product cards tilt on hover, and items "fly" to the
+  cart/quote icon when added. All of it switches off automatically for
+  visitors who enable "reduce motion" on their device.
+- **Testimonials slider** — edit the three customer quotes at
+  **Appearance → Customize → Kanz Corner Settings → Homepage Testimonials**.
+  The pre-filled quotes are *sample placeholders* — replace them with real
+  customer feedback before launch. Clearing all three quote fields hides
+  the whole section.
+- **Why Kanz Corner strip + FAQ** — new homepage sections. FAQ answers
+  cover quoting, delivery, pickup, MTCs, trade accounts and VAT; ask the
+  developer to adjust the wording if your policies change.
+
+---
+
 ## What's new in theme v1.2
 
 - **Mobile menu fixed** — the ☰ button now opens a proper slide-out menu

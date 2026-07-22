@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KC_THEME_VERSION', '1.2.4' );
+define( 'KC_THEME_VERSION', '1.3.0' );
 define( 'KC_THEME_DIR', get_template_directory() );
 define( 'KC_THEME_URI', get_template_directory_uri() );
 

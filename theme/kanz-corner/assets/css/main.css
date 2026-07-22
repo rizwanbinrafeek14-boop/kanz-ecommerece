@@ -790,3 +790,115 @@ p{ margin:0; }
   .container{ max-width:100%; }
   .section, .kc-search-hero, .kc-stats-band{ overflow-x:clip; }
 }
+
+/* ==========================================================================
+   v1.3 — Antigravity motion pack + Special Offers + homepage extras
+   Reveal styles only apply under html.kc-anim (added by JS after it checks
+   prefers-reduced-motion), so content is always visible without JS.
+   ========================================================================== */
+
+/* ---- Scroll reveal ---- */
+html.kc-anim .kc-reveal{
+  opacity:0; transform:translateY(26px);
+  transition:opacity .7s var(--ease-out), transform .7s var(--ease-out);
+  will-change:opacity, transform;
+}
+html.kc-anim .kc-reveal.kc-inview{ opacity:1; transform:none; }
+@media (prefers-reduced-motion: reduce){
+  html.kc-anim .kc-reveal{ opacity:1; transform:none; transition:none; }
+}
+
+/* ---- Banner parallax support ---- */
+.kc-banner img{ transition:transform .25s linear; will-change:transform; }
+
+/* ---- Product-card tilt ---- */
+ul.products li.product{ transition:transform .3s var(--ease-out), box-shadow .3s var(--ease-out); transform-style:preserve-3d; }
+
+/* ---- Fly-to-cart clone ---- */
+.kc-fly-img{
+  position:fixed; z-index:9999; pointer-events:none; object-fit:contain;
+  border-radius:var(--radius-md); background:var(--kc-white); box-shadow:var(--shadow-lg);
+  transition:all .8s cubic-bezier(.5,-0.1,.3,1); opacity:1;
+}
+
+/* ---- Special Offers ---- */
+.kc-deal-badge{
+  position:absolute; top:10px; inset-inline-start:10px; z-index:3;
+  background:var(--kc-red); color:var(--kc-white); font-size:var(--fs-xs); font-weight:800;
+  letter-spacing:.03em; text-transform:uppercase; padding:4px 10px; border-radius:var(--radius-pill);
+  box-shadow:var(--shadow-red);
+}
+.kc-old-price{ color:var(--kc-grey-400); font-weight:600; font-size:.9em; margin-inline-end:6px; }
+.kc-old-price .woocommerce-Price-amount{ color:inherit; font-weight:inherit; }
+
+/* ---- Why Kanz Corner strip ---- */
+.kc-why{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--sp-4); }
+.kc-why-item{
+  display:flex; flex-direction:column; gap:6px; padding:var(--sp-5);
+  background:var(--kc-white); border:1px solid var(--border); border-radius:var(--radius-md);
+  transition:transform .3s var(--ease-out), box-shadow .3s var(--ease-out);
+}
+.kc-why-item:hover{ transform:translateY(-4px); box-shadow:var(--shadow-md); }
+.kc-why-icon{
+  width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  background:#FBEEEC; color:var(--kc-red); margin-bottom:4px;
+}
+.kc-why-item b{ font-size:var(--fs-base); }
+.kc-why-item > span:not(.kc-why-icon){ color:var(--text-muted); font-size:var(--fs-sm); line-height:1.5; }
+@media (max-width:960px){ .kc-why{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:520px){ .kc-why{ grid-template-columns:1fr 1fr; gap:var(--sp-3); } .kc-why-item{ padding:var(--sp-4); } }
+
+/* ---- Testimonials ---- */
+.kc-testi-track{
+  display:flex; gap:24px; overflow-x:auto; scroll-snap-type:x mandatory;
+  scrollbar-width:none; -ms-overflow-style:none; padding-block:4px;
+}
+.kc-testi-track::-webkit-scrollbar{ display:none; }
+.kc-testi{
+  flex:0 0 min(560px, 92%); scroll-snap-align:center; margin:0;
+  background:var(--kc-white); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:var(--sp-6); display:flex; flex-direction:column; gap:var(--sp-4);
+  box-shadow:var(--shadow-sm);
+}
+.kc-testi-mark{ color:var(--kc-red); opacity:.85; }
+.kc-testi blockquote{ margin:0; font-size:var(--fs-md); font-weight:600; line-height:1.55; }
+.kc-testi figcaption b{ display:block; }
+.kc-testi figcaption span{ color:var(--text-muted); font-size:var(--fs-sm); }
+.kc-testi-dots{ display:flex; gap:8px; justify-content:center; margin-top:var(--sp-5); }
+.kc-testi-dots button{
+  width:8px; height:8px; border-radius:50%; border:none; background:var(--kc-grey-300);
+  padding:0; transition:all .3s var(--ease-out);
+}
+.kc-testi-dots button.is-active{ width:22px; border-radius:var(--radius-pill); background:var(--kc-red); }
+
+/* ---- FAQ accordion ---- */
+.kc-faq{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-4); align-items:start; }
+.kc-faq-item{
+  background:var(--kc-white); border:1px solid var(--border); border-radius:var(--radius-md);
+  overflow:hidden; transition:box-shadow .3s var(--ease-out);
+}
+.kc-faq-item[open]{ box-shadow:var(--shadow-md); }
+.kc-faq-item summary{
+  list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+  gap:var(--sp-4); padding:var(--sp-4) var(--sp-5); font-weight:700;
+}
+.kc-faq-item summary::-webkit-details-marker{ display:none; }
+.kc-faq-item summary svg{ flex:0 0 auto; color:var(--kc-grey-500); transition:transform .3s var(--ease-out); }
+.kc-faq-item[open] summary svg{ transform:rotate(180deg); color:var(--kc-red); }
+.kc-faq-item p{ padding:0 var(--sp-5) var(--sp-5); color:var(--text-muted); line-height:1.6; }
+@media (max-width:768px){ .kc-faq{ grid-template-columns:1fr; } }
+
+/* ---- Newsletter polish ---- */
+.newsletter-form{
+  display:flex; background:var(--kc-white); border-radius:var(--radius-pill);
+  padding:5px; box-shadow:var(--shadow-sm); max-width:420px; border:1px solid var(--border);
+}
+.newsletter-form input[type="email"]{
+  flex:1; min-width:0; border:none; background:none; padding:10px 16px; font-size:var(--fs-sm); outline:none; color:var(--kc-grey-900);
+}
+.newsletter-form button{
+  flex:0 0 auto; width:42px; height:42px; border:none; border-radius:50%;
+  background:var(--kc-red); color:var(--kc-white); display:flex; align-items:center; justify-content:center;
+  transition:background .2s, transform .2s;
+}
+.newsletter-form button:hover{ background:var(--kc-red-dark); transform:scale(1.06); }

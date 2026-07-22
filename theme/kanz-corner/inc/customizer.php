@@ -86,5 +86,25 @@ function kc_customize_register( $wp_customize ) {
 		'section'     => 'kc_misc',
 		'type'        => 'text',
 	) );
+
+	/* ---- Homepage testimonials ---- */
+	$wp_customize->add_section( 'kc_testimonials', array(
+		'title'       => __( 'Homepage Testimonials', 'kanz-corner' ),
+		'description' => __( 'Up to 3 customer quotes shown in a slider on the homepage. The pre-filled ones are sample placeholders — replace them with real customer feedback. Empty all three quote fields to hide the section.', 'kanz-corner' ),
+		'panel'       => 'kc_settings',
+	) );
+	$testi_defaults = array(
+		1 => array( __( 'Kanz Corner turned our BOQ around in under a day — full MTC documentation and everything arrived on spec.', 'kanz-corner' ), __( 'Procurement Manager', 'kanz-corner' ), __( 'EPC Contractor, Dammam', 'kanz-corner' ) ),
+		2 => array( __( 'Reliable stock on valves and flanges when other suppliers quoted six-week lead times. Our go-to in the Eastern Province.', 'kanz-corner' ), __( 'Project Engineer', 'kanz-corner' ), __( 'Water Infrastructure, Jubail', 'kanz-corner' ) ),
+		3 => array( __( 'Competitive pricing on bulk fasteners and gaskets, and the warehouse pickup saves us days on urgent jobs.', 'kanz-corner' ), __( 'Site Supervisor', 'kanz-corner' ), __( 'Construction, Al-Khobar', 'kanz-corner' ) ),
+	);
+	foreach ( $testi_defaults as $t => $def ) {
+		$wp_customize->add_setting( "kc_testimonial_{$t}_text", array( 'default' => $def[0], 'sanitize_callback' => 'sanitize_textarea_field' ) );
+		$wp_customize->add_control( "kc_testimonial_{$t}_text", array( 'label' => sprintf( __( 'Quote %d', 'kanz-corner' ), $t ), 'section' => 'kc_testimonials', 'type' => 'textarea' ) );
+		$wp_customize->add_setting( "kc_testimonial_{$t}_name", array( 'default' => $def[1], 'sanitize_callback' => 'sanitize_text_field' ) );
+		$wp_customize->add_control( "kc_testimonial_{$t}_name", array( 'label' => sprintf( __( 'Quote %d — name / role', 'kanz-corner' ), $t ), 'section' => 'kc_testimonials', 'type' => 'text' ) );
+		$wp_customize->add_setting( "kc_testimonial_{$t}_role", array( 'default' => $def[2], 'sanitize_callback' => 'sanitize_text_field' ) );
+		$wp_customize->add_control( "kc_testimonial_{$t}_role", array( 'label' => sprintf( __( 'Quote %d — company / sector', 'kanz-corner' ), $t ), 'section' => 'kc_testimonials', 'type' => 'text' ) );
+	}
 }
 add_action( 'customize_register', 'kc_customize_register' );

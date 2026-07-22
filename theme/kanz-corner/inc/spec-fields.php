@@ -82,6 +82,18 @@ function kc_render_quote_only_meta_box( $post ) {
 		<input type="checkbox" name="kc_bestseller" value="1" <?php checked( get_post_meta( $post->ID, '_kc_bestseller', true ), '1' ); ?>>
 		<?php esc_html_e( 'Mark as "Best Seller" (shows a badge on the product card)', 'kanz-corner' ); ?>
 	</label>
+	<hr>
+	<label>
+		<input type="checkbox" name="kc_special_offer" value="1" <?php checked( get_post_meta( $post->ID, '_kc_special_offer', true ), '1' ); ?>>
+		<?php esc_html_e( 'Show in "Special Offers" on the homepage (red deal badge)', 'kanz-corner' ); ?>
+	</label>
+	<p style="margin:8px 0 4px">
+		<input type="text" name="kc_offer_label" value="<?php echo esc_attr( get_post_meta( $post->ID, '_kc_offer_label', true ) ); ?>" placeholder="<?php esc_attr_e( 'Badge text (default: Special Offer)', 'kanz-corner' ); ?>" style="width:100%">
+	</p>
+	<p style="margin:4px 0">
+		<input type="text" name="kc_old_price" value="<?php echo esc_attr( get_post_meta( $post->ID, '_kc_old_price', true ) ); ?>" placeholder="<?php esc_attr_e( 'Old price, e.g. 149 (shown struck through)', 'kanz-corner' ); ?>" style="width:100%">
+	</p>
+	<p class="description"><?php esc_html_e( 'Old price is optional — it renders crossed out next to the current price (or next to "Price on request").', 'kanz-corner' ); ?></p>
 	<?php
 }
 
@@ -100,6 +112,9 @@ function kc_save_product_meta( $post_id ) {
 
 		update_post_meta( $post_id, '_kc_quote_only', isset( $_POST['kc_quote_only'] ) ? '1' : '' );
 		update_post_meta( $post_id, '_kc_bestseller', isset( $_POST['kc_bestseller'] ) ? '1' : '' );
+		update_post_meta( $post_id, '_kc_special_offer', isset( $_POST['kc_special_offer'] ) ? '1' : '' );
+		update_post_meta( $post_id, '_kc_offer_label', isset( $_POST['kc_offer_label'] ) ? sanitize_text_field( wp_unslash( $_POST['kc_offer_label'] ) ) : '' );
+		update_post_meta( $post_id, '_kc_old_price', isset( $_POST['kc_old_price'] ) ? sanitize_text_field( wp_unslash( $_POST['kc_old_price'] ) ) : '' );
 	}
 }
 add_action( 'save_post_product', 'kc_save_product_meta' );

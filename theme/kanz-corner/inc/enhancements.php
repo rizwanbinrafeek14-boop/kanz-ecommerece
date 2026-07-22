@@ -381,6 +381,9 @@ function kc_loop_card_extras() {
 	);
 	if ( '1' === get_post_meta( $product->get_id(), '_kc_bestseller', true ) ) {
 		echo '<span class="kc-bestseller-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>' . esc_html__( 'Best Seller', 'kanz-corner' ) . '</span>';
+	} elseif ( '1' === get_post_meta( $product->get_id(), '_kc_special_offer', true ) ) {
+		$label = get_post_meta( $product->get_id(), '_kc_offer_label', true );
+		echo '<span class="kc-deal-badge">' . esc_html( $label ?: __( 'Special Offer', 'kanz-corner' ) ) . '</span>';
 	}
 }
 add_action( 'woocommerce_before_shop_loop_item_title', kc_guard( 'kc_loop_card_extras' ), 12 );
@@ -478,3 +481,61 @@ function kc_render_overlays() {
 	<?php
 }
 add_action( 'wp_footer', kc_guard( 'kc_render_overlays' ) );
+
+/* ------------------------------------------------------------------------
+ * v1.3 — Special Offers.
+ * ---------------------------------------------------------------------- */
+
+/* Struck-through old price next to the current price / "Price on request". */
+function kc_offer_old_price_html( $price_html, $product ) {
+	$old = get_post_meta( $product->get_id(), '_kc_old_price', true );
+	if ( '' === $old || '1' !== get_post_meta( $product->get_id(), '_kc_special_offer', true ) ) {
+		return $price_html;
+	}
+	$old_fmt = is_numeric( str_replace( ',', '', $old ) ) ? wc_price( (float) str_replace( ',', '', $old ) ) : esc_html( $old );
+	return '<del class="kc-old-price" aria-hidden="true">' . $old_fmt . '</del> ' . $price_html;
+}
+add_filter( 'woocommerce_get_price_html', kc_guard_filter( 'kc_offer_old_price_html' ), 60, 2 );
+
+/* Homepage "Special Offers" row: products the admin ticked in the
+ * Pricing Mode box (Products -> edit product -> Special Offers). Renders
+ * nothing when no product is marked, so the homepage stays clean. */
+function kc_render_special_offers() {
+	try {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+		$offers = new WP_Query( array(
+			'post_type'      => 'product',
+			'posts_per_page' => 8,
+			'meta_query'     => array( array( 'key' => '_kc_special_offer', 'value' => '1' ) ), // phpcs:ignore
+		) );
+		if ( ! $offers->have_posts() ) {
+			return;
+		}
+		?>
+		<section class="section kc-offers kc-hscroll">
+			<div class="container">
+				<div class="section-head">
+					<div>
+						<span class="eyebrow"><?php esc_html_e( 'Limited-time deals', 'kanz-corner' ); ?></span>
+						<h2 class="section-title"><?php esc_html_e( 'Special Offers', 'kanz-corner' ); ?></h2>
+					</div>
+					<a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="btn btn-outline"><?php esc_html_e( 'View All', 'kanz-corner' ); ?></a>
+				</div>
+				<ul class="products columns-4">
+					<?php
+					while ( $offers->have_posts() ) :
+						$offers->the_post();
+						wc_get_template_part( 'content', 'product' );
+					endwhile;
+					wp_reset_postdata();
+					?>
+				</ul>
+			</div>
+		</section>
+		<?php
+	} catch ( \Throwable $e ) {
+		error_log( 'Kanz Corner theme suppressed error in kc_render_special_offers: ' . $e->getMessage() );
+	}
+}

@@ -466,3 +466,186 @@
     }
   });
 })();
+
+/* ==========================================================================
+   v1.3 — Antigravity motion pack
+   Everything here is progressive enhancement: if any of it fails or the
+   user prefers reduced motion, the page stays fully visible and usable.
+   ========================================================================== */
+(function () {
+  try {
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---- Testimonials slider (works even with reduced motion — it's
+       scroll-snap driven, auto-advance only added when motion is ok) ---- */
+    (function () {
+      var track = document.querySelector('.kc-testi-track');
+      var dotsWrap = document.querySelector('.kc-testi-dots');
+      if (!track) return;
+      var slides = track.querySelectorAll('.kc-testi');
+      if (slides.length < 2) return;
+      var idx = 0, timer = null;
+      function go(i, smooth) {
+        idx = (i + slides.length) % slides.length;
+        var target = slides[idx];
+        track.scrollTo({ left: target.offsetLeft - track.offsetLeft, behavior: smooth === false ? 'auto' : 'smooth' });
+        mark();
+      }
+      function mark() {
+        if (!dotsWrap) return;
+        dotsWrap.querySelectorAll('button').forEach(function (b, i) {
+          b.classList.toggle('is-active', i === idx);
+        });
+      }
+      if (dotsWrap) {
+        slides.forEach(function (_, i) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.setAttribute('aria-label', 'Testimonial ' + (i + 1));
+          b.addEventListener('click', function () { stop(); go(i); });
+          dotsWrap.appendChild(b);
+        });
+        mark();
+      }
+      function start() {
+        if (reduce) return;
+        timer = setInterval(function () { go(idx + 1); }, 5500);
+      }
+      function stop() { if (timer) { clearInterval(timer); timer = null; } }
+      track.addEventListener('pointerdown', stop);
+      track.addEventListener('scroll', function () {
+        // keep dots in sync with manual swipes
+        var w = slides[0].offsetWidth + 24;
+        var i = Math.round(track.scrollLeft / w);
+        if (i !== idx && i >= 0 && i < slides.length) { idx = i; mark(); }
+      }, { passive: true });
+      start();
+    })();
+
+    if (reduce) return; // everything below is pure decoration
+
+    document.documentElement.classList.add('kc-anim');
+
+    /* ---- Scroll reveal: elements drift up + fade in ---- */
+    var revealSel = '.section-head, .kc-photocat, ul.products li.product, .kc-certs, .quote-cta, .trust-item, .hero-stat, .kc-why-item, .kc-testi, .kc-faq-item, .kc-sector, .kc-subcat-tile';
+    var revealEls = [].slice.call(document.querySelectorAll(revealSel));
+    revealEls.forEach(function (el) {
+      el.classList.add('kc-reveal');
+      var sibs = el.parentElement
+        ? [].slice.call(el.parentElement.children).filter(function (c) { return c.classList && c.classList.contains('kc-reveal'); })
+        : [el];
+      el.style.transitionDelay = Math.min(sibs.indexOf(el) * 65, 390) + 'ms';
+    });
+    function revealAll() {
+      revealEls.forEach(function (el) { el.classList.add('kc-inview'); });
+    }
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { en.target.classList.add('kc-inview'); io.unobserve(en.target); }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+      revealEls.forEach(function (el) { io.observe(el); });
+      // Safety net: never leave content hidden, whatever happens.
+      setTimeout(revealAll, 3000);
+    } else {
+      revealAll();
+    }
+
+    /* ---- Parallax drift on the banner carousel ---- */
+    var banners = document.querySelector('.kc-banners');
+    if (banners) {
+      var pTick = false;
+      addEventListener('scroll', function () {
+        if (pTick) return;
+        pTick = true;
+        requestAnimationFrame(function () {
+          pTick = false;
+          var r = banners.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > innerHeight) return;
+          var shift = Math.max(-18, Math.min(18, r.top * -0.06));
+          banners.querySelectorAll('.kc-banner img').forEach(function (img) {
+            img.style.transform = 'translateY(' + shift + 'px) scale(1.06)';
+          });
+        });
+      }, { passive: true });
+    }
+
+    /* ---- 3D tilt on product cards (mouse/trackpad only) ---- */
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      document.addEventListener('pointermove', function (e) {
+        var card = e.target.closest && e.target.closest('ul.products li.product');
+        if (!card) return;
+        var r = card.getBoundingClientRect();
+        var rx = ((e.clientY - r.top) / r.height - 0.5) * -5;
+        var ry = ((e.clientX - r.left) / r.width - 0.5) * 5;
+        card.style.transform = 'perspective(700px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateY(-3px)';
+      });
+      document.addEventListener('pointerout', function (e) {
+        var card = e.target.closest && e.target.closest('ul.products li.product');
+        if (card && (!e.relatedTarget || !card.contains(e.relatedTarget))) {
+          card.style.transform = '';
+        }
+      });
+    }
+
+    /* ---- Animated stat counters ---- */
+    var stats = [].slice.call(document.querySelectorAll('.kc-stats-band .hero-stat b'));
+    if (stats.length && 'IntersectionObserver' in window) {
+      var cio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          cio.unobserve(en.target);
+          var raw = en.target.textContent;
+          var m = raw.match(/^([^0-9]*)([0-9][0-9,\.]*)(.*)$/);
+          if (!m) return;
+          var end = parseFloat(m[2].replace(/,/g, ''));
+          if (!isFinite(end) || end <= 0) return;
+          var hasComma = m[2].indexOf(',') !== -1;
+          var t0 = null;
+          function step(ts) {
+            if (!t0) t0 = ts;
+            var p = Math.min((ts - t0) / 1200, 1);
+            var eased = 1 - Math.pow(1 - p, 3);
+            var val = Math.round(end * eased);
+            var out = hasComma ? val.toLocaleString('en-US') : String(val);
+            en.target.textContent = m[1] + out + m[3];
+            if (p < 1) requestAnimationFrame(step);
+            else en.target.textContent = raw;
+          }
+          requestAnimationFrame(step);
+        });
+      }, { threshold: 0.5 });
+      stats.forEach(function (el) { cio.observe(el); });
+    }
+
+    /* ---- Fly-to-icon animation on add to cart / quote ---- */
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.add_to_cart_button, .single_add_to_cart_button, [data-add-to-quote]');
+      if (!btn) return;
+      var scope = btn.closest('li.product') || btn.closest('.summary') || document;
+      var img = scope.querySelector('img') || document.querySelector('.woocommerce-product-gallery img');
+      var target = document.querySelector(btn.hasAttribute('data-add-to-quote') ? '[data-open-quote-drawer]' : '[data-open-cart-drawer]')
+        || document.querySelector('.header-actions');
+      if (!img || !target) return;
+      var a = img.getBoundingClientRect(), b = target.getBoundingClientRect();
+      if (!a.width || !b.width) return;
+      var fly = img.cloneNode();
+      fly.className = 'kc-fly-img';
+      fly.style.cssText = 'left:' + a.left + 'px;top:' + a.top + 'px;width:' + a.width + 'px;height:' + a.height + 'px;';
+      document.body.appendChild(fly);
+      requestAnimationFrame(function () {
+        fly.style.left = (b.left + b.width / 2 - 14) + 'px';
+        fly.style.top = (b.top + b.height / 2 - 14) + 'px';
+        fly.style.width = '28px';
+        fly.style.height = '28px';
+        fly.style.opacity = '0.25';
+        fly.style.borderRadius = '50%';
+      });
+      setTimeout(function () { if (fly.parentNode) fly.parentNode.removeChild(fly); }, 900);
+    });
+  } catch (err) {
+    // Decorative layer only — never let it break the page.
+    document.documentElement.classList.remove('kc-anim');
+  }
+})();

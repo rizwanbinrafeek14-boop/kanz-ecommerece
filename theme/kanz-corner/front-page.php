@@ -131,6 +131,14 @@ get_header();
 	</div>
 </section>
 
+<?php
+// Special Offers row — renders only when at least one product is ticked
+// as a special offer in its Pricing Mode box.
+if ( function_exists( 'kc_render_special_offers' ) ) {
+	kc_render_special_offers();
+}
+?>
+
 <?php if ( class_exists( 'WooCommerce' ) ) : ?>
 <section class="section section-subtle kc-hscroll">
 	<div class="container">
@@ -168,6 +176,34 @@ get_header();
 	</div>
 </section>
 <?php endif; ?>
+
+<!-- ============ Why Kanz Corner ============ -->
+<section class="section-tight">
+	<div class="container">
+		<div class="kc-why">
+			<div class="kc-why-item">
+				<span class="kc-why-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+				<b><?php esc_html_e( 'Quotes in 24 hours', 'kanz-corner' ); ?></b>
+				<span><?php esc_html_e( 'Send your item list — engineers reply with pricing & lead time.', 'kanz-corner' ); ?></span>
+			</div>
+			<div class="kc-why-item">
+				<span class="kc-why-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span>
+				<b><?php esc_html_e( 'Certified stock', 'kanz-corner' ); ?></b>
+				<span><?php esc_html_e( 'ASTM / ASME / API brands with mill test certificates.', 'kanz-corner' ); ?></span>
+			</div>
+			<div class="kc-why-item">
+				<span class="kc-why-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+				<b><?php esc_html_e( 'KSA-wide delivery', 'kanz-corner' ); ?></b>
+				<span><?php esc_html_e( 'Warehouse pickup in Al-Khobar or freight to any site.', 'kanz-corner' ); ?></span>
+			</div>
+			<div class="kc-why-item">
+				<span class="kc-why-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+				<b><?php esc_html_e( 'B2B trade accounts', 'kanz-corner' ); ?></b>
+				<span><?php esc_html_e( 'Register your CR/VAT for project pricing & credit terms.', 'kanz-corner' ); ?></span>
+			</div>
+		</div>
+	</div>
+</section>
 
 <!-- ============ Certifications & standards ============ -->
 <section class="section-tight">
@@ -236,6 +272,52 @@ get_header();
 	</div>
 </section>
 
+<!-- ============ Testimonials ============ -->
+<?php
+$kc_testimonials = array();
+for ( $t = 1; $t <= 3; $t++ ) {
+	$text = get_theme_mod( "kc_testimonial_{$t}_text", null );
+	if ( null === $text ) {
+		// Fall back to the defaults registered in inc/customizer.php.
+		$defaults = array(
+			1 => array( __( 'Kanz Corner turned our BOQ around in under a day — full MTC documentation and everything arrived on spec.', 'kanz-corner' ), __( 'Procurement Manager', 'kanz-corner' ), __( 'EPC Contractor, Dammam', 'kanz-corner' ) ),
+			2 => array( __( 'Reliable stock on valves and flanges when other suppliers quoted six-week lead times. Our go-to in the Eastern Province.', 'kanz-corner' ), __( 'Project Engineer', 'kanz-corner' ), __( 'Water Infrastructure, Jubail', 'kanz-corner' ) ),
+			3 => array( __( 'Competitive pricing on bulk fasteners and gaskets, and the warehouse pickup saves us days on urgent jobs.', 'kanz-corner' ), __( 'Site Supervisor', 'kanz-corner' ), __( 'Construction, Al-Khobar', 'kanz-corner' ) ),
+		);
+		$kc_testimonials[] = $defaults[ $t ];
+		continue;
+	}
+	if ( '' !== trim( $text ) ) {
+		$kc_testimonials[] = array( $text, get_theme_mod( "kc_testimonial_{$t}_name", '' ), get_theme_mod( "kc_testimonial_{$t}_role", '' ) );
+	}
+}
+if ( ! empty( $kc_testimonials ) ) :
+?>
+<section class="section">
+	<div class="container">
+		<div class="section-head">
+			<div>
+				<span class="eyebrow"><?php esc_html_e( 'What customers say', 'kanz-corner' ); ?></span>
+				<h2 class="section-title"><?php esc_html_e( 'Trusted by procurement teams', 'kanz-corner' ); ?></h2>
+			</div>
+		</div>
+		<div class="kc-testi-track">
+			<?php foreach ( $kc_testimonials as $testi ) : ?>
+				<figure class="kc-testi">
+					<svg class="kc-testi-mark" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M9.6 4C6 6 3.5 9.1 3.5 13.4c0 3.4 2 6.6 5.4 6.6 2.6 0 4.6-2 4.6-4.6 0-2.5-1.8-4.3-4.2-4.3-.4 0-.8 0-1.1.1.5-2.3 2.3-4.2 4.4-5.4L9.6 4zm10.9 0c-3.6 2-6.1 5.1-6.1 9.4 0 3.4 2 6.6 5.4 6.6 2.6 0 4.6-2 4.6-4.6 0-2.5-1.8-4.3-4.2-4.3-.4 0-.8 0-1.1.1.5-2.3 2.3-4.2 4.4-5.4L20.5 4z"/></svg>
+					<blockquote><?php echo esc_html( $testi[0] ); ?></blockquote>
+					<figcaption>
+						<b><?php echo esc_html( $testi[1] ); ?></b>
+						<span><?php echo esc_html( $testi[2] ); ?></span>
+					</figcaption>
+				</figure>
+			<?php endforeach; ?>
+		</div>
+		<div class="kc-testi-dots"></div>
+	</div>
+</section>
+<?php endif; ?>
+
 <!-- ============ Projects teaser ============ -->
 <section class="section">
 	<div class="container">
@@ -259,6 +341,36 @@ get_header();
 			foreach ( $sectors as $sector ) :
 				?>
 				<div class="kc-sector"><span class="kc-sector-dot"></span><?php echo esc_html( $sector ); ?></div>
+			<?php endforeach; ?>
+		</div>
+	</div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section section-subtle">
+	<div class="container">
+		<div class="section-head">
+			<div>
+				<span class="eyebrow"><?php esc_html_e( 'Good to know', 'kanz-corner' ); ?></span>
+				<h2 class="section-title"><?php esc_html_e( 'Frequently asked questions', 'kanz-corner' ); ?></h2>
+			</div>
+		</div>
+		<div class="kc-faq">
+			<?php
+			$kc_faqs = array(
+				array( __( 'How do I get a price for items marked "Price on request"?', 'kanz-corner' ), __( 'Add them to your quote list (the Request Quote button) and submit — our engineers reply within 24 hours with pricing and lead time. You can also WhatsApp us the item list directly.', 'kanz-corner' ) ),
+				array( __( 'Do you deliver outside Al-Khobar?', 'kanz-corner' ), __( 'Yes — we arrange courier delivery and freight shipping across all of Saudi Arabia. For heavy or bulk loads, choose "Request Delivery Quote" at checkout and we\'ll confirm the freight cost before you pay.', 'kanz-corner' ) ),
+				array( __( 'Can I collect my order from your warehouse?', 'kanz-corner' ), __( 'Absolutely. Select warehouse pickup at checkout and collect from our Al-Khobar location — we\'ll notify you as soon as your order is ready.', 'kanz-corner' ) ),
+				array( __( 'Do you provide mill test certificates (MTC)?', 'kanz-corner' ), __( 'Yes, mill test certificates are available on request for our piping, flange and fastener lines — mention it in your quote request and we\'ll include the documentation.', 'kanz-corner' ) ),
+				array( __( 'Do you offer trade accounts for companies?', 'kanz-corner' ), __( 'Yes — register a B2B trade account with your CR and VAT number. Once approved, you get access to project pricing and a dedicated account contact.', 'kanz-corner' ) ),
+				array( __( 'Are prices inclusive of VAT?', 'kanz-corner' ), __( 'All listed prices include 15% Saudi VAT. Quotes are also issued VAT-inclusive with the VAT amount broken out.', 'kanz-corner' ) ),
+			);
+			foreach ( $kc_faqs as $faq ) :
+				?>
+				<details class="kc-faq-item">
+					<summary><?php echo esc_html( $faq[0] ); ?><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></summary>
+					<p><?php echo esc_html( $faq[1] ); ?></p>
+				</details>
 			<?php endforeach; ?>
 		</div>
 	</div>
