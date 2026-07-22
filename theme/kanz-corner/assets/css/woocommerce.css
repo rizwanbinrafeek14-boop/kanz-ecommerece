@@ -280,3 +280,62 @@
 
 /* ---- Recently viewed ---- */
 .kc-recently-viewed{ border-top:1px solid var(--border); }
+
+/* ==========================================================================
+   v1.2.1 mobile alignment pass
+   ========================================================================== */
+
+/* Cart & order tables: stacked card layout on mobile. Replaces the
+   responsive behaviour lost when WooCommerce's smallscreen stylesheet was
+   dequeued — labels come from WooCommerce's own data-title attributes. */
+@media (max-width:768px){
+  .woocommerce table.shop_table_responsive thead{ display:none; }
+  .woocommerce table.shop_table_responsive tr{
+    display:block; border:1px solid var(--border); border-radius:var(--radius-md);
+    margin-bottom:var(--sp-4); padding:var(--sp-2) var(--sp-4); background:var(--kc-white);
+  }
+  .woocommerce table.shop_table_responsive td{
+    display:flex; justify-content:space-between; align-items:center; gap:var(--sp-3);
+    text-align:end; border:none; border-bottom:1px solid var(--border); padding:10px 0;
+  }
+  .woocommerce table.shop_table_responsive td:last-child{ border-bottom:none; }
+  .woocommerce table.shop_table_responsive td::before{
+    content:attr(data-title); font-weight:700; color:var(--text-muted);
+    font-size:var(--fs-xs); text-transform:uppercase; letter-spacing:.04em; text-align:start;
+  }
+  .woocommerce table.shop_table_responsive td.product-remove::before,
+  .woocommerce table.shop_table_responsive td.product-thumbnail::before,
+  .woocommerce table.shop_table_responsive td.actions::before{ content:none; }
+  .woocommerce table.shop_table_responsive td.product-remove,
+  .woocommerce table.shop_table_responsive td.actions{ justify-content:flex-end; }
+  .woocommerce table.shop_table_responsive td.actions{ display:block; text-align:start; }
+  .woocommerce table.shop_table_responsive td.actions .coupon{ display:flex; gap:8px; margin-bottom:10px; }
+  .woocommerce table.shop_table_responsive td.actions .coupon #coupon_code{ flex:1; }
+  .woocommerce table.shop_table_responsive td.actions > .button{ width:100%; }
+}
+
+@media (max-width:640px){
+  /* Product tabs scroll instead of wrapping awkwardly */
+  .woocommerce-tabs ul.tabs{ overflow-x:auto; white-space:nowrap; flex-wrap:nowrap; gap:var(--sp-5); scrollbar-width:none; }
+  .woocommerce-tabs ul.tabs::-webkit-scrollbar{ display:none; }
+
+  /* Typography scale on small screens */
+  .woocommerce div.product .summary .product_title{ font-size:1.35rem; }
+  .woocommerce div.product .summary p.price{ font-size:var(--fs-xl); }
+  .related.products > h2{ font-size:1.35rem; margin-bottom:var(--sp-4); }
+  .woocommerce div.product div.images img{ padding:var(--sp-4); }
+
+  /* Sort dropdown aligns full-width under the result count */
+  .woocommerce-ordering{ width:100%; }
+  .woocommerce-ordering select{ width:100%; }
+
+  /* Sub-category tiles: tighter on phones */
+  .kc-subcat-tiles{ grid-template-columns:repeat(2,1fr); }
+
+  /* Quote/contact form cards lose their wide padding */
+  .form-grid-2{ gap:var(--sp-3); }
+
+  /* Spec table: give values more room */
+  .spec-table th{ width:34%; font-size:var(--fs-xs); }
+  .spec-table td{ font-size:var(--fs-sm); }
+}

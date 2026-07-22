@@ -38,7 +38,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php elseif ( taxonomy_exists( 'product_cat' ) ) : ?>
 					<ul>
 						<?php
-						$footer_cats = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false, 'number' => 6, 'exclude' => array( get_option( 'default_product_cat' ) ) ) );
+						// parent => 0: only the 8 top-level categories, not alphabetical subcategories.
+					$footer_cats = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false, 'parent' => 0, 'number' => 8, 'exclude' => array( get_option( 'default_product_cat' ) ) ) );
 						foreach ( $footer_cats as $cat ) :
 							?>
 							<li><a href="<?php echo esc_url( get_term_link( $cat ) ); ?>"><?php echo esc_html( $cat->name ); ?></a></li>
