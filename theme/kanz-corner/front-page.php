@@ -10,16 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 ?>
 
-<!-- ============ Search hero (noon-style) ============ -->
-<section class="kc-search-hero">
-	<div class="container">
-		<button type="button" class="kc-searchbar" data-open-search>
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-			<?php esc_html_e( 'Search pipes, fittings, valves, flanges…', 'kanz-corner' ); ?>
-		</button>
-	</div>
-</section>
-
 <!-- ============ Promo banner carousel ============ -->
 <section class="kc-banners">
 	<div class="container">
@@ -68,22 +58,46 @@ get_header();
 	</div>
 </section>
 
+<!-- ============ Promo strips ============ -->
+<section class="kc-promo-strips">
+	<div class="container">
+		<div class="kc-promo-strip">
+			<span class="kc-promo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+			<div>
+				<b><?php esc_html_e( 'Pickup & KSA-wide freight', 'kanz-corner' ); ?></b>
+				<span><?php esc_html_e( 'Collect free from our Al-Khobar warehouse — or get a freight quote to any site.', 'kanz-corner' ); ?></span>
+			</div>
+		</div>
+		<?php $kc_wa_strip = preg_replace( '/[^0-9]/', '', get_theme_mod( 'kc_whatsapp', '966507264938' ) ); ?>
+		<a class="kc-promo-strip kc-promo-wa" href="https://wa.me/<?php echo esc_attr( $kc_wa_strip ); ?>" target="_blank" rel="noopener">
+			<span class="kc-promo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.9-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20z"/></svg></span>
+			<div>
+				<b><?php esc_html_e( 'Chat with our experts', 'kanz-corner' ); ?></b>
+				<span><?php esc_html_e( 'Instant answers on stock, specs & bulk pricing — straight on WhatsApp.', 'kanz-corner' ); ?></span>
+			</div>
+			<svg class="kc-promo-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+		</a>
+	</div>
+</section>
+
 <?php $brands = get_theme_mod( 'kc_brand_strip', 'SUMITOMO, TUBACEX, ERNE, KITZ, SANDVIK, MUELLER, OMB, L&T, VIRAJ, APOLLO' ); ?>
 <?php if ( $brands ) : ?>
-<div class="brand-strip">
+<section class="section-tight kc-brands-row-section">
 	<div class="container">
-		<div class="track">
-			<?php
-			$brand_list = array_map( 'trim', explode( ',', $brands ) );
-			for ( $i = 0; $i < 2; $i++ ) {
-				foreach ( $brand_list as $brand ) {
-					echo '<span>' . esc_html( $brand ) . '</span>';
-				}
-			}
-			?>
+		<div class="section-head">
+			<div>
+				<span class="eyebrow"><?php esc_html_e( 'Certified sourcing', 'kanz-corner' ); ?></span>
+				<h2 class="section-title"><?php esc_html_e( 'Brands', 'kanz-corner' ); ?></h2>
+			</div>
+			<a href="<?php echo esc_url( home_url( '/certifications/' ) ); ?>" class="btn btn-outline"><?php esc_html_e( 'View All Brands', 'kanz-corner' ); ?></a>
+		</div>
+		<div class="kc-brand-row">
+			<?php foreach ( array_map( 'trim', explode( ',', $brands ) ) as $brand ) : ?>
+				<span class="kc-brand-tile"><?php echo esc_html( $brand ); ?></span>
+			<?php endforeach; ?>
 		</div>
 	</div>
-</div>
+</section>
 <?php endif; ?>
 
 <section class="section">
@@ -136,6 +150,11 @@ get_header();
 // as a special offer in its Pricing Mode box.
 if ( function_exists( 'kc_render_special_offers' ) ) {
 	kc_render_special_offers();
+}
+
+// Electric-House-style per-category showcases: hero band + products row.
+if ( function_exists( 'kc_render_category_showcases' ) ) {
+	kc_render_category_showcases();
 }
 ?>
 
@@ -345,6 +364,45 @@ if ( ! empty( $kc_testimonials ) ) :
 		</div>
 	</div>
 </section>
+
+<!-- ============ Guides & insights ============ -->
+<?php
+$kc_posts = new WP_Query( array( 'post_type' => 'post', 'posts_per_page' => 3, 'no_found_rows' => true, 'ignore_sticky_posts' => true ) );
+if ( $kc_posts->have_posts() ) :
+?>
+<section class="section">
+	<div class="container">
+		<div class="section-head">
+			<div>
+				<span class="eyebrow"><?php esc_html_e( 'From our blog', 'kanz-corner' ); ?></span>
+				<h2 class="section-title"><?php esc_html_e( 'Guides & industry insights', 'kanz-corner' ); ?></h2>
+			</div>
+			<a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>" class="btn btn-outline"><?php esc_html_e( 'View All Articles', 'kanz-corner' ); ?></a>
+		</div>
+		<div class="kc-blog-grid">
+			<?php
+			while ( $kc_posts->have_posts() ) :
+				$kc_posts->the_post();
+				?>
+				<a class="kc-blog-card" href="<?php the_permalink(); ?>">
+					<span class="kc-blog-thumb">
+						<?php if ( has_post_thumbnail() ) : ?>
+							<?php the_post_thumbnail( 'medium_large', array( 'loading' => 'lazy' ) ); ?>
+						<?php else : ?>
+							<span class="kc-blog-thumb-ph"><img src="<?php echo esc_url( KC_THEME_URI . '/assets/images/logo-icon.png' ); ?>" alt="" loading="lazy"></span>
+						<?php endif; ?>
+					</span>
+					<span class="kc-blog-body">
+						<b><?php the_title(); ?></b>
+						<span><?php echo esc_html( wp_trim_words( get_the_excerpt(), 16 ) ); ?></span>
+						<span class="kc-blog-more"><?php esc_html_e( 'Read More', 'kanz-corner' ); ?> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></span>
+					</span>
+				</a>
+			<?php endwhile; wp_reset_postdata(); ?>
+		</div>
+	</div>
+</section>
+<?php endif; ?>
 
 <!-- ============ FAQ ============ -->
 <section class="section section-subtle">

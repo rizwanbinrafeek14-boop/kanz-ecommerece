@@ -27,11 +27,20 @@ function kc_customize_register( $wp_customize ) {
 		'kc_address_full'  => array( __( 'Full address (footer/contact page)', 'kanz-corner' ), 'B/W Prince Saad / Prince Talal Bin Abdulaziz Street, Cross 4, Al-Khobar, Saudi Arabia' ),
 		'kc_whatsapp'      => array( __( 'WhatsApp number (digits only, country code, no +)', 'kanz-corner' ), '966507264938' ),
 		'kc_quote_notify_email' => array( __( 'Quote requests notification email', 'kanz-corner' ), get_option( 'admin_email' ) ),
+		'kc_hours'         => array( __( 'Working hours (footer)', 'kanz-corner' ), __( 'Sun – Thu: 8:00 AM – 6:00 PM', 'kanz-corner' ) ),
 	);
 	foreach ( $contact_fields as $id => $data ) {
 		$wp_customize->add_setting( $id, array( 'default' => $data[1], 'sanitize_callback' => 'sanitize_text_field' ) );
 		$wp_customize->add_control( $id, array( 'label' => $data[0], 'section' => 'kc_contact', 'type' => 'text' ) );
 	}
+
+	$wp_customize->add_setting( 'kc_maroof_url', array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
+	$wp_customize->add_control( 'kc_maroof_url', array(
+		'label'       => __( 'Maroof profile URL (optional)', 'kanz-corner' ),
+		'description' => __( 'Once your store is registered on maroof.sa, paste your profile link here to show the "Verified on Maroof" trust card in the footer.', 'kanz-corner' ),
+		'section'     => 'kc_contact',
+		'type'        => 'url',
+	) );
 
 	$wp_customize->add_setting( 'kc_show_whatsapp', array( 'default' => true, 'sanitize_callback' => 'wp_validate_boolean' ) );
 	$wp_customize->add_control( 'kc_show_whatsapp', array( 'label' => __( 'Show floating WhatsApp button', 'kanz-corner' ), 'section' => 'kc_contact', 'type' => 'checkbox' ) );

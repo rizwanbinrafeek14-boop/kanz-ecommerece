@@ -385,6 +385,27 @@ function kc_loop_card_extras() {
 		$label = get_post_meta( $product->get_id(), '_kc_offer_label', true );
 		echo '<span class="kc-deal-badge">' . esc_html( $label ?: __( 'Special Offer', 'kanz-corner' ) ) . '</span>';
 	}
+
+	// v1.4: Electric-House-style corner badges.
+	$is_quote = function_exists( 'kc_product_is_quote_only' ) ? kc_product_is_quote_only( $product->get_id() ) : false;
+	$now      = (float) $product->get_price();
+	if ( ! $is_quote && $now > 0 && $product->is_in_stock() ) {
+		echo '<span class="kc-stock-badge">' . esc_html__( 'In-stock', 'kanz-corner' ) . '</span>';
+	}
+	$pct = 0;
+	if ( $now > 0 ) {
+		if ( $product->is_on_sale() && (float) $product->get_regular_price() > $now ) {
+			$pct = round( ( 1 - $now / (float) $product->get_regular_price() ) * 100 );
+		} else {
+			$meta_old = str_replace( ',', '', (string) get_post_meta( $product->get_id(), '_kc_old_price', true ) );
+			if ( is_numeric( $meta_old ) && (float) $meta_old > $now ) {
+				$pct = round( ( 1 - $now / (float) $meta_old ) * 100 );
+			}
+		}
+	}
+	if ( $pct >= 3 ) {
+		echo '<span class="kc-pct-badge">-' . absint( $pct ) . '%</span>';
+	}
 }
 add_action( 'woocommerce_before_shop_loop_item_title', kc_guard( 'kc_loop_card_extras' ), 12 );
 
@@ -488,6 +509,11 @@ add_action( 'wp_footer', kc_guard( 'kc_render_overlays' ) );
 
 /* Struck-through old price next to the current price / "Price on request". */
 function kc_offer_old_price_html( $price_html, $product ) {
+	// Priced products get their old price inside the dual-VAT lines
+	// (inc/woocommerce.php); this only decorates quote-only offers.
+	if ( ! kc_product_is_quote_only( $product->get_id() ) ) {
+		return $price_html;
+	}
 	$old = get_post_meta( $product->get_id(), '_kc_old_price', true );
 	if ( '' === $old || '1' !== get_post_meta( $product->get_id(), '_kc_special_offer', true ) ) {
 		return $price_html;
@@ -537,5 +563,155 @@ function kc_render_special_offers() {
 		<?php
 	} catch ( \Throwable $e ) {
 		error_log( 'Kanz Corner theme suppressed error in kc_render_special_offers: ' . $e->getMessage() );
+	}
+}
+
+/* ------------------------------------------------------------------------
+ * v1.4 — Electric-House-style storefront.
+ * ---------------------------------------------------------------------- */
+
+/* Second loop button: priced products get "Add to Quote" beside Add to Cart. */
+function kc_loop_quote_button() {
+	global $product;
+	if ( ! $product || kc_product_is_quote_only( $product->get_id() ) ) {
+		return;
+	}
+	printf(
+		'<a href="%1$s" class="btn btn-outline btn-sm kc-loop-quote" data-add-to-quote data-id="%2$s" data-name="%3$s" data-category="%4$s" data-image="%5$s">%6$s</a>',
+		esc_url( home_url( '/request-a-quote/' ) ),
+		esc_attr( $product->get_id() ),
+		esc_attr( $product->get_name() ),
+		esc_attr( kc_get_primary_category_name( $product->get_id() ) ),
+		esc_url( kc_get_product_placeholder_image( $product->get_id() ) ),
+		esc_html__( 'Add to Quote', 'kanz-corner' )
+	);
+}
+add_action( 'woocommerce_after_shop_loop_item', kc_guard( 'kc_loop_quote_button' ), 15 );
+
+/* Resolve the best available image for a category tile. */
+function kc_get_category_tile_image( $cat ) {
+	$thumb_id = get_term_meta( $cat->term_id, 'thumbnail_id', true );
+	if ( $thumb_id ) {
+		$img = wp_get_attachment_image_url( $thumb_id, 'kc-card' );
+		if ( $img ) {
+			return $img;
+		}
+	}
+	if ( file_exists( KC_THEME_DIR . '/assets/images/cat-photos/' . $cat->slug . '.jpg' ) ) {
+		return KC_THEME_URI . '/assets/images/cat-photos/' . $cat->slug . '.jpg';
+	}
+	return KC_THEME_URI . '/assets/images/categories/' . kc_map_category_to_icon_slug( $cat ) . '.svg';
+}
+
+/* Mega "Shop by Category" panel: category list left, sub-category tiles right. */
+function kc_render_mega_menu() {
+	try {
+		if ( ! taxonomy_exists( 'product_cat' ) ) {
+			return;
+		}
+		$tops = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false, 'parent' => 0, 'exclude' => array( get_option( 'default_product_cat' ) ) ) );
+		if ( is_wp_error( $tops ) || empty( $tops ) ) {
+			return;
+		}
+		echo '<div class="kc-mega" id="kc-mega" aria-hidden="true"><div class="container"><div class="kc-mega-inner">';
+		echo '<ul class="kc-mega-list">';
+		foreach ( $tops as $i => $cat ) {
+			printf(
+				'<li class="kc-mega-item%1$s" data-pane="kc-pane-%2$d"><a href="%3$s"><img src="%4$s" alt="" loading="lazy">%5$s<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></a></li>',
+				0 === $i ? ' is-active' : '',
+				(int) $cat->term_id,
+				esc_url( get_term_link( $cat ) ),
+				esc_url( KC_THEME_URI . '/assets/images/categories/' . kc_map_category_to_icon_slug( $cat ) . '.svg' ),
+				esc_html( $cat->name )
+			);
+		}
+		echo '</ul><div class="kc-mega-panes">';
+		foreach ( $tops as $i => $cat ) {
+			$children = get_terms( array( 'taxonomy' => 'product_cat', 'parent' => $cat->term_id, 'hide_empty' => false, 'number' => 12 ) );
+			printf( '<div class="kc-mega-pane%1$s" id="kc-pane-%2$d"><h4><a href="%3$s">%4$s</a></h4><div class="kc-mega-tiles">', 0 === $i ? ' is-active' : '', (int) $cat->term_id, esc_url( get_term_link( $cat ) ), esc_html( $cat->name ) );
+			if ( ! is_wp_error( $children ) && ! empty( $children ) ) {
+				foreach ( $children as $child ) {
+					printf(
+						'<a href="%1$s" class="kc-mega-tile"><span class="ph"><img src="%2$s" alt="" loading="lazy"></span><span class="nm">%3$s</span></a>',
+						esc_url( get_term_link( $child ) ),
+						esc_url( kc_get_category_tile_image( $child ) ),
+						esc_html( $child->name )
+					);
+				}
+			} else {
+				printf(
+					'<a href="%1$s" class="kc-mega-tile"><span class="ph"><img src="%2$s" alt="" loading="lazy"></span><span class="nm">%3$s</span></a>',
+					esc_url( get_term_link( $cat ) ),
+					esc_url( kc_get_category_tile_image( $cat ) ),
+					esc_html( sprintf( __( 'Browse all %s', 'kanz-corner' ), $cat->name ) )
+				);
+			}
+			echo '</div></div>';
+		}
+		echo '</div></div></div></div>';
+	} catch ( \Throwable $e ) {
+		error_log( 'Kanz Corner theme suppressed error in kc_render_mega_menu: ' . $e->getMessage() );
+	}
+}
+
+/* Homepage per-category showcases: hero band + sub-category chips + products. */
+function kc_render_category_showcases() {
+	try {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+		$tops = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'parent' => 0, 'exclude' => array( get_option( 'default_product_cat' ) ) ) );
+		if ( is_wp_error( $tops ) || empty( $tops ) ) {
+			return;
+		}
+		$shown = 0;
+		foreach ( $tops as $cat ) {
+			if ( $shown >= 4 ) {
+				break;
+			}
+			$q = new WP_Query( array(
+				'post_type'      => 'product',
+				'posts_per_page' => 8,
+				'no_found_rows'  => true,
+				'tax_query'      => array( array( 'taxonomy' => 'product_cat', 'field' => 'term_id', 'terms' => $cat->term_id ) ), // phpcs:ignore
+			) );
+			if ( ! $q->have_posts() ) {
+				continue;
+			}
+			$shown++;
+			$photo    = kc_get_category_tile_image( $cat );
+			$children = get_terms( array( 'taxonomy' => 'product_cat', 'parent' => $cat->term_id, 'hide_empty' => true, 'number' => 6 ) );
+			?>
+			<section class="section-tight kc-catshow kc-hscroll">
+				<div class="container">
+					<div class="kc-catband" style="background-image:linear-gradient(100deg, rgba(16,18,28,.96) 30%, rgba(16,18,28,.55) 65%, rgba(16,18,28,.15)), url('<?php echo esc_url( $photo ); ?>');">
+						<div>
+							<span class="eyebrow"><?php echo esc_html( sprintf( _n( '%d product', '%d products', $cat->count, 'kanz-corner' ), $cat->count ) ); ?></span>
+							<h2><?php echo esc_html( $cat->name ); ?></h2>
+						</div>
+						<a href="<?php echo esc_url( get_term_link( $cat ) ); ?>" class="btn btn-outline-light btn-sm"><?php esc_html_e( 'View All', 'kanz-corner' ); ?></a>
+					</div>
+					<?php if ( ! is_wp_error( $children ) && ! empty( $children ) ) : ?>
+						<div class="kc-catchips">
+							<?php foreach ( $children as $child ) : ?>
+								<a href="<?php echo esc_url( get_term_link( $child ) ); ?>"><?php echo esc_html( $child->name ); ?></a>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+					<ul class="products columns-4">
+						<?php
+						while ( $q->have_posts() ) :
+							$q->the_post();
+							wc_get_template_part( 'content', 'product' );
+						endwhile;
+						wp_reset_postdata();
+						?>
+					</ul>
+				</div>
+			</section>
+			<?php
+		}
+	} catch ( \Throwable $e ) {
+		error_log( 'Kanz Corner theme suppressed error in kc_render_category_showcases: ' . $e->getMessage() );
 	}
 }

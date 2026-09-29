@@ -36,10 +36,35 @@ remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 3
  * adds the small "incl. VAT" note under the price.
  * ---------------------------------------------------------------------- */
 function kc_price_vat_suffix( $price, $product ) {
-	if ( ! wc_prices_include_tax() || ! $product->is_taxable() ) {
+	// v1.4: Electric-House-style dual price lines. Prices are entered
+	// VAT-inclusive (15% Saudi VAT), so the excl. line is derived.
+	if ( kc_product_is_quote_only( $product->get_id() ) ) {
 		return $price;
 	}
-	return $price . ' <small class="kc-vat-note">' . esc_html__( 'incl. VAT', 'kanz-corner' ) . '</small>';
+	$incl = (float) $product->get_price();
+	if ( $incl <= 0 ) {
+		return $price;
+	}
+	$old = 0;
+	if ( $product->is_on_sale() && (float) $product->get_regular_price() > $incl ) {
+		$old = (float) $product->get_regular_price();
+	} else {
+		$meta_old = str_replace( ',', '', (string) get_post_meta( $product->get_id(), '_kc_old_price', true ) );
+		if ( is_numeric( $meta_old ) && (float) $meta_old > $incl ) {
+			$old = (float) $meta_old;
+		}
+	}
+	$row = function ( $label, $amount, $old_amount ) {
+		$h = '<span class="kc-vat-row"><small>' . esc_html( $label ) . '</small><span class="kc-vat-amt">' . wc_price( $amount ) . '</span>';
+		if ( $old_amount > 0 ) {
+			$h .= '<del>' . wc_price( $old_amount ) . '</del>';
+		}
+		return $h . '</span>';
+	};
+	return '<span class="kc-dual-vat">'
+		. $row( __( 'Excl. VAT', 'kanz-corner' ), $incl / 1.15, $old ? $old / 1.15 : 0 )
+		. $row( __( 'Incl. VAT', 'kanz-corner' ), $incl, $old )
+		. '</span>';
 }
 add_filter( 'woocommerce_get_price_html', kc_guard_filter( 'kc_price_vat_suffix' ), 20, 2 );
 
@@ -67,7 +92,7 @@ function kc_maybe_quote_loop_button( $button, $product ) {
 			esc_attr( $product->get_name() ),
 			esc_attr( kc_get_primary_category_name( $product->get_id() ) ),
 			esc_url( kc_get_product_placeholder_image( $product->get_id() ) ),
-			esc_html__( 'View', 'kanz-corner' )
+			esc_html__( 'Request Quote', 'kanz-corner' )
 		);
 	}
 	return $button;

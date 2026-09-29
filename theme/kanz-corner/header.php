@@ -56,6 +56,61 @@ if ( ! defined( 'ABSPATH' ) ) {
 				?>
 			</a>
 
+			<form class="kc-hsearch" role="search" method="get" action="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' ) ); ?>">
+				<?php if ( taxonomy_exists( 'product_cat' ) ) : ?>
+				<select name="product_cat" class="kc-hsearch-cat" aria-label="<?php esc_attr_e( 'Category', 'kanz-corner' ); ?>">
+					<option value=""><?php esc_html_e( 'All Categories', 'kanz-corner' ); ?></option>
+					<?php
+					$kc_hs_cats = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false, 'parent' => 0, 'exclude' => array( get_option( 'default_product_cat' ) ) ) );
+					if ( ! is_wp_error( $kc_hs_cats ) ) {
+						foreach ( $kc_hs_cats as $kc_hs_cat ) {
+							printf( '<option value="%s"%s>%s</option>', esc_attr( $kc_hs_cat->slug ), selected( get_query_var( 'product_cat' ), $kc_hs_cat->slug, false ), esc_html( $kc_hs_cat->name ) );
+						}
+					}
+					?>
+				</select>
+				<?php endif; ?>
+				<input type="search" class="kc-hsearch-input" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" placeholder="<?php esc_attr_e( 'Search pipes, fittings, valves, flanges…', 'kanz-corner' ); ?>" autocomplete="off">
+				<input type="hidden" name="post_type" value="product">
+				<button type="submit" class="kc-hsearch-btn" aria-label="<?php esc_attr_e( 'Search', 'kanz-corner' ); ?>">
+					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+				</button>
+				<div class="kc-hsearch-sugg" hidden></div>
+			</form>
+
+			<div class="header-actions">
+				<a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '#' ); ?>" class="icon-btn header-account" aria-label="<?php esc_attr_e( 'My Account', 'kanz-corner' ); ?>">
+					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+				</a>
+				<button class="icon-btn header-wish" aria-label="<?php esc_attr_e( 'Wishlist', 'kanz-corner' ); ?>" data-open-wish-drawer>
+					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+					<span class="count js-wish-count">0</span>
+				</button>
+				<button class="icon-btn" aria-label="<?php esc_attr_e( 'Quote list', 'kanz-corner' ); ?>" data-open-quote-drawer>
+					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+					<span class="count js-quote-count"><?php echo esc_html( kc_get_quote_list_count() ); ?></span>
+				</button>
+				<?php if ( class_exists( 'WooCommerce' ) ) : ?>
+				<a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="icon-btn" aria-label="<?php esc_attr_e( 'Cart', 'kanz-corner' ); ?>" data-open-cart-drawer>
+					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+					<span class="count kc-cart-count"><?php echo absint( WC()->cart ? WC()->cart->get_cart_contents_count() : 0 ); ?></span>
+				</a>
+				<?php endif; ?>
+				<button class="mobile-nav-toggle icon-btn" aria-label="<?php esc_attr_e( 'Menu', 'kanz-corner' ); ?>" aria-expanded="false">
+					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="header-nav">
+		<div class="container">
+			<button type="button" class="kc-cat-toggle" aria-expanded="false" aria-controls="kc-mega">
+				<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+				<?php esc_html_e( 'Shop by Category', 'kanz-corner' ); ?>
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+			</button>
+
 			<nav class="main-nav" id="kc-main-nav" aria-label="<?php esc_attr_e( 'Primary', 'kanz-corner' ); ?>">
 				<div class="mobile-menu-head">
 					<strong><?php esc_html_e( 'Menu', 'kanz-corner' ); ?></strong>
@@ -83,32 +138,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</nav>
 			<div class="mobile-nav-backdrop" data-close-mobile-nav></div>
 
-			<div class="header-actions">
-				<button class="icon-btn header-search" aria-label="<?php esc_attr_e( 'Search', 'kanz-corner' ); ?>" data-open-search>
-					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-				</button>
-				<a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '#' ); ?>" class="icon-btn header-account" aria-label="<?php esc_attr_e( 'My Account', 'kanz-corner' ); ?>">
-					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+			<div class="header-nav-right">
+				<a href="<?php echo esc_url( home_url( '/request-a-quote/' ) ); ?>"><?php esc_html_e( 'Bulk Quote', 'kanz-corner' ); ?></a>
+				<a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>"><?php esc_html_e( 'Project Enquiries', 'kanz-corner' ); ?></a>
+				<a class="kc-signin" href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '#' ); ?>">
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+					<?php esc_html_e( 'Sign in / Register', 'kanz-corner' ); ?>
 				</a>
-				<button class="icon-btn header-wish" aria-label="<?php esc_attr_e( 'Wishlist', 'kanz-corner' ); ?>" data-open-wish-drawer>
-					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-					<span class="count js-wish-count">0</span>
-				</button>
-				<button class="icon-btn" aria-label="<?php esc_attr_e( 'Quote list', 'kanz-corner' ); ?>" data-open-quote-drawer>
-					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
-					<span class="count js-quote-count"><?php echo esc_html( kc_get_quote_list_count() ); ?></span>
-				</button>
-				<?php if ( class_exists( 'WooCommerce' ) ) : ?>
-				<a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="icon-btn" aria-label="<?php esc_attr_e( 'Cart', 'kanz-corner' ); ?>" data-open-cart-drawer>
-					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-					<span class="count kc-cart-count"><?php echo absint( WC()->cart ? WC()->cart->get_cart_contents_count() : 0 ); ?></span>
-				</a>
-				<?php endif; ?>
-				<button class="mobile-nav-toggle icon-btn" aria-label="<?php esc_attr_e( 'Menu', 'kanz-corner' ); ?>" aria-expanded="false">
-					<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-				</button>
 			</div>
 		</div>
+		<?php
+		if ( function_exists( 'kc_render_mega_menu' ) ) {
+			kc_render_mega_menu();
+		}
+		?>
 	</div>
 </header>
 

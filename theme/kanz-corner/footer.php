@@ -32,6 +32,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 
 			<div>
+				<h4><?php esc_html_e( 'Contact Us', 'kanz-corner' ); ?></h4>
+				<ul class="footer-contact">
+					<?php $kc_f_wa = preg_replace( '/[^0-9]/', '', get_theme_mod( 'kc_whatsapp', '966507264938' ) ); ?>
+					<li>
+						<span class="fc-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.9-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20z"/></svg></span>
+						<a href="https://wa.me/<?php echo esc_attr( $kc_f_wa ); ?>" target="_blank" rel="noopener"><b><?php echo esc_html( get_theme_mod( 'kc_phone', '+966 50 726 4938' ) ); ?></b><span><?php esc_html_e( 'WhatsApp Support', 'kanz-corner' ); ?></span></a>
+					</li>
+					<li>
+						<span class="fc-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 6l-10 7L2 6"/><path d="M2 6h20v12H2z"/></svg></span>
+						<a href="mailto:<?php echo esc_attr( get_theme_mod( 'kc_email', 'sales@kanzcorner.com' ) ); ?>"><b><?php echo esc_html( get_theme_mod( 'kc_email', 'sales@kanzcorner.com' ) ); ?></b><span><?php esc_html_e( 'Email Us', 'kanz-corner' ); ?></span></a>
+					</li>
+					<li>
+						<span class="fc-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+						<span class="fc-txt"><b><?php echo esc_html( get_theme_mod( 'kc_hours', __( 'Sun – Thu: 8:00 AM – 6:00 PM', 'kanz-corner' ) ) ); ?></b><span><?php esc_html_e( 'Working Hours', 'kanz-corner' ); ?></span></span>
+					</li>
+					<li>
+						<span class="fc-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+						<span class="fc-txt"><b><?php echo esc_html( get_theme_mod( 'kc_address_short', __( 'Al-Khobar, Saudi Arabia', 'kanz-corner' ) ) ); ?></b><span><?php esc_html_e( 'Warehouse & Office', 'kanz-corner' ); ?></span></span>
+					</li>
+				</ul>
+			</div>
+
+			<div>
+				<h4><?php esc_html_e( 'Quick Links', 'kanz-corner' ); ?></h4>
+				<?php if ( has_nav_menu( 'footer-company' ) ) : ?>
+					<?php wp_nav_menu( array( 'theme_location' => 'footer-company', 'container' => false, 'items_wrap' => '<ul>%3$s</ul>' ) ); ?>
+				<?php else : ?>
+					<ul>
+						<li><a href="<?php echo esc_url( home_url( '/about-us/' ) ); ?>"><?php esc_html_e( 'About Us', 'kanz-corner' ); ?></a></li>
+						<li><a href="<?php echo esc_url( home_url( '/request-a-quote/' ) ); ?>"><?php esc_html_e( 'Request a Quote', 'kanz-corner' ); ?></a></li>
+						<li><a href="<?php echo esc_url( home_url( '/certifications/' ) ); ?>"><?php esc_html_e( 'Brands & Certifications', 'kanz-corner' ); ?></a></li>
+						<li><a href="<?php echo esc_url( home_url( '/projects/' ) ); ?>"><?php esc_html_e( 'Projects', 'kanz-corner' ); ?></a></li>
+						<li><a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>"><?php esc_html_e( 'Blog', 'kanz-corner' ); ?></a></li>
+						<li><a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>"><?php esc_html_e( 'Contact', 'kanz-corner' ); ?></a></li>
+						<li><a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '#' ); ?>"><?php esc_html_e( 'B2B Trade Account', 'kanz-corner' ); ?></a></li>
+					</ul>
+				<?php endif; ?>
+			</div>
+
+			<div>
 				<h4><?php esc_html_e( 'Products', 'kanz-corner' ); ?></h4>
 				<?php if ( has_nav_menu( 'footer-products' ) ) : ?>
 					<?php wp_nav_menu( array( 'theme_location' => 'footer-products', 'container' => false, 'items_wrap' => '<ul>%3$s</ul>' ) ); ?>
@@ -39,7 +79,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<ul>
 						<?php
 						// parent => 0: only the 8 top-level categories, not alphabetical subcategories.
-					$footer_cats = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false, 'parent' => 0, 'number' => 8, 'exclude' => array( get_option( 'default_product_cat' ) ) ) );
+						$footer_cats = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false, 'parent' => 0, 'number' => 8, 'exclude' => array( get_option( 'default_product_cat' ) ) ) );
 						foreach ( $footer_cats as $cat ) :
 							?>
 							<li><a href="<?php echo esc_url( get_term_link( $cat ) ); ?>"><?php echo esc_html( $cat->name ); ?></a></li>
@@ -47,25 +87,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</ul>
 				<?php endif; ?>
 			</div>
+		</div>
 
-			<div>
-				<h4><?php esc_html_e( 'Company', 'kanz-corner' ); ?></h4>
-				<?php if ( has_nav_menu( 'footer-company' ) ) : ?>
-					<?php wp_nav_menu( array( 'theme_location' => 'footer-company', 'container' => false, 'items_wrap' => '<ul>%3$s</ul>' ) ); ?>
-				<?php else : ?>
-					<ul>
-						<li><a href="<?php echo esc_url( home_url( '/about-us/' ) ); ?>"><?php esc_html_e( 'About Us', 'kanz-corner' ); ?></a></li>
-						<li><a href="<?php echo esc_url( home_url( '/certifications/' ) ); ?>"><?php esc_html_e( 'Certifications', 'kanz-corner' ); ?></a></li>
-						<li><a href="<?php echo esc_url( home_url( '/projects/' ) ); ?>"><?php esc_html_e( 'Projects', 'kanz-corner' ); ?></a></li>
-						<li><a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>"><?php esc_html_e( 'Blog', 'kanz-corner' ); ?></a></li>
-						<li><a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>"><?php esc_html_e( 'Contact', 'kanz-corner' ); ?></a></li>
-					</ul>
-				<?php endif; ?>
-			</div>
-
-			<div>
-				<h4><?php esc_html_e( 'Stay Updated', 'kanz-corner' ); ?></h4>
-				<p style="font-size:14px"><?php esc_html_e( 'Get notified about new product lines and offers.', 'kanz-corner' ); ?></p>
+		<div class="footer-mid">
+			<div class="footer-mid-cell">
+				<h4><?php esc_html_e( 'Subscribe to our newsletter', 'kanz-corner' ); ?></h4>
+				<p><?php esc_html_e( 'New product lines, offers and industry updates.', 'kanz-corner' ); ?></p>
 				<?php echo do_shortcode( get_theme_mod( 'kc_newsletter_shortcode', '' ) ); ?>
 				<?php if ( ! get_theme_mod( 'kc_newsletter_shortcode', '' ) ) : ?>
 				<form class="newsletter-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -78,13 +105,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</form>
 				<?php endif; ?>
 			</div>
+			<div class="footer-mid-cell">
+				<h4><?php esc_html_e( 'We Accept', 'kanz-corner' ); ?></h4>
+				<div class="kc-accept">
+					<span>mada</span><span>VISA</span><span>Mastercard</span><span>STC Pay</span><span>Apple Pay</span><span><?php esc_html_e( 'Bank Transfer', 'kanz-corner' ); ?></span><span><?php esc_html_e( 'COD', 'kanz-corner' ); ?></span>
+				</div>
+			</div>
+			<?php $kc_maroof = get_theme_mod( 'kc_maroof_url', '' ); ?>
+			<?php if ( $kc_maroof ) : ?>
+			<div class="footer-mid-cell">
+				<h4><?php esc_html_e( 'Trust & Verification', 'kanz-corner' ); ?></h4>
+				<a class="kc-maroof-card" href="<?php echo esc_url( $kc_maroof ); ?>" target="_blank" rel="noopener">
+					<span class="kc-maroof-badge"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span>
+					<span><b><?php esc_html_e( 'Verified on Maroof', 'kanz-corner' ); ?></b><span><?php esc_html_e( 'Registered e-commerce store in Saudi Arabia', 'kanz-corner' ); ?></span></span>
+				</a>
+			</div>
+			<?php endif; ?>
 		</div>
 
 		<div class="footer-bottom">
 			<span>&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'All rights reserved.', 'kanz-corner' ); ?></span>
-			<div class="payment-icons">
-				<span>mada</span><span>VISA</span><span>Mastercard</span><span>STC Pay</span><span>Apple Pay</span>
-			</div>
+			<span class="footer-vat-note"><?php esc_html_e( 'All prices include 15% Saudi VAT.', 'kanz-corner' ); ?></span>
 		</div>
 	</div>
 </footer>

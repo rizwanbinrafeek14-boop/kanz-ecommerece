@@ -12,6 +12,29 @@ Go to **WooCommerce → Settings → Site visibility** → select **Live** → S
 
 ---
 
+## What's new in theme v1.4 (Electric-House-style storefront)
+
+- **New header** — a wide search bar with an "All Categories" dropdown and live
+  suggestions, plus a dark second bar with **Shop by Category** (opens a mega
+  panel: categories on the left, sub-category image tiles on the right — built
+  automatically from Products → Categories; add sub-categories and category
+  images there to fill it), Bulk Quote, Project Enquiries and Sign in.
+- **Two price lines on every priced product** — *Excl. VAT* and *Incl. VAT*
+  (you keep entering the normal VAT-inclusive price; the excl. line is
+  calculated at 15%). Green **In-stock** and red **-10%** badges appear
+  automatically (the % comes from the sale price, or from the "Old price"
+  in the Pricing Mode box). Priced products get **Add to Cart | Add to Quote**
+  side by side.
+- **Homepage** — per-category showcase bands with product rows and arrows
+  (first four categories that have products), promo strips (pickup/freight and
+  WhatsApp chat), a Brands tile row, and a latest-blog-posts section.
+- **Footer** — Contact Us with WhatsApp/email/hours, We Accept payment tiles,
+  and a **Verified on Maroof** card that appears once you paste your Maroof
+  link at Appearance → Customize → Kanz Corner Settings → Contact Info.
+  Working hours are editable in the same place.
+
+---
+
 ## What's new in theme v1.3
 
 - **Special Offers on the homepage** — edit any product, and in the
