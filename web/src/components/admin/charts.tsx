@@ -33,3 +33,21 @@ export function HBarList({ rows, unit }: { rows: { label: string; value: number 
     </ul>
   );
 }
+
+export function LineTrend({ data, keys }: { data: Record<string, number | string>[]; keys: { key: string; label: string }[] }) {
+  // One series per chart keeps colour meaning unambiguous; the first key is drawn.
+  const k = keys[0];
+  return (
+    <div role="img" aria-label={`${k.label} per day`} className="h-56 w-full">
+      <ResponsiveContainer>
+        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barCategoryGap="30%">
+          <CartesianGrid vertical={false} stroke="var(--border)" />
+          <XAxis dataKey="day" tickFormatter={(d: string) => d.slice(5)} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} minTickGap={24} />
+          <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={36} />
+          <Tooltip cursor={{ fill: "var(--accent)" }} contentStyle={{ borderRadius: 8, border: "1px solid var(--border)", fontSize: 12 }} formatter={(v) => [v, k.label]} />
+          <Bar dataKey={k.key} fill="var(--ink)" radius={[4, 4, 0, 0]} maxBarSize={14} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}

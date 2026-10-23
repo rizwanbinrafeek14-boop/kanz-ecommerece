@@ -11,7 +11,7 @@ begin
     insert into rfq_events (rfq_id, event, detail) values (r.id, 'expired', 'Validity date passed');
     raise exception 'This quotation has expired; please request a new one';
   end if;
-  update rfqs set status = case when p_accept then 'accepted' else 'rejected' end where id = r.id;
+  update rfqs set status = case when p_accept then 'accepted'::rfq_status else 'rejected'::rfq_status end where id = r.id;
   insert into rfq_events (rfq_id, event, detail, actor) values (r.id, case when p_accept then 'customer_accepted' else 'customer_rejected' end, null, auth.uid());
   return case when p_accept then 'accepted' else 'rejected' end;
 end $$;

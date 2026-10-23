@@ -1,4 +1,35 @@
-# KANZ CORNER TRADING — Website
+# KANZ CORNER EST. — Online store
+
+Two implementations live in this repository:
+
+| Folder | What | Status |
+|---|---|---|
+| **`web/`** + **`supabase/`** | **The new platform**: Next.js 16 + TypeScript + Tailwind + Supabase (PostgreSQL, Auth, Storage), English/Arabic with RTL, B2B + B2C store, RFQ, inventory, banners, orders, VAT invoices, admin portal at `/admin`, real analytics | **Current — read the docs below** |
+| `theme/`, `data/`, `preview/` | Earlier WordPress/WooCommerce theme and the 90-row product CSV extracted from the older catalogue | Kept for reference (the CSV and its photos feed the import-review screen) |
+
+## Start here (new platform)
+1. **[docs/nextjs/03-SETUP-GUIDE.md](docs/nextjs/03-SETUP-GUIDE.md)** — step-by-step setup for a non-developer (Supabase → Vercel → first admin → catalogue import → test checklist).
+2. [docs/nextjs/01-ARCHITECTURE.md](docs/nextjs/01-ARCHITECTURE.md) — catalogue analysis, category structure, database schema, homepage plan, admin architecture.
+3. [docs/nextjs/02-STATUS.md](docs/nextjs/02-STATUS.md) — what was built, how it was verified, and the honest list of limitations.
+
+```
+web/                         Next.js application (storefront + /admin)
+supabase/migrations/         Database schema, security rules (RLS), business logic — run in order
+supabase/setup_all.sql       Same thing as ONE file to paste into the Supabase SQL Editor
+supabase/seed.sql            Categories, VAT 15%, company details, menus (no products, prices or stock)
+supabase/tests/              Database behaviour tests (security, stock, orders, quotations)
+scripts/extract_catalogue.py Crops product images + captions out of the catalogue PDF
+scripts/build_import.py      Builds web/data/catalogue-import (staging data for the admin review screen)
+web/scripts/security-check.mjs  Black-box API security probe (npm run security:check)
+```
+
+**Rules the system follows:** it never invents prices, SKUs, stock, certifications or availability; extracted catalogue data is never published automatically; customers can never reach costs, other customers' data or admin functions (enforced in the database, not just the UI); the 15% VAT rate is configurable and snapshotted on every document; ZATCA e-invoicing is *prepared for* but **not** claimed.
+
+---
+
+# Earlier WordPress build (reference)
+
+## KANZ CORNER TRADING — WordPress theme
 
 A custom **WordPress + WooCommerce** theme and launch kit for
 [kanzcorner.com](https://kanzcorner.com), built for a Saudi industrial

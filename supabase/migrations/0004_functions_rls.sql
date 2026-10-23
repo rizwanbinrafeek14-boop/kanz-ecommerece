@@ -26,6 +26,9 @@ begin
     raise exception 'Delivery address is required';
   end if;
   if p_payment in ('card','mada','apple_pay','stc_pay') then raise exception 'Online payment gateway is not enabled yet'; end if;
+  -- Admin-controlled checkout options (Content & settings). Defaults: delivery + pickup + bank transfer allowed.
+  if not coalesce((select (value ->> p_delivery::text)::boolean from site_settings where key = 'public.delivery_options'), true) then raise exception 'This delivery option is not available'; end if;
+  if not coalesce((select (value ->> p_payment::text)::boolean from site_settings where key = 'public.payment_methods'), p_payment = 'bank_transfer') then raise exception 'This payment method is not available'; end if;
 
   select * into prof from profiles where id = uid and is_active;
   if not found then raise exception 'Account not active'; end if;
@@ -157,6 +160,13 @@ begin
   end if;
   if jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then raise exception 'Add at least one item'; end if;
   if jsonb_array_length(p_items) > 200 then raise exception 'Too many line items (max 200)'; end if;
+  -- Spam protection for the public form: per-email and global hourly limits.
+  if (select count(*) from rfqs where lower(contact_email) = lower(p_contact->>'email') and created_at > now() - interval '1 hour') >= 5 then
+    raise exception 'Too many requests from this email address. Please try again later or contact us on WhatsApp.';
+  end if;
+  if (select count(*) from rfqs where created_at > now() - interval '1 hour') >= 300 then
+    raise exception 'We are receiving a very high number of requests. Please try again shortly.';
+  end if;
 
   insert into rfqs (user_id, contact_name, contact_email, contact_phone, company_name, vat_number, delivery_city, required_by, customer_notes)
   values (auth.uid(), left(p_contact->>'name',200), left(p_contact->>'email',200), left(p_contact->>'phone',50), left(p_contact->>'company',200),

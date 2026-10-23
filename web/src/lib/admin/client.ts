@@ -2,13 +2,13 @@
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/browser";
 
-/** Runs a server action and shows a toast for the outcome. Returns the data on success, undefined on failure. */
+/** Runs a server action and shows a toast for the outcome. Returns the data on success (`true` when the action returns no data), undefined on failure — so `if (await run(...))` is a reliable success check. */
 export async function run<T>(p: Promise<{ ok: true; data: T } | { ok: false; error: string }>, success?: string | ((d: T) => string)): Promise<T | undefined> {
   try {
     const r = await p;
     if (!r.ok) { toast.error(r.error, { duration: 8000 }); return undefined; }
     if (success) toast.success(typeof success === "function" ? success(r.data) : success);
-    return r.data;
+    return (r.data ?? true) as T;
   } catch (e) { toast.error((e as Error).message || "Something went wrong"); return undefined; }
 }
 

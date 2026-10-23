@@ -118,3 +118,43 @@ select * from product_facets();
 select kind, name_en from search_suggestions('te');
 select product_display_price('10000000-0000-0000-0000-000000000001') as price;
 reset role;
+
+\echo '--- T22 customer accepts a quotation by token; cannot respond twice or to an unquoted RFQ'
+reset role;
+insert into rfqs (contact_name, contact_email, status, quoted_at, quote_valid_until, vat_rate, quoted_subtotal, quoted_vat, quoted_total) values ('Z','z@z.com','quoted', now(), current_date + 5, 15, 100, 15, 115);
+select access_token as tok from rfqs where contact_name = 'Z' \gset
+set role anon; select pg_temp.as_user(null);
+select respond_rfq(:'tok', true) as accepted;
+select respond_rfq(:'tok', false);
+reset role; select status from rfqs where contact_name = 'Z';
+
+\echo '--- T23 reports (staff ok, customer/anon get no rows)'
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+select count(*) > 0 as sales_rows from admin_sales_report(current_date - 30, current_date, 'day');
+select name, units, revenue, cost, profit from admin_sales_by_product(current_date - 30, current_date);
+select status, n from admin_rfq_funnel(current_date - 30, current_date) order by 1;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
+select count(*) as customer_sees from admin_sales_report(current_date - 30, current_date, 'day');
+reset role; set role anon; select pg_temp.as_user(null);
+select count(*) from admin_traffic(current_date, current_date);
+reset role;
+
+\echo '--- T24 storage policies: anon/customer cannot write; staff can; customer limited to own rfq-attachments folder'
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+insert into storage.objects (bucket_id, name) values ('product-images', 'staff/ok.jpg');
+reset role; set role anon; select pg_temp.as_user(null);
+insert into storage.objects (bucket_id, name) values ('product-images', 'anon/evil.jpg');
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1'); set role authenticated;
+insert into storage.objects (bucket_id, name) values ('banners', 'cust/evil.jpg');
+insert into storage.objects (bucket_id, name) values ('rfq-attachments', '00000000-0000-0000-0000-0000000000c1/mine.pdf');
+insert into storage.objects (bucket_id, name) values ('rfq-attachments', '00000000-0000-0000-0000-0000000000c2/theirs.pdf');
+select count(*) as visible_to_cust1 from storage.objects where bucket_id = 'rfq-attachments';
+reset role;
+
+\echo '--- T25 RFQ spam throttle: 6th request from one email in an hour is refused'
+set role anon; select pg_temp.as_user(null);
+select count(*) from (select submit_rfq('{"name":"S","email":"spam@x.com"}','[{"description":"a","quantity":1}]') from generate_series(1,5)) x;
+select submit_rfq('{"name":"S","email":"spam@x.com"}','[{"description":"a","quantity":1}]');
+reset role;

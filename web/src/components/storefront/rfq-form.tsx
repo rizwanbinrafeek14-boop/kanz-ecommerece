@@ -48,6 +48,7 @@ export function RfqForm({ lang, dict, defaults }: { lang: Locale; dict: Dictiona
     if (!items.length) { setError(dict.rfq.needItem); return; }
     if (items.some((i) => !(i.quantity > 0))) { setError(dict.common.error); return; }
     const fd = new FormData(e.currentTarget); const g = (k: string) => String(fd.get(k) ?? "").trim() || undefined;
+    if (fd.get("website")) { setDone({ number: "RFQ", token: "" }); return; }   // honeypot: pretend success to bots
     setBusy(true);
     const res = await submitRfqAction({
       contact: { name: g("name") ?? "", email: g("email") ?? "", phone: g("phone"), company: g("company"), vat_number: g("vat_number"), city: g("city"), required_by: g("required_by"), notes: g("notes"), session_id: getSessionId() },
@@ -76,6 +77,7 @@ export function RfqForm({ lang, dict, defaults }: { lang: Locale; dict: Dictiona
   );
   return (
     <form onSubmit={submit} className="space-y-8">
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -start-[9999px] h-0 w-0 opacity-0" />
       <section className="rounded-xl border bg-card p-5">
         <h2 className="mb-4 font-semibold">{dict.rfq.contact}</h2>
         <div className="grid gap-4 sm:grid-cols-2">

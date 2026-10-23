@@ -14,6 +14,8 @@ import { ProductViewTracker } from "@/components/storefront/page-tracker";
 import { Badge } from "@/components/ui/badge";
 
 export const revalidate = 60;
+// No pages are pre-rendered at build time; each product is generated on first visit, then cached and refreshed every 60s (and instantly when an admin saves).
+export async function generateStaticParams() { return []; }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
   const { lang, slug } = await params;

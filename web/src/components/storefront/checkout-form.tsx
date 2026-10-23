@@ -11,12 +11,12 @@ import { formatSAR, withVat } from "@/lib/format";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/lib/i18n/config";
 
-export function CheckoutForm({ lang, dict, vatRate, defaults }: { lang: Locale; dict: Dictionary; vatRate: number; defaults: { name: string; phone: string } }) {
+export function CheckoutForm({ lang, dict, vatRate, defaults, options }: { lang: Locale; dict: Dictionary; vatRate: number; defaults: { name: string; phone: string }; options: { delivery: boolean; pickup: boolean; bank_transfer: boolean; cod: boolean } }) {
   const router = useRouter();
   const { cart, clear, ready } = useCart();
   const live = useLivePrices(cart.map((l) => l.variantId!).filter(Boolean));
-  const [delivery, setDelivery] = React.useState<"delivery" | "pickup">("delivery");
-  const [payment, setPayment] = React.useState<"bank_transfer" | "cod">("bank_transfer");
+  const [delivery, setDelivery] = React.useState<"delivery" | "pickup">(options.delivery ? "delivery" : "pickup");
+  const [payment, setPayment] = React.useState<"bank_transfer" | "cod">(options.bank_transfer ? "bank_transfer" : "cod");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -52,8 +52,8 @@ export function CheckoutForm({ lang, dict, vatRate, defaults }: { lang: Locale; 
         <section className="space-y-3">
           <h2 className="font-semibold">{dict.checkout.delivery}</h2>
           <div className="grid gap-2 sm:grid-cols-2">
-            {radio("d", "delivery", dict.checkout.deliver, delivery === "delivery", () => setDelivery("delivery"))}
-            {radio("d", "pickup", dict.checkout.pickup, delivery === "pickup", () => setDelivery("pickup"))}
+            {options.delivery && radio("d", "delivery", dict.checkout.deliver, delivery === "delivery", () => setDelivery("delivery"))}
+            {options.pickup && radio("d", "pickup", dict.checkout.pickup, delivery === "pickup", () => setDelivery("pickup"))}
           </div>
         </section>
         {delivery === "delivery" && (
@@ -73,8 +73,8 @@ export function CheckoutForm({ lang, dict, vatRate, defaults }: { lang: Locale; 
         <section className="space-y-3">
           <h2 className="font-semibold">{dict.checkout.payment}</h2>
           <div className="grid gap-2">
-            {radio("p", "bank_transfer", dict.checkout.bankTransfer, payment === "bank_transfer", () => setPayment("bank_transfer"))}
-            {radio("p", "cod", dict.checkout.cod, payment === "cod", () => setPayment("cod"))}
+            {options.bank_transfer && radio("p", "bank_transfer", dict.checkout.bankTransfer, payment === "bank_transfer", () => setPayment("bank_transfer"))}
+            {options.cod && radio("p", "cod", dict.checkout.cod, payment === "cod", () => setPayment("cod"))}
             {radio("p", "online", dict.checkout.onlineSoon, false, () => {}, true)}
           </div>
         </section>

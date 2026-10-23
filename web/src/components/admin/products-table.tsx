@@ -42,7 +42,9 @@ export function ProductsTable({ rows, isAdmin }: { rows: ProductRow[]; isAdmin: 
           <DropdownMenu>
             <DropdownMenuTrigger asChild><Button size="sm" variant="outline"><Download className="size-4" />Export</Button></DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <DropdownMenuItem asChild><a href="/api/admin/products/export?format=xlsx"><FileSpreadsheet className="size-4" />Excel (.xlsx) — products + variants</a></DropdownMenuItem>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <DropdownMenuItem asChild><a href="/api/admin/products/export?format=csv">CSV — products</a></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

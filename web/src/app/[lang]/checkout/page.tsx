@@ -26,12 +26,13 @@ export default async function CheckoutPage({ params }: { params: Promise<{ lang:
       </div>
     );
   }
+  const settings = await getSettings();
   const sb = await createClient();
   const { data: profile } = await sb.from("profiles").select("full_name, phone").eq("id", user.id).single();
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <h1 className="mb-6 text-2xl font-bold">{dict.checkout.title}</h1>
-      <CheckoutForm lang={lang} dict={dict} vatRate={vatRateOf(await getSettings())} defaults={{ name: profile?.full_name ?? "", phone: profile?.phone ?? "" }} />
+      <CheckoutForm lang={lang} dict={dict} vatRate={vatRateOf(settings)} options={{ delivery: (settings["public.delivery_options"] as any)?.delivery ?? true, pickup: (settings["public.delivery_options"] as any)?.pickup ?? true, bank_transfer: (settings["public.payment_methods"] as any)?.bank_transfer ?? true, cod: (settings["public.payment_methods"] as any)?.cod ?? false }} defaults={{ name: profile?.full_name ?? "", phone: profile?.phone ?? "" }} />
     </div>
   );
 }
