@@ -277,7 +277,7 @@ create or replace function stock_apply(
 ) returns void language plpgsql security definer set search_path = public as $$
 declare lvl stock_levels%rowtype;
 begin
-  if p_qty is null or p_qty <= 0 then raise exception 'Quantity must be positive'; end if;
+  if p_qty is null or p_qty < 0 or (p_qty = 0 and p_type <> 'adjustment') then raise exception 'Quantity must be positive'; end if;   -- an adjustment may set the counted stock to 0
   insert into stock_levels (variant_id, warehouse_id) values (p_variant, p_warehouse) on conflict do nothing;
   select * into lvl from stock_levels where variant_id = p_variant and warehouse_id = p_warehouse for update;
 

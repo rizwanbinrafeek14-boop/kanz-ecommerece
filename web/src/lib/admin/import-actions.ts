@@ -142,7 +142,7 @@ export async function publishImportItems(ids: string[]): Promise<Result<{ publis
       if (doc?.path) {
         const dest = `${product.id}/${path.basename(doc.path)}`;
         await copyObject(sb, { bucket: "import-staging", path: doc.path }, { bucket: "product-docs", path: dest });
-        await sb.from("product_documents").insert({ product_id: product.id, kind: "other", title: doc.title, storage_path: dest, is_public: false });
+        await sb.from("product_documents").insert({ product_id: product.id, kind: "datasheet", title: doc.title, storage_path: dest, is_public: true });
       }
       await sb.from("import_items").update({ status: "published", published_product_id: product.id }).eq("id", it.id);
       await audit(sb, user.id, "import.publish_item", "products", product.id, { import_item: it.id });

@@ -27,3 +27,15 @@ export function publicUrl(bucket: string, path: string | null | undefined): stri
   if (/^https?:\/\//.test(path) || path.startsWith("/")) return path;
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
 }
+
+/** Schedules are entered and shown in Saudi time (Asia/Riyadh, UTC+3, no DST). */
+export function toRiyadhInput(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(new Date(iso).getTime() + 3 * 3600_000);
+  return d.toISOString().slice(0, 16);
+}
+export function fromRiyadhInput(v: string | null | undefined): string | null {
+  if (!v) return null;
+  const d = new Date(`${v}:00+03:00`);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
