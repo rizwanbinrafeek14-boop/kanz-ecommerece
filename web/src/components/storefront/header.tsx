@@ -42,13 +42,13 @@ export async function Header({ lang }: { lang: Locale }) {
           <MobileMenu tree={tree} lang={lang} dict={dict} />
           <Link href={`/${lang}`} className="flex shrink-0 items-center gap-2.5" aria-label={dict.brand.name}>
             <Image src="/brand/logo-icon.png" alt="" width={48} height={38} priority className="h-9 w-auto" />
-            <span className="leading-tight">
+            <span className="hidden leading-tight sm:block">
               <span className="block text-base font-extrabold tracking-wide">KANZ CORNER</span>
               <span className="block text-[10px] tracking-[0.35em] text-white/70">{lang === "ar" ? "للتجارة" : "TRADING EST."}</span>
             </span>
           </Link>
           <SearchBox lang={lang} dict={dict} className="hidden flex-1 md:block" />
-          <div className="ms-auto flex items-center gap-4 md:ms-0">
+          <div className="ms-auto flex items-center gap-3 sm:gap-4 md:ms-0">
             <div className="lg:hidden"><Suspense fallback={null}><LangSwitch lang={lang} label={dict.common.language} /></Suspense></div>
             <AccountMenu lang={lang} dict={dict} />
             <CartButtons lang={lang} dict={dict} />
