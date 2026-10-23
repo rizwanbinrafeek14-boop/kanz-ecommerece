@@ -335,6 +335,16 @@ select _rls_public_read_staff_write('menu_links', 'is_active');
 select _rls_public_read_staff_write('site_settings', $$key like 'public.%'$$);
 drop function _rls_public_read_staff_write(text, text);
 
+-- Staff may delete DRAFT products (e.g. a failed import); deleting live/archived products needs an admin.
+drop policy "products admin delete" on products;
+create policy "products delete" on products for delete using (is_admin() or (is_staff() and status = 'draft'));
+
+-- Site settings (VAT rate, company details, SEO) are admin-only to change.
+drop policy "site_settings staff insert" on site_settings;
+drop policy "site_settings staff update" on site_settings;
+create policy "site_settings admin insert" on site_settings for insert with check (is_admin());
+create policy "site_settings admin update" on site_settings for update using (is_admin()) with check (is_admin());
+
 -- staff-only tables
 do $$ declare t text; begin
   foreach t in array array['product_costs','variant_costs','warehouses','stock_levels','stock_movements','order_item_costs','internal_notes','import_batches','import_items','analytics_events'] loop
@@ -388,10 +398,15 @@ create policy "rfq_attach staff write" on rfq_attachments for all using (is_staf
 grant select on variant_availability to anon, authenticated;
 
 -- ───────── Storage buckets & policies ─────────
-insert into storage.buckets (id, name, public) values
-  ('product-images','product-images',true), ('banners','banners',true), ('brand-logos','brand-logos',true),
-  ('category-images','category-images',true), ('product-docs','product-docs',true),
-  ('product-mtc','product-mtc',false), ('import-staging','import-staging',false), ('rfq-attachments','rfq-attachments',false)
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values
+  ('product-images','product-images',true, 10485760, array['image/jpeg','image/png','image/webp']),
+  ('banners','banners',true, 10485760, array['image/jpeg','image/png','image/webp']),
+  ('brand-logos','brand-logos',true, 5242880, array['image/jpeg','image/png','image/webp','image/svg+xml']),
+  ('category-images','category-images',true, 10485760, array['image/jpeg','image/png','image/webp']),
+  ('product-docs','product-docs',true, 26214400, array['application/pdf','image/jpeg','image/png']),
+  ('product-mtc','product-mtc',false, 26214400, array['application/pdf','image/jpeg','image/png']),
+  ('import-staging','import-staging',false, 10485760, array['image/jpeg','image/png','image/webp']),
+  ('rfq-attachments','rfq-attachments',false, 10485760, array['application/pdf','image/jpeg','image/png'])
 on conflict (id) do nothing;
 
 create policy "public buckets staff write" on storage.objects for all

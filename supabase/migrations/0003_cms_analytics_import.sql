@@ -76,7 +76,7 @@ create type import_item_status as enum ('pending','approved','rejected','publish
 
 create table import_batches (
   id uuid primary key default gen_random_uuid(),
-  source_name text not null,                 -- e.g. kanz-CATALOGE.pdf
+  source_name text not null unique,          -- e.g. kanz-CATALOGE.pdf
   notes text,
   created_by uuid references profiles(id),
   created_at timestamptz not null default now()
@@ -95,7 +95,8 @@ create table import_items (
   description_en text,
   specs jsonb not null default '{}'::jsonb,  -- {size:[...],grade:[...],schedule:[...],standard:[...],brand:[...]}
   image_path text,                           -- bucket import-staging
-  flags text[] not null default '{}',        -- e.g. {'foreign_branding','verify_specs','no_image','duplicate_name'}
+  extra jsonb not null default '{}'::jsonb,  -- {key, images:[staging paths], document:{title,path}}
+  flags text[] not null default '{}',        -- e.g. {'foreign_branding','verify_specs','low_res','not_in_uploaded_pdf'}
   review_note text,
   reviewed_by uuid references profiles(id),
   reviewed_at timestamptz,
