@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/cairo";
+
+/* Brand tokens sampled from the KANZ CORNER logo: red bar, near-black mark, steel-grey gradient pipe. */
+:root {
+  --background: #ffffff;
+  --foreground: #14151c;
+  --card: #ffffff;
+  --card-foreground: #14151c;
+  --popover: #ffffff;
+  --popover-foreground: #14151c;
+  --primary: #a6242e;          /* KANZ red */
+  --primary-foreground: #ffffff;
+  --secondary: #f1f2f4;
+  --secondary-foreground: #14151c;
+  --muted: #f4f5f6;
+  --muted-foreground: #5d636d;
+  --accent: #eceef1;
+  --accent-foreground: #14151c;
+  --destructive: #c0262d;
+  --border: #e3e5e9;
+  --input: #d5d8de;
+  --ring: #a6242e;
+  --ink: #0d0e16;              /* near-black from the logo mark */
+  --ink-soft: #1b1e2b;
+  --success: #1e8e5a;
+  --warning: #c77a1f;
+  --radius: 0.5rem;
+}
+
+.dark { color-scheme: dark; }
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+  --font-sans: "Inter Variable", "Cairo Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: "Cairo Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  * { border-color: var(--border); }
+  html { scroll-behavior: smooth; }
+  body { background: var(--background); color: var(--foreground); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  html[lang="ar"] body { font-family: var(--font-arabic); }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+}
+
+/* Industrial "pipe" gradient used for hero / banners */
+.bg-steel { background: linear-gradient(135deg, #0d0e16 0%, #1b1e2b 55%, #3a3d46 100%); }
+.bg-pipe-fade { background: linear-gradient(180deg, #050508 0%, #5b5b5f 55%, #cfcfd1 100%); }
+
+/* Horizontal scroll rows without visible bars */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@media print {
+  .no-print { display: none !important; }
+}
