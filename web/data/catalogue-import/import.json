@@ -1,0 +1,3069 @@
+{
+ "source": "kanz-CATALOGE.pdf (10 pages) + earlier WordPress extraction",
+ "generated_by": "scripts/build_import.py",
+ "items": [
+  {
+   "key": "pipe-cs-erw",
+   "batch": "pdf",
+   "name_en": "Carbon Steel Pipe — ERW",
+   "name_ar": "أنبوب صلب كربوني ملحوم (ERW)",
+   "category_slug": "pipes-carbon-steel",
+   "source_page": 4,
+   "image": "p04-04.jpg",
+   "extra_images": [],
+   "description_en": "Carbon steel ERW pipe. Special grades available on request.",
+   "specs": {
+    "size": [
+     "1/8\" to 72\" NB"
+    ],
+    "schedule": [
+     "40",
+     "XS",
+     "80",
+     "120",
+     "160",
+     "XXS",
+     "STD"
+    ],
+    "grade": [
+     "API 5L Grade B",
+     "A671 Grade CC60 Class 12/22",
+     "A671 Grade CC70 Class 12/22",
+     "A312 Grade TP316",
+     "A358"
+    ],
+    "standard": [
+     "ASTM A53",
+     "ASTM A134",
+     "ASTM A135",
+     "ASTM A252",
+     "API 5CT/5L",
+     "DIN 1626",
+     "ASTM A500"
+    ],
+    "material": [
+     "Carbon steel"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "Catalogue lists 'A 312 Grade TP316' among carbon steel grades — A312 is a stainless specification. Confirm the grade list.",
+   "document": {
+    "title": "Nominal wall thickness schedule (catalogue page 5)",
+    "image": "pipe-chart.jpg"
+   }
+  },
+  {
+   "key": "pipe-cs-smls",
+   "batch": "pdf",
+   "name_en": "Carbon Steel Pipe — Seamless",
+   "name_ar": "أنبوب صلب كربوني بدون لحام",
+   "category_slug": "pipes-carbon-steel",
+   "source_page": 4,
+   "image": "p04-03.jpg",
+   "extra_images": [],
+   "description_en": "Seamless carbon steel pipe. Special grades available on request.",
+   "specs": {
+    "size": [
+     "1/8\" to 72\" NB"
+    ],
+    "schedule": [
+     "40",
+     "XS",
+     "80",
+     "120",
+     "160",
+     "XXS",
+     "STD"
+    ],
+    "grade": [
+     "A106 Grade B",
+     "A333 Grade 6",
+     "API 5L Grade X52",
+     "A312 Grade TP316"
+    ],
+    "standard": [
+     "ASTM A106",
+     "API 5L",
+     "ASTM A179",
+     "ASTM A192",
+     "ASTM A210",
+     "ASTM A252",
+     "ASTM A333",
+     "ASTM A519"
+    ],
+    "material": [
+     "Carbon steel"
+    ],
+    "brand": [
+     "Sumitomo",
+     "Chengdu",
+     "Bentler",
+     "Tubos",
+     "Interpipe",
+     "Mittal",
+     "TMK",
+     "TPCO",
+     "Al-Jazeera",
+     "SSP",
+     "Hyundai",
+     "JESCO"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "Confirm A312 TP316 in the carbon steel grade list, and that KANZ CORNER may state these as 'brands available'.",
+   "document": {
+    "title": "Nominal wall thickness schedule (catalogue page 5)",
+    "image": "pipe-chart.jpg"
+   }
+  },
+  {
+   "key": "pipe-ss",
+   "batch": "pdf",
+   "name_en": "Stainless Steel Pipe — SMLS / ERW",
+   "name_ar": "أنبوب ستانلس ستيل (بدون لحام / ملحوم)",
+   "category_slug": "pipes-stainless-steel",
+   "source_page": 4,
+   "image": "p04-01.jpg",
+   "extra_images": [],
+   "description_en": "Seamless and ERW stainless steel pipe in the 200, 300 and 400 series.",
+   "specs": {
+    "size": [
+     "1/4\" up to 48\""
+    ],
+    "schedule": [
+     "10",
+     "40",
+     "80"
+    ],
+    "grade": [
+     "201",
+     "202",
+     "301",
+     "302",
+     "302HQ",
+     "303",
+     "304",
+     "304L",
+     "304F",
+     "309",
+     "310",
+     "310S",
+     "314",
+     "314L",
+     "316",
+     "316L",
+     "316Ti",
+     "316F",
+     "317",
+     "317L",
+     "321",
+     "409L",
+     "410",
+     "410S",
+     "416",
+     "420",
+     "420J1",
+     "420JS",
+     "430",
+     "430F",
+     "431"
+    ],
+    "standard": [
+     "ASTM A321",
+     "ASTM A213",
+     "ASTM A269"
+    ],
+    "material": [
+     "Stainless steel"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "Catalogue prints 'Schedule: 10,40,,80' (typo). 'ASTM A321' is not a pipe specification — A312/A269/A213 are; confirm the standard list.",
+   "document": {
+    "title": "Nominal wall thickness schedule (catalogue page 5)",
+    "image": "pipe-chart.jpg"
+   }
+  },
+  {
+   "key": "pipe-duplex",
+   "batch": "pdf",
+   "name_en": "Duplex Stainless Steel Pipe",
+   "name_ar": "أنبوب ستانلس ستيل دوبلكس",
+   "category_slug": "pipes-duplex",
+   "source_page": 4,
+   "image": "p04-06.jpg",
+   "extra_images": [],
+   "description_en": "Duplex and super-duplex stainless steel pipe.",
+   "specs": {
+    "size": [
+     "1/4\" up to 48\""
+    ],
+    "schedule": [
+     "10",
+     "40",
+     "80"
+    ],
+    "grade": [
+     "UNS S31803",
+     "UNS S32750",
+     "UNS S32760",
+     "UNS S32205",
+     "F51",
+     "UNS S32550"
+    ],
+    "standard": [
+     "ASTM A358",
+     "ASTM A789 / ASME SA789",
+     "ASTM A790 / ASME SA790"
+    ],
+    "material": [
+     "Duplex stainless steel"
+    ],
+    "brand": [
+     "Tubacex",
+     "Sandvik",
+     "Sanyo",
+     "DEI",
+     "Froch",
+     "Ta Chen"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "Catalogue lists 'China' as a brand — removed from the brand list; add back only if it is a real brand name.",
+   "document": {
+    "title": "Nominal wall thickness schedule (catalogue page 5)",
+    "image": "pipe-chart.jpg"
+   }
+  },
+  {
+   "key": "fit-ss",
+   "batch": "pdf",
+   "name_en": "Stainless Steel Fittings",
+   "name_ar": "وصلات ستانلس ستيل",
+   "category_slug": "fittings-stainless",
+   "source_page": 6,
+   "image": "p06-03.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "material": [
+     "Stainless steel"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "Catalogue header for this page lists: elbow 45°/90°, coupling, end cap, equal tee, flanges, reducer tee (threaded & welded), mechanical tee (threaded & welded), concentric & eccentric reducer (threaded & welded), reducer coupling. Confirm which apply to this family.\n\nEarlier extraction (KC-FIT-SS) listed: Material: Stainless, Duplex/Super Duplex, Nickel Steel | Standard: ASME B16.9, B16.28, MSS-SP32/75 | Grade: 304/L – 316/L | Schedule: 10, 20, 40, 60, 80, 120, 160 & XXS | Size: 1/2\" up to 60\" (SMLS/ERW) | Brands: Schulz, ERNE, TK, SKB, DEI. These details are NOT in the uploaded PDF — verify."
+  },
+  {
+   "key": "fit-grooved",
+   "batch": "pdf",
+   "name_en": "Grooved Fittings",
+   "name_ar": "وصلات مخددة",
+   "category_slug": "grooved-fittings",
+   "source_page": 6,
+   "image": "p06-05.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "Catalogue header for this page lists: elbow 45°/90°, coupling, end cap, equal tee, flanges, reducer tee (threaded & welded), mechanical tee (threaded & welded), concentric & eccentric reducer (threaded & welded), reducer coupling. Confirm which apply to this family.\n\nEarlier extraction (KC-FIT-GRV) listed: Types: Elbow 45°/90°, Coupling, End Cap, Equal Tee, Flanges, Reducer Tee, Mechanical Tee, Concentric & Eccentric Reducer | Size range: 1\" to 12\" | Brands: National Grooved, Ducco, Shurefix, Lede, Shur Joint. These details are NOT in the uploaded PDF — verify."
+  },
+  {
+   "key": "fit-forged",
+   "batch": "pdf",
+   "name_en": "Forged Steel Fittings (CS/SS)",
+   "name_ar": "وصلات صلب مطروق (كربوني / ستانلس)",
+   "category_slug": "forged-fittings",
+   "source_page": 6,
+   "image": "p06-04.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "material": [
+     "Carbon steel",
+     "Stainless steel"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "Catalogue header for this page lists: elbow 45°/90°, coupling, end cap, equal tee, flanges, reducer tee (threaded & welded), mechanical tee (threaded & welded), concentric & eccentric reducer (threaded & welded), reducer coupling. Confirm which apply to this family."
+  },
+  {
+   "key": "fit-cs",
+   "batch": "pdf",
+   "name_en": "Carbon Steel Fittings",
+   "name_ar": "وصلات صلب كربوني",
+   "category_slug": "fittings-carbon",
+   "source_page": 6,
+   "image": "p06-02.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "material": [
+     "Carbon steel"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "Catalogue header for this page lists: elbow 45°/90°, coupling, end cap, equal tee, flanges, reducer tee (threaded & welded), mechanical tee (threaded & welded), concentric & eccentric reducer (threaded & welded), reducer coupling. Confirm which apply to this family.\n\nEarlier extraction (KC-FIT-CS) listed: Types: Elbow 45°/90°, Coupling, End Cap, Equal Tee, Hex Nipple, Union, Reducer Tee, Concentric & Eccentric Reducer | Standard: ASME B16.9, B16.28 | Schedule: 10, 20, 40, 60, 80, 120, 160 & XXS | Size: 1/2\" up to 60\" (SMLS/ERW) | Brands: ERNE, BKL, SKB, Benken, China. These details are NOT in the uploaded PDF — verify."
+  },
+  {
+   "key": "fit-pvc",
+   "batch": "pdf",
+   "name_en": "PVC / CPVC / PPR Fittings",
+   "name_ar": "وصلات PVC / CPVC / PPR",
+   "category_slug": "plastic-fittings",
+   "source_page": 6,
+   "image": "p06-07.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "One family covers three materials — split into separate products if they are sold separately. Catalogue header for this page lists: elbow 45°/90°, coupling, end cap, equal tee, flanges, reducer tee (threaded & welded), mechanical tee (threaded & welded), concentric & eccentric reducer (threaded & welded), reducer coupling. Confirm which apply to this family.\n\nEarlier extraction (KC-FIT-PVC) listed: Types: Elbow 45°/90°, Coupling, Reducer Coupling, Equal Tee, Reducer Tee, End Cap, Union, Male & Female Adaptor, Flanges | PVC/UPVC: SCH-40/80, Class 3/4/5, size 1/2\"–8\" | CPVC: SCH-80, size 1/2\"–8\" | PPR: SCH-80, size 1/2\"–8\" | Suppliers: Aplaco, Channel, BPF Fabco, Green Pipes, Al Koblan. These details are NOT in the uploaded PDF — verify."
+  },
+  {
+   "key": "fit-hdpe",
+   "batch": "pdf",
+   "name_en": "HDPE Fittings",
+   "name_ar": "وصلات HDPE",
+   "category_slug": "fittings-hdpe",
+   "source_page": 6,
+   "image": "p06-06.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "material": [
+     "HDPE"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "Image identification (black fittings with brass parts) should be confirmed. Catalogue header for this page lists: elbow 45°/90°, coupling, end cap, equal tee, flanges, reducer tee (threaded & welded), mechanical tee (threaded & welded), concentric & eccentric reducer (threaded & welded), reducer coupling. Confirm which apply to this family.\n\nEarlier extraction (KC-FIT-HDPE) listed: Types: Elbow 45°/90°, Equal Tee, Reducer Tee, Reducer Coupling, Coupling, End Cap, Union, Male/Female Adaptor, Flange, Stub End, Saddle | Size range: 20mm to 1200mm. These details are NOT in the uploaded PDF — verify."
+  },
+  {
+   "key": "flg-blind",
+   "batch": "pdf",
+   "name_en": "Blind Flange",
+   "name_ar": "فلنجة عمياء",
+   "category_slug": "flanges-blind",
+   "source_page": 7,
+   "image": "p07-01.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "type": [
+     "Blind"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Pressure class, material and standard are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "flg-sw",
+   "batch": "pdf",
+   "name_en": "Socket-Weld Flange",
+   "name_ar": "فلنجة مقبس لحام",
+   "category_slug": "flanges-socket-weld",
+   "source_page": 7,
+   "image": "p07-02.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "type": [
+     "Socket-Weld"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Pressure class, material and standard are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "flg-wn",
+   "batch": "pdf",
+   "name_en": "Weld Neck Flange",
+   "name_ar": "فلنجة رقبة لحام",
+   "category_slug": "flanges-weld-neck",
+   "source_page": 7,
+   "image": "p07-03.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "type": [
+     "Weld Neck"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Pressure class, material and standard are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "flg-so",
+   "batch": "pdf",
+   "name_en": "Slip-On Flange",
+   "name_ar": "فلنجة انزلاقية",
+   "category_slug": "flanges-slip-on",
+   "source_page": 7,
+   "image": "p07-04.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "type": [
+     "Slip-On"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Pressure class, material and standard are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "flg-th",
+   "batch": "pdf",
+   "name_en": "Threaded Flange",
+   "name_ar": "فلنجة مسننة",
+   "category_slug": "flanges-threaded",
+   "source_page": 7,
+   "image": "p07-05.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "type": [
+     "Threaded"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Pressure class, material and standard are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "flg-lj",
+   "batch": "pdf",
+   "name_en": "Lap-Joint Flange",
+   "name_ar": "فلنجة لاب جوينت",
+   "category_slug": "flanges-lap-joint",
+   "source_page": 7,
+   "image": "p07-06.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "type": [
+     "Lap-Joint"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Pressure class, material and standard are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "flg-sb",
+   "batch": "pdf",
+   "name_en": "Spectacle Blind Flange",
+   "name_ar": "فلنجة نظارة (سبكتكل بلايند)",
+   "category_slug": "flanges-spectacle-blind",
+   "source_page": 7,
+   "image": "p07-07.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "type": [
+     "Spectacle Blind"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Pressure class, material and standard are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "flg-or",
+   "batch": "pdf",
+   "name_en": "Orifice Flange",
+   "name_ar": "فلنجة فتحة قياس",
+   "category_slug": "flanges-orifice",
+   "source_page": 7,
+   "image": "p07-08.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {
+    "type": [
+     "Orifice"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Pressure class, material and standard are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "vlv-bf",
+   "batch": "pdf",
+   "name_en": "Butterfly Valve",
+   "name_ar": "صمام فراشة",
+   "category_slug": "valves-butterfly",
+   "source_page": 7,
+   "image": "p07-09.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-gate",
+   "batch": "pdf",
+   "name_en": "Gate Valve",
+   "name_ar": "صمام بوابة",
+   "category_slug": "valves-gate",
+   "source_page": 7,
+   "image": "p07-10.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-globe",
+   "batch": "pdf",
+   "name_en": "Globe Valve",
+   "name_ar": "صمام كروي (غلوب)",
+   "category_slug": "valves-globe",
+   "source_page": 7,
+   "image": "p07-11.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-anghose",
+   "batch": "pdf",
+   "name_en": "Angle Hose Valve",
+   "name_ar": "صمام زاوية للخراطيم",
+   "category_slug": "valves-other",
+   "source_page": 7,
+   "image": "p07-12.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-angle",
+   "batch": "pdf",
+   "name_en": "Angle Valve",
+   "name_ar": "صمام زاوية",
+   "category_slug": "valves-other",
+   "source_page": 7,
+   "image": "p07-17.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-mud",
+   "batch": "pdf",
+   "name_en": "Flanged Mud Box",
+   "name_ar": "صندوق طين بفلنجات",
+   "category_slug": "valves-other",
+   "source_page": 7,
+   "image": "p07-18.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-dpc",
+   "batch": "pdf",
+   "name_en": "Dual Plate Check Valve",
+   "name_ar": "صمام عدم رجوع ثنائي الصفيحة",
+   "category_slug": "valves-check",
+   "source_page": 7,
+   "image": "p07-13.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-apg",
+   "batch": "pdf",
+   "name_en": "Angle Pattern Gate Valve",
+   "name_ar": "صمام بوابة زاوية",
+   "category_slug": "valves-gate",
+   "source_page": 7,
+   "image": "p07-14.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-check",
+   "batch": "pdf",
+   "name_en": "Check Valve",
+   "name_ar": "صمام عدم رجوع",
+   "category_slug": "valves-check",
+   "source_page": 7,
+   "image": "p07-15.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-sol",
+   "batch": "pdf",
+   "name_en": "Solenoid Valve",
+   "name_ar": "صمام سولينويد",
+   "category_slug": "valves-other",
+   "source_page": 7,
+   "image": "p07-16.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-storm",
+   "batch": "pdf",
+   "name_en": "Storm Valve",
+   "name_ar": "صمام عواصف",
+   "category_slug": "valves-other",
+   "source_page": 7,
+   "image": "p07-19.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "vlv-fgate",
+   "batch": "pdf",
+   "name_en": "Flanged Gate Valve",
+   "name_ar": "صمام بوابة بفلنجات",
+   "category_slug": "valves-gate",
+   "source_page": 7,
+   "image": "p07-20.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Class, size range, material and brands are not stated in the catalogue for this valve — add before publishing."
+  },
+  {
+   "key": "fas-rod",
+   "batch": "pdf",
+   "name_en": "Threaded Rod / Stud Bolt",
+   "name_ar": "سيخ مسنن",
+   "category_slug": "fasteners-studs",
+   "source_page": 8,
+   "image": "p08-01.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-anchor",
+   "batch": "pdf",
+   "name_en": "Anchor Bolt",
+   "name_ar": "مسمار تثبيت (انكر)",
+   "category_slug": "fasteners-anchors",
+   "source_page": 8,
+   "image": "p08-02.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-cnut",
+   "batch": "pdf",
+   "name_en": "Coupling Nut",
+   "name_ar": "صامولة وصل",
+   "category_slug": "fasteners-nuts",
+   "source_page": 8,
+   "image": "p08-03.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-assorted",
+   "batch": "pdf",
+   "name_en": "Bolts & Screws (assorted)",
+   "name_ar": "مسامير وبراغي متنوعة",
+   "category_slug": "fasteners-bolts",
+   "source_page": 8,
+   "image": "p08-04.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-ubolt",
+   "batch": "pdf",
+   "name_en": "U-Bolt",
+   "name_ar": "مسمار U",
+   "category_slug": "fasteners-bolts",
+   "source_page": 8,
+   "image": "p08-05.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-fnut",
+   "batch": "pdf",
+   "name_en": "Flange Nut",
+   "name_ar": "صامولة بفلنجة",
+   "category_slug": "fasteners-nuts",
+   "source_page": 8,
+   "image": "p08-06.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-acorn",
+   "batch": "pdf",
+   "name_en": "Acorn Nut",
+   "name_ar": "صامولة قبعة",
+   "category_slug": "fasteners-nuts",
+   "source_page": 8,
+   "image": "p08-07.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-eye",
+   "batch": "pdf",
+   "name_en": "Eye Bolt",
+   "name_ar": "مسمار عين",
+   "category_slug": "fasteners-bolts",
+   "source_page": 8,
+   "image": "p08-08.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-nail",
+   "batch": "pdf",
+   "name_en": "Nail",
+   "name_ar": "مسمار حديد",
+   "category_slug": "fasteners",
+   "source_page": 8,
+   "image": "p08-09.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-lock",
+   "batch": "pdf",
+   "name_en": "Lock Nut (nylon insert)",
+   "name_ar": "صامولة قفل",
+   "category_slug": "fasteners-nuts",
+   "source_page": 8,
+   "image": "p08-10.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-hex",
+   "batch": "pdf",
+   "name_en": "Hex Key Set",
+   "name_ar": "طقم مفاتيح سداسية",
+   "category_slug": "fasteners",
+   "source_page": 8,
+   "image": "p08-11.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "fas-set",
+   "batch": "pdf",
+   "name_en": "Set Screw",
+   "name_ar": "برغي تثبيت",
+   "category_slug": "fasteners-bolts",
+   "source_page": 8,
+   "image": "p08-12.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Catalogue fastener list: Bolts, Screws, Nuts, Washers, Rivet, Carriage Bolt, Threaded Bolt, Anchor bolt, Nail, Hex Key, U-Bolt, Eye Bolt, Sheet Metal Screws, Coupling Nut, Set Screw, Acorn Nut, Flange Nut, Lock Nut. Washers, rivets, carriage bolts and sheet-metal screws have no photo — add as separate products if sold."
+  },
+  {
+   "key": "gsk",
+   "batch": "pdf",
+   "name_en": "Gaskets",
+   "name_ar": "جوانات",
+   "category_slug": "gaskets",
+   "source_page": 8,
+   "image": "p08-13.jpg",
+   "extra_images": [
+    "p08-15.jpg",
+    "p08-16.jpg",
+    "p08-14.jpg"
+   ],
+   "description_en": "Types: sheet gaskets, solid material gaskets, spiral-wound gaskets, double-jacketed gaskets, kammprofile gaskets, fishbone gaskets, flange gaskets, asbestos, non-asbestos, ring joint.",
+   "specs": {
+    "type": [
+     "Sheet",
+     "Solid material",
+     "Spiral-wound",
+     "Double-jacketed",
+     "Kammprofile",
+     "Fishbone",
+     "Flange",
+     "Asbestos",
+     "Non-asbestos",
+     "Ring joint"
+    ]
+   },
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "verify_specs"
+   ],
+   "review_note": "One family for all gasket types; split by type if sold separately. Asbestos gaskets are listed — check regulatory suitability before offering them online."
+  },
+  {
+   "key": "gauges",
+   "batch": "pdf",
+   "name_en": "Gauges",
+   "name_ar": "مقاييس",
+   "category_slug": "gauges",
+   "source_page": 9,
+   "image": "p09-13.jpg",
+   "extra_images": [
+    "p09-12.jpg"
+   ],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft",
+    "foreign_branding",
+    "verify_specs"
+   ],
+   "review_note": "The pressure-gauge photo shows a third-party brand name on the dial. Replace the image with your own product photo. Catalogue caption is spelled 'Guages'."
+  },
+  {
+   "key": "oth-clamp",
+   "batch": "pdf",
+   "name_en": "Stainless Steel Repair Clamp",
+   "name_ar": "مشبك إصلاح ستانلس ستيل",
+   "category_slug": "other-clamps-adapters",
+   "source_page": 9,
+   "image": "p09-01.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-adapter",
+   "batch": "pdf",
+   "name_en": "Flange Adapter",
+   "name_ar": "وصلة فلنج (أدابتر)",
+   "category_slug": "other-clamps-adapters",
+   "source_page": 9,
+   "image": "p09-02.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-flex",
+   "batch": "pdf",
+   "name_en": "Flexible Connector",
+   "name_ar": "وصلة مرنة",
+   "category_slug": "other-connectors",
+   "source_page": 9,
+   "image": "p09-03.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-tcrj",
+   "batch": "pdf",
+   "name_en": "Thread Connector Rubber Joint",
+   "name_ar": "وصلة مطاطية مسننة",
+   "category_slug": "other-connectors",
+   "source_page": 9,
+   "image": "p09-05.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-plug",
+   "batch": "pdf",
+   "name_en": "Test Plug",
+   "name_ar": "سدادة اختبار",
+   "category_slug": "other-products",
+   "source_page": 9,
+   "image": "p09-06.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-cam",
+   "batch": "pdf",
+   "name_en": "Cam Lock",
+   "name_ar": "وصلة كام لوك",
+   "category_slug": "other-connectors",
+   "source_page": 9,
+   "image": "p09-04.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-brass",
+   "batch": "pdf",
+   "name_en": "Brass Pipe Fittings",
+   "name_ar": "وصلات أنابيب نحاس أصفر",
+   "category_slug": "other-brass-tube",
+   "source_page": 9,
+   "image": "p09-07.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-tube",
+   "batch": "pdf",
+   "name_en": "Tube Fittings",
+   "name_ar": "وصلات أنابيب (تيوب)",
+   "category_slug": "other-brass-tube",
+   "source_page": 9,
+   "image": "p09-08.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-sprk",
+   "batch": "pdf",
+   "name_en": "Automatic Sprinklers",
+   "name_ar": "رشاشات أوتوماتيكية",
+   "category_slug": "other-safety-fire",
+   "source_page": 9,
+   "image": "p09-09.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-vent",
+   "batch": "pdf",
+   "name_en": "Automatic Air Vent",
+   "name_ar": "فتحة هواء أوتوماتيكية",
+   "category_slug": "other-safety-fire",
+   "source_page": 9,
+   "image": "p09-10.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "oth-nohub",
+   "batch": "pdf",
+   "name_en": "No Hub Coupling",
+   "name_ar": "وصلة بدون هب",
+   "category_slug": "other-clamps-adapters",
+   "source_page": 9,
+   "image": "p09-11.jpg",
+   "extra_images": [],
+   "description_en": null,
+   "specs": {},
+   "flags": [
+    "low_res",
+    "ar_draft"
+   ],
+   "review_note": "Specifications are not stated in the catalogue — add before publishing."
+  },
+  {
+   "key": "legacy-kc-pipe-cu",
+   "batch": "legacy",
+   "name_en": "Copper Pipes & Coils",
+   "name_ar": null,
+   "category_slug": "pipes-copper",
+   "source_page": null,
+   "image": "legacy/KC-PIPE-CU.jpg",
+   "extra_images": [],
+   "description_en": "Copper tube and coil, Type K & L, American and British standard.",
+   "specs": {
+    "standard": [
+     "Type K & Type L American Standard",
+     "Grade ASTM B88 & WWT-799",
+     "Table X British Standard",
+     "Grade BS 2871"
+    ],
+    "brand": [
+     "Mueller",
+     "Yorkshire",
+     "Cambridge"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-PIPE-CU (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-pipe-hdpe",
+   "batch": "legacy",
+   "name_en": "HDPE Pipes",
+   "name_ar": null,
+   "category_slug": "pipes-hdpe",
+   "source_page": null,
+   "image": "legacy/KC-PIPE-HDPE.jpg",
+   "extra_images": [],
+   "description_en": "High-density polyethylene pipe for water, sewage & industrial lines, 20mm–500mm. 20–63mm OD, PN16 — water & irrigation; 75–110mm OD, PN16 — water & sewage; 125–200mm OD, PN16 — water transmission; 225–315mm OD, PN10/16 — municipal & industrial; 355–500mm OD, PN10/16 — infrastructure.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-PIPE-HDPE (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-pipe-pvc",
+   "batch": "legacy",
+   "name_en": "PVC, CPVC & PPR Pipes",
+   "name_ar": null,
+   "category_slug": "pipes-pvc",
+   "source_page": null,
+   "image": "legacy/KC-PIPE-PVC.jpg",
+   "extra_images": [],
+   "description_en": "PVC, CPVC and PPR pressure pipe for plumbing and industrial use. CPVC Pipe — SCH-80, ASTM F-44 — MT Plast, Sappco, AGM; PVC Pipe — SCH-40/80, Class 2–5, BS 3505 & 3506 — MT Plast, Sappco, AGM; PPR Pipe — PN20 & PN25 — Aquatherm, KTP, Cosmoplast, Green Pipe.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-PIPE-PVC (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-pipe-ci",
+   "batch": "legacy",
+   "name_en": "Cast Iron Pipe — Drainage",
+   "name_ar": null,
+   "category_slug": "pipes-cast-iron",
+   "source_page": null,
+   "image": "legacy/KC-PIPE-CI.jpg",
+   "extra_images": [],
+   "description_en": "Cast iron drainage pipe, hub & spigot / no-hub. Hub & Spigot — ASTM A74; No Hub & Single Hub — ASTM A888.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-PIPE-CI (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-fit-cu",
+   "batch": "legacy",
+   "name_en": "Copper Fittings",
+   "name_ar": null,
+   "category_slug": "copper-fittings",
+   "source_page": null,
+   "image": "legacy/KC-FIT-CU.jpg",
+   "extra_images": [],
+   "description_en": "Solder-fit copper fittings, 1/4\" to 8\".",
+   "specs": {
+    "type": [
+     "Elbow 45°/90°",
+     "Coupling",
+     "Reducer Coupling",
+     "Equal Tee",
+     "Reducer Tee",
+     "Hex Nipple",
+     "Plug",
+     "Union",
+     "Male & Female Adaptor"
+    ],
+    "size": [
+     "1/4\" to 8\""
+    ],
+    "brand": [
+     "Mueller",
+     "Nibco"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FIT-CU (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-elbow-90",
+   "batch": "legacy",
+   "name_en": "Forged Elbow 90° — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-ELBOW-90.jpg",
+   "extra_images": [],
+   "description_en": "Forged Elbow 90°, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-ELBOW-90 (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-elbow-45",
+   "batch": "legacy",
+   "name_en": "Forged Elbow 45° — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-ELBOW-45.jpg",
+   "extra_images": [],
+   "description_en": "Forged Elbow 45°, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-ELBOW-45 (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-tee",
+   "batch": "legacy",
+   "name_en": "Forged Tee — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-TEE.jpg",
+   "extra_images": [],
+   "description_en": "Forged Tee, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-TEE (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-cross",
+   "batch": "legacy",
+   "name_en": "Forged Cross — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-CROSS.jpg",
+   "extra_images": [],
+   "description_en": "Forged Cross, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-CROSS (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-street-elbow",
+   "batch": "legacy",
+   "name_en": "Forged Street Elbow — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-STREET-ELBOW.jpg",
+   "extra_images": [],
+   "description_en": "Forged Street Elbow, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-STREET-ELBOW (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-coupling",
+   "batch": "legacy",
+   "name_en": "Forged Coupling — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-COUPLING.jpg",
+   "extra_images": [],
+   "description_en": "Forged Coupling, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-COUPLING (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-boss",
+   "batch": "legacy",
+   "name_en": "Forged Boss — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-BOSS.jpg",
+   "extra_images": [],
+   "description_en": "Forged Boss, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-BOSS (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-union",
+   "batch": "legacy",
+   "name_en": "Forged Union — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-UNION.jpg",
+   "extra_images": [],
+   "description_en": "Forged Union, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-UNION (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-half-coupling",
+   "batch": "legacy",
+   "name_en": "Forged Half Coupling — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-HALF-COUPLING.jpg",
+   "extra_images": [],
+   "description_en": "Forged Half Coupling, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-HALF-COUPLING (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-reducing-coupling",
+   "batch": "legacy",
+   "name_en": "Forged Reducing Coupling — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-REDUCING-COUPLING.jpg",
+   "extra_images": [],
+   "description_en": "Forged Reducing Coupling, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-REDUCING-COUPLING (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-cap",
+   "batch": "legacy",
+   "name_en": "Forged Cap — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-CAP.jpg",
+   "extra_images": [],
+   "description_en": "Forged Cap, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-CAP (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-nipple",
+   "batch": "legacy",
+   "name_en": "Forged Nipple — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-NIPPLE.jpg",
+   "extra_images": [],
+   "description_en": "Forged Nipple, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-NIPPLE (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-45-branch-outlet",
+   "batch": "legacy",
+   "name_en": "Forged 45° Branch Outlet — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-45-BRANCH-OUTLET.jpg",
+   "extra_images": [],
+   "description_en": "Forged 45° Branch Outlet, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-45-BRANCH-OUTLET (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-hex-head-bushing",
+   "batch": "legacy",
+   "name_en": "Forged Hex Head Bushing — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-HEX-HEAD-BUSHING.jpg",
+   "extra_images": [],
+   "description_en": "Forged Hex Head Bushing, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-HEX-HEAD-BUSHING (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-hex-head-plug",
+   "batch": "legacy",
+   "name_en": "Forged Hex Head Plug — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-HEX-HEAD-PLUG.jpg",
+   "extra_images": [],
+   "description_en": "Forged Hex Head Plug, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-HEX-HEAD-PLUG (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-square-head-plug",
+   "batch": "legacy",
+   "name_en": "Forged Square Head Plug — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-SQUARE-HEAD-PLUG.jpg",
+   "extra_images": [],
+   "description_en": "Forged Square Head Plug, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-SQUARE-HEAD-PLUG (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-round-head-plug",
+   "batch": "legacy",
+   "name_en": "Forged Round Head Plug — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-ROUND-HEAD-PLUG.jpg",
+   "extra_images": [],
+   "description_en": "Forged Round Head Plug, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-ROUND-HEAD-PLUG (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-outlet",
+   "batch": "legacy",
+   "name_en": "Forged Outlet — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-OUTLET.jpg",
+   "extra_images": [],
+   "description_en": "Forged Outlet, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-OUTLET (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-hex-nipple",
+   "batch": "legacy",
+   "name_en": "Forged Hex Nipple — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-HEX-NIPPLE.jpg",
+   "extra_images": [],
+   "description_en": "Forged Hex Nipple, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-HEX-NIPPLE (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-swage-nipple",
+   "batch": "legacy",
+   "name_en": "Forged Swage Nipple — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-SWAGE-NIPPLE.jpg",
+   "extra_images": [],
+   "description_en": "Forged Swage Nipple, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-SWAGE-NIPPLE (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-t-couplet",
+   "batch": "legacy",
+   "name_en": "Forged Couplet — Threaded",
+   "name_ar": null,
+   "category_slug": "forged-threaded",
+   "source_page": null,
+   "image": "legacy/KC-FRG-T-COUPLET.jpg",
+   "extra_images": [],
+   "description_en": "Forged Couplet, forged high-pressure threaded pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "2000",
+     "3000",
+     "6000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "threaded connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-T-COUPLET (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-elbow-90",
+   "batch": "legacy",
+   "name_en": "Forged Elbow 90° — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-ELBOW-90.jpg",
+   "extra_images": [],
+   "description_en": "Forged Elbow 90°, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-ELBOW-90 (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-elbow-45",
+   "batch": "legacy",
+   "name_en": "Forged Elbow 45° — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-ELBOW-45.jpg",
+   "extra_images": [],
+   "description_en": "Forged Elbow 45°, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-ELBOW-45 (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-tee",
+   "batch": "legacy",
+   "name_en": "Forged Tee — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-TEE.jpg",
+   "extra_images": [],
+   "description_en": "Forged Tee, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-TEE (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-cross",
+   "batch": "legacy",
+   "name_en": "Forged Cross — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-CROSS.jpg",
+   "extra_images": [],
+   "description_en": "Forged Cross, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-CROSS (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-union",
+   "batch": "legacy",
+   "name_en": "Forged Union — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-UNION.jpg",
+   "extra_images": [],
+   "description_en": "Forged Union, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-UNION (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-45-branch-outlet",
+   "batch": "legacy",
+   "name_en": "Forged 45° Branch Outlet — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-45-BRANCH-OUTLET.jpg",
+   "extra_images": [],
+   "description_en": "Forged 45° Branch Outlet, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-45-BRANCH-OUTLET (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-insert",
+   "batch": "legacy",
+   "name_en": "Forged Insert — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-INSERT.jpg",
+   "extra_images": [],
+   "description_en": "Forged Insert, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-INSERT (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-swage-nipple",
+   "batch": "legacy",
+   "name_en": "Forged Swage Nipple — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-SWAGE-NIPPLE.jpg",
+   "extra_images": [],
+   "description_en": "Forged Swage Nipple, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-SWAGE-NIPPLE (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-coupling",
+   "batch": "legacy",
+   "name_en": "Forged Coupling — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-COUPLING.jpg",
+   "extra_images": [],
+   "description_en": "Forged Coupling, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-COUPLING (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-half-coupling",
+   "batch": "legacy",
+   "name_en": "Forged Half Coupling — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-HALF-COUPLING.jpg",
+   "extra_images": [],
+   "description_en": "Forged Half Coupling, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-HALF-COUPLING (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-cap",
+   "batch": "legacy",
+   "name_en": "Forged Cap — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-CAP.jpg",
+   "extra_images": [],
+   "description_en": "Forged Cap, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-CAP (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-boss",
+   "batch": "legacy",
+   "name_en": "Forged Boss — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-BOSS.jpg",
+   "extra_images": [],
+   "description_en": "Forged Boss, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-BOSS (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-outlet",
+   "batch": "legacy",
+   "name_en": "Forged Outlet — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-OUTLET.jpg",
+   "extra_images": [],
+   "description_en": "Forged Outlet, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-OUTLET (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-frg-sw-couplet",
+   "batch": "legacy",
+   "name_en": "Forged Couplet — Socket Weld",
+   "name_ar": null,
+   "category_slug": "forged-socket-weld",
+   "source_page": null,
+   "image": "legacy/KC-FRG-SW-COUPLET.jpg",
+   "extra_images": [],
+   "description_en": "Forged Couplet, forged high-pressure socket-weld pipe fitting.",
+   "specs": {
+    "pressure_class": [
+     "3000",
+     "6000",
+     "9000 Lbs"
+    ],
+    "material": [
+     "Carbon",
+     "alloy or stainless steel",
+     "socket-weld connection"
+    ],
+    "brand": [
+     "MEGA",
+     "JD",
+     "LAME",
+     "Bothwell",
+     "ULMA"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-FRG-SW-COUPLET (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-vlv-fcs",
+   "batch": "legacy",
+   "name_en": "Forged Carbon Steel Valves",
+   "name_ar": null,
+   "category_slug": "valves-other",
+   "source_page": null,
+   "image": "legacy/KC-VLV-FCS.jpg",
+   "extra_images": [],
+   "description_en": "Gate, check, globe, ball & angle valves, screwed/socket weld/flanged.",
+   "specs": {
+    "type": [
+     "Gate",
+     "Check",
+     "Globe & Ball Valves",
+     "Angle Valves",
+     "Y-strainer",
+     "Storm Valves",
+     "Syphon Trap"
+    ],
+    "end_type": [
+     "Screwed",
+     "Socket Weld",
+     "Flanged"
+    ],
+    "pressure_class": [
+     "800#",
+     "1500#",
+     "2500#"
+    ],
+    "size": [
+     "1/2\" up to 60\""
+    ],
+    "brand": [
+     "OMB",
+     "BFF",
+     "IVM",
+     "Kitz",
+     "L&T",
+     "AIL",
+     "NEWAY",
+     "RUX",
+     "APOLLO",
+     "DL",
+     "AVK"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-VLV-FCS (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-vlv-bbc",
+   "batch": "legacy",
+   "name_en": "Brass, Bronze & Cast Iron Valves",
+   "name_ar": null,
+   "category_slug": "valves-other",
+   "source_page": null,
+   "image": "legacy/KC-VLV-BBC.jpg",
+   "extra_images": [],
+   "description_en": "Emergency shutoff, pneumatic valves & air vents in brass, bronze and cast iron.",
+   "specs": {
+    "type": [
+     "Cast Iron Valves",
+     "Emergency Shutoff Valves",
+     "Pneumatic Valves",
+     "Air Vents"
+    ],
+    "end_type": [
+     "Screwed",
+     "Socket Weld",
+     "Flanged"
+    ],
+    "pressure_class": [
+     "150#",
+     "300#",
+     "600#",
+     "900#"
+    ],
+    "size": [
+     "1/2\" up to 60\""
+    ],
+    "brand": [
+     "OMB",
+     "BFF",
+     "IVM",
+     "Kitz",
+     "L&T",
+     "AIL",
+     "NEWAY",
+     "RUX",
+     "APOLLO",
+     "DL",
+     "AVK"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-VLV-BBC (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-vlv-inst",
+   "batch": "legacy",
+   "name_en": "Instrument Valves",
+   "name_ar": null,
+   "category_slug": "valves-instrument",
+   "source_page": null,
+   "image": "legacy/KC-VLV-INST.jpg",
+   "extra_images": [],
+   "description_en": "Ball, needle, relief, check, gauge/root and manifold valves for instrumentation. Range: Ball Valves, Needle Valves, Relief Valves, Check Valves; Gauge/Root Valves, 2/3/5-Way Manifold Valves; Double Block & Bleed Valves, Purge & Bleed Valves.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-VLV-INST (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-gau-prs",
+   "batch": "legacy",
+   "name_en": "Pressure Gauges",
+   "name_ar": null,
+   "category_slug": "gauges",
+   "source_page": null,
+   "image": "legacy/KC-GAU-PRS.jpg",
+   "extra_images": [],
+   "description_en": "Standard, differential, low range, diaphragm, threaded, flanged & sanitary pressure gauges.",
+   "specs": {
+    "type": [
+     "Standard",
+     "Differential",
+     "Low Range",
+     "Diaphragm",
+     "Economical",
+     "Threaded",
+     "Flanged",
+     "Sanitary",
+     "Customized"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-GAU-PRS (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-gau-tmp",
+   "batch": "legacy",
+   "name_en": "Temperature Gauges",
+   "name_ar": null,
+   "category_slug": "gauges",
+   "source_page": null,
+   "image": "legacy/KC-GAU-TMP.jpg",
+   "extra_images": [],
+   "description_en": "Bimetal, gas-filled, industrial, bearing & multi-point temperature gauges.",
+   "specs": {
+    "type": [
+     "Bimetal",
+     "Insert Gas Filled",
+     "Industrial",
+     "Bearing",
+     "Skin Type",
+     "Multi-point"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-GAU-TMP (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-gau-tc",
+   "batch": "legacy",
+   "name_en": "Thermocouples",
+   "name_ar": null,
+   "category_slug": "gauges",
+   "source_page": null,
+   "image": "legacy/KC-GAU-TC.jpg",
+   "extra_images": [],
+   "description_en": "Industrial, bearing, skin type & furnace thermocouples.",
+   "specs": {
+    "type": [
+     "Industrial",
+     "Bearing",
+     "Skin Type",
+     "Furnace"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-GAU-TC (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-gau-tw",
+   "batch": "legacy",
+   "name_en": "Thermowells",
+   "name_ar": null,
+   "category_slug": "gauges",
+   "source_page": null,
+   "image": "legacy/KC-GAU-TW.jpg",
+   "extra_images": [],
+   "description_en": "Screwed, flanged, Van Stone & weld-in thermowells.",
+   "specs": {
+    "type": [
+     "Screwed",
+     "Flanged",
+     "Van Stone",
+     "Sanitary",
+     "Weld-in"
+    ]
+   },
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-GAU-TW (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-gau-afr",
+   "batch": "legacy",
+   "name_en": "Air Filter Regulator",
+   "name_ar": null,
+   "category_slug": "gauges",
+   "source_page": null,
+   "image": "legacy/KC-GAU-AFR.jpg",
+   "extra_images": [],
+   "description_en": "Pneumatic air filter/regulator units for instrument air lines. Combined air filter and pressure regulator for compressed-air instrumentation lines.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-GAU-AFR (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-clamp",
+   "batch": "legacy",
+   "name_en": "Stainless Steel Repair Clamp",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-CLAMP.jpg",
+   "extra_images": [],
+   "description_en": "Full-circle stainless steel pipe repair clamp for emergency leak repair. Stainless steel repair clamp for pipeline leak repair and reinforcement.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-CLAMP (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-adapt",
+   "batch": "legacy",
+   "name_en": "Flange Adapter",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-ADAPT.jpg",
+   "extra_images": [],
+   "description_en": "Flange adapters for connecting plain-end pipe to flanged fittings/valves. Flange adapter for plain-end pipe to flanged connections.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-ADAPT (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-flex",
+   "batch": "legacy",
+   "name_en": "Flexible Connector",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-FLEX.jpg",
+   "extra_images": [],
+   "description_en": "Rubber flexible connectors for absorbing vibration and movement in piping. Flexible rubber pipe connector / expansion joint.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-FLEX (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-tcrj",
+   "batch": "legacy",
+   "name_en": "Thread Connector Rubber Joint",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-TCRJ.jpg",
+   "extra_images": [],
+   "description_en": "Braided flexible hose with threaded connectors. Stainless braided flexible joint with threaded end connections.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-TCRJ (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-plug",
+   "batch": "legacy",
+   "name_en": "Test Plug",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-PLUG.jpg",
+   "extra_images": [],
+   "description_en": "Mechanical test plugs for pipeline pressure testing. Mechanical test plugs, multiple sizes, for pipeline pressure testing.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-PLUG (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-cam",
+   "batch": "legacy",
+   "name_en": "Cam Lock Couplings",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-CAM.jpg",
+   "extra_images": [],
+   "description_en": "Quick-connect cam & groove couplings for hose lines. Cam and groove quick-connect couplings for hose and transfer lines.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-CAM (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-brass",
+   "batch": "legacy",
+   "name_en": "Brass Pipe Fittings",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-BRASS.jpg",
+   "extra_images": [],
+   "description_en": "General purpose brass pipe fittings. Brass pipe fittings — elbows, tees, couplings, adaptors.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-BRASS (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-tube",
+   "batch": "legacy",
+   "name_en": "Tube Fittings",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-TUBE.jpg",
+   "extra_images": [],
+   "description_en": "Compression tube fittings for instrumentation lines. Brass/steel compression tube fittings for instrument tubing.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-TUBE (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-sprk",
+   "batch": "legacy",
+   "name_en": "Automatic Sprinklers",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-SPRK.jpg",
+   "extra_images": [],
+   "description_en": "Fire protection automatic sprinkler heads. Automatic fire sprinkler heads for fire protection systems.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-SPRK (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-vent",
+   "batch": "legacy",
+   "name_en": "Automatic Air Vent",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-VENT.jpg",
+   "extra_images": [],
+   "description_en": "Automatic air release valves for hydronic/water systems. Automatic air vent valve for water and hydronic piping systems.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-VENT (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-nohub",
+   "batch": "legacy",
+   "name_en": "No Hub Coupling",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-NOHUB.jpg",
+   "extra_images": [],
+   "description_en": "Stainless steel shielded couplings for cast-iron drainage pipe. No-hub stainless steel shielded coupling for cast iron drainage pipe, per ASTM A888.",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-NOHUB (internal code from the earlier WordPress extraction — NOT a SKU)."
+  },
+  {
+   "key": "legacy-kc-oth-ankle",
+   "batch": "legacy",
+   "name_en": "Ankle Valve",
+   "name_ar": null,
+   "category_slug": "other-products",
+   "source_page": null,
+   "image": "legacy/KC-OTH-ANKLE.jpg",
+   "extra_images": [],
+   "description_en": "Brass angle/ankle valve for fire hose connections. Brass angle valve (fire hose landing valve).",
+   "specs": {},
+   "flags": [
+    "not_in_uploaded_pdf",
+    "verify_specs",
+    "low_res"
+   ],
+   "review_note": "Legacy reference KC-OTH-ANKLE (internal code from the earlier WordPress extraction — NOT a SKU)."
+  }
+ ],
+ "branding_flags": [
+  {
+   "page": 4,
+   "kind": "foreign_branding",
+   "text": "STABLE WAY TRADING logo (Arabic + English)",
+   "image": "flag-stable-way-logo.jpg"
+  },
+  {
+   "page": 4,
+   "kind": "foreign_branding",
+   "text": "BARAKAH VALVES TRADING + www.barakahvalves.com (text on page)"
+  },
+  {
+   "page": 5,
+   "kind": "foreign_branding",
+   "text": "'TRADING COMPANY' header marks"
+  },
+  {
+   "page": 9,
+   "kind": "foreign_branding",
+   "text": "STABLE WAY TRADING header marks; gauge photo shows a third-party dial brand"
+  }
+ ]
+}
