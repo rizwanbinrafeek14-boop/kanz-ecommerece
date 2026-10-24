@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SlidersHorizontal, ChevronRight, Check } from "lucide-react";
+import { SlidersHorizontal, ChevronRight, Check, X } from "lucide-react";
 import { getFacets, searchProducts, buildTree, getCategories, getBanners } from "@/lib/queries/catalog";
 import { loc, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -50,6 +50,18 @@ export async function Listing({ lang, dict, category, sp, basePath }: { lang: Lo
     return href({ f: { ...st.f, [key]: next } });
   };
   const activeCount = Object.values(st.f).reduce((n, v) => n + v.length, 0) + (st.avail ? 1 : 0);
+  const availLabel: Record<string, string> = { in_stock: dict.filters.inStockOnly, priced: dict.filters.priced, quote_only: dict.filters.quoteOnly };
+  const chips: { key: string; label: string; href: string }[] = [];
+  if (st.q) chips.push({ key: "q", label: `“${st.q}”`, href: href({ q: undefined }) });
+  if (st.avail && availLabel[st.avail]) chips.push({ key: "avail", label: availLabel[st.avail], href: href({ avail: undefined }) });
+  for (const [k, vals] of Object.entries(st.f)) {
+    const fc = facets.find((x) => x.key === k);
+    for (const val of vals) {
+      const fv = fc?.values.find((x) => x.value_en === val);
+      chips.push({ key: `${k}:${val}`, label: `${fc ? (lang === "ar" && fc.name_ar ? fc.name_ar : fc.name_en) : k}: ${lang === "ar" && fv?.value_ar ? fv.value_ar : val}`, href: href({ f: { ...st.f, [k]: vals.filter((x) => x !== val) } }) });
+    }
+  }
+  const clearAll = `${basePath}${qs({ page: 1, f: {}, sort: st.sort })}`;
   const title = category ? loc(category, "name", lang) : st.q ? `“${st.q}”` : dict.nav.products;
 
   const sidebar = (
@@ -123,14 +135,25 @@ export async function Listing({ lang, dict, category, sp, basePath }: { lang: Lo
         </details>
 
         <div>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm">
-            <p className="text-muted-foreground">{total} {dict.filters.results}</p>
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{dict.common.sortBy}:</span>
-              {([["newest", dict.filters.sort.relevance], ["name_asc", dict.filters.sort.nameAsc], ["price_low", dict.filters.sort.priceLow], ["popular", dict.filters.sort.popular]] as const).map(([v, label]) => (
-                <Link key={v} href={href({ sort: v })} className={`rounded-md px-2.5 py-1 ${(st.sort ?? "newest") === v ? "bg-ink text-white" : "hover:bg-accent"}`} rel="nofollow">{label}</Link>
-              ))}
+          <div className="mb-4 space-y-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-muted-foreground" aria-live="polite">{total} {dict.filters.results}</p>
+              <nav aria-label={dict.common.sortBy} className="flex flex-wrap items-center gap-1.5">
+                <span className="me-1 font-medium">{dict.common.sortBy}:</span>
+                {([["newest", dict.filters.sort.relevance], ["name_asc", dict.filters.sort.nameAsc], ["price_low", dict.filters.sort.priceLow], ["popular", dict.filters.sort.popular]] as const).map(([v, label]) => {
+                  const on = (st.sort ?? "newest") === v;
+                  return <Link key={v} href={href({ sort: v })} rel="nofollow" aria-current={on ? "true" : undefined}
+                    className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${on ? "border-ink bg-ink text-white" : "bg-background hover:border-primary hover:text-primary"}`}>{on && <Check className="size-3.5" aria-hidden="true" />}{label}</Link>;
+                })}
+              </nav>
             </div>
+            {chips.length > 0 && (
+              <ul className="flex flex-wrap items-center gap-2" aria-label={dict.filters.title}>
+                {chips.map((c) => (
+                  <li key={c.key}><Link href={c.href} rel="nofollow" className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3.5 py-1.5 font-medium hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    {c.label}<X className="size-3.5" aria-hidden="true" /><span className="sr-only">{dict.common.remove}</span></Link></li>))}
+                <li><Link href={clearAll} rel="nofollow" className="inline-flex min-h-10 items-center rounded-full px-3.5 py-1.5 font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict.filters.clear}</Link></li>
+              </ul>)}
           </div>
           {products.length ? <ProductGrid products={products} lang={lang} dict={dict} /> : (
             <div className="rounded-xl border border-dashed p-12 text-center">

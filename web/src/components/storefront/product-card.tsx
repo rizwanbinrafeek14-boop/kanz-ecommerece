@@ -13,9 +13,9 @@ export function ProductCard({ p, lang, dict }: { p: PC; lang: Locale; dict: Dict
   const price = cardPrice(p);
   const hasVariants = (p.product_variants ?? []).filter((v) => v.is_active && v.price != null).length > 1 && p.base_price == null;
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border bg-card transition hover:shadow-lg">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-xl motion-reduce:transform-none">
       <Link href={`/${lang}/product/${p.slug}`} className="relative block">
-        <ProductImage path={img?.storage_path} alt={name} className="aspect-square w-full p-3 transition group-hover:scale-[1.03]" />
+        <ProductImage path={img?.storage_path} alt={name} className="aspect-square w-full bg-gradient-to-b from-white to-muted/60 p-3 transition duration-500 group-hover:scale-[1.03]" />
         <div className="absolute start-2 top-2 flex flex-col gap-1">
           {p.is_special_offer && <Badge>{loc(p, "offer_label", lang) || dict.product.offer}</Badge>}
           {p.is_new_arrival && <Badge variant="dark">{dict.product.new}</Badge>}

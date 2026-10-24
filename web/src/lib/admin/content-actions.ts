@@ -44,7 +44,7 @@ export async function deleteMenuLink(id: string): Promise<Result> { await requir
 // Only whitelisted keys can be written; every key is stored under the public. prefix (readable by the storefront).
 const KEYS = ["company_name_en", "company_name_ar", "company_tagline_en", "company_about_en", "company_phone", "company_whatsapp", "company_email_sales", "company_email_info", "company_address_en", "company_website", "vat_number", "company_cr_number", "seo_default_title", "seo_default_description"] as const;
 const settingsSchema = z.object({
-  vat_rate: z.number().min(0).max(100), values: z.record(z.enum(KEYS), z.string().trim().max(1000)),
+  vat_rate: z.number().min(0).max(100), values: z.partialRecord(z.enum(KEYS), z.string().trim().max(1000)),
   delivery: z.object({ delivery: z.boolean(), pickup: z.boolean() }).refine((d) => d.delivery || d.pickup, "Enable at least one delivery option"),
   payments: z.object({ bank_transfer: z.boolean(), cod: z.boolean() }).refine((d) => d.bank_transfer || d.cod, "Enable at least one payment method"),
 });

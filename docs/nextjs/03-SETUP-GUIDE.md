@@ -100,9 +100,14 @@ A product is a **family** (e.g. “Carbon Steel Pipe — ERW”). To sell it onl
 
 Anything without a price stays “Request a quote”.
 
+## Step 8a — WhatsApp, call and social links
+Admin → **Social & contact**. Turn the contact button on, enter your WhatsApp number in international format (e.g. `+966 50 726 4938`), add your **real** social profile addresses (they must start with `https://`) and tick where each one should appear. Nothing is shown for a social network until you add it. Admin → **Certifications**: add only certifications the company really holds; attach them to products on the product’s **Certifications** tab.
+
+*If your database was created before this feature, run `supabase/migrations/0009_*.sql` (if you have not yet) and then `supabase/migrations/0010_social_contact_certs.sql` once in the SQL Editor, then redeploy.*
+
 ## Step 8 — Website content
 Admin → **Content & settings**:
-* **Company, VAT & SEO** (admin only): enter your **VAT registration number** and CR number (printed on quotations and invoices), confirm the VAT rate (15%), WhatsApp number, delivery/payment options.
+* **Company, VAT & SEO** (admin only): enter your **VAT registration number** and CR number (printed on quotations and invoices), confirm the VAT rate (15%), delivery/payment options. (WhatsApp now lives under **Social & contact**.)
 * **Homepage sections**, **Announcements**, **Menus & footer links**.
 * Admin → **Banners**: upload promotions (desktop + mobile image), choose placement, schedule, order. Impressions and clicks are counted automatically.
 * Admin → **Categories / Brands / Attributes**: categories, category images, brand logos (only brands you are authorised to display), filters.
@@ -155,6 +160,7 @@ The application does not send quotation/order emails by itself. Staff see new RF
 | Can’t sign in to `/admin` | Account is still a customer: run the SQL in Step 6 |
 | Confirmation emails never arrive | Configure SMTP (Step 4) |
 | Image upload fails | File over 10 MB or not JPG/PNG/WebP (PDF for documents) |
+| Social/WhatsApp icon rejected | Must be PNG, WebP or SVG, 512 KB or less, at least 16×16 px; SVGs with scripts or links are refused |
 | “Item is not available / Insufficient stock” at checkout | Product unpublished, quote-only, or not enough available stock |
 | Change not visible on the site | Wait up to 60 seconds, or hard-refresh; admin saves refresh the cache immediately |
 

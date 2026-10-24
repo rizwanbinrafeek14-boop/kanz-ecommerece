@@ -3,7 +3,7 @@ const en = {
   common: {
     search: "Search", loading: "Loading…", save: "Save", cancel: "Cancel", back: "Back", next: "Next", submit: "Submit",
     view: "View", viewAll: "View all", remove: "Remove", add: "Add", yes: "Yes", no: "No", close: "Close", required: "Required",
-    inStock: "In stock", outOfStock: "Out of stock", lowStock: "Low stock", onRequest: "Availability on request",
+    stockConfirmed: "Stock confirmed ({n} available)", inStock: "In stock", outOfStock: "Out of stock", lowStock: "Low stock", onRequest: "Availability on request",
     sar: "SAR", exVat: "ex. VAT", incVat: "inc. VAT", vat: "VAT", subtotal: "Subtotal", total: "Total", quantity: "Quantity",
     unit: "Unit", sku: "SKU", brand: "Brand", category: "Category", price: "Price", language: "العربية", error: "Something went wrong. Please try again.",
     noResults: "No results found.", page: "Page", of: "of", home: "Home", all: "All", sortBy: "Sort by",
@@ -11,7 +11,7 @@ const en = {
   nav: {
     products: "Products", categories: "All categories", rfq: "Request a Quote", about: "About Us", contact: "Contact",
     account: "Account", signIn: "Sign in", signOut: "Sign out", register: "Create account", cart: "Cart", myOrders: "My orders", myQuotes: "My quotations",
-    profile: "Profile", whatsapp: "WhatsApp", quote: "Quote",
+    profile: "Profile", whatsapp: "WhatsApp", quote: "Quote", call: "Call us", contactUs: "Contact us", followUs: "Follow us",
   },
   search: { placeholder: "Search pipes, flanges, valves, grades, standards…", suggestions: "Suggestions", viewAllResults: "View all results" },
   home: {
@@ -39,6 +39,7 @@ const en = {
     variants: "Available sizes & grades", selectVariant: "Select an option", priceOnRequest: "Price on request", whatsappInquiry: "Inquire on WhatsApp",
     productFamily: "Product range", familyNote: "Prices and availability for this range are provided by quotation.", minOrder: "Minimum order", offer: "Offer", new: "New",
     shareWhatsapp: "Hi KANZ CORNER, I would like to inquire about:",
+    waProduct: "Product", waSku: "SKU", waVariant: "Size / grade", waQty: "Quantity", waLink: "Link", certs: "Certifications", docsHint: "Datasheets and certificates for this product", enquire: "Enquire", zoom: "Zoom in", zoomOut: "Zoom out", enlarge: "Enlarge image", prevImg: "Previous image", nextImg: "Next image",
   },
   cart: {
     title: "Shopping cart", empty: "Your cart is empty.", continue: "Continue shopping", checkout: "Proceed to checkout", update: "Update",
