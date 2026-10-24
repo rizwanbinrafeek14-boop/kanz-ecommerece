@@ -158,3 +158,25 @@ set role anon; select pg_temp.as_user(null);
 select count(*) from (select submit_rfq('{"name":"S","email":"spam@x.com"}','[{"description":"a","quantity":1}]') from generate_series(1,5)) x;
 select submit_rfq('{"name":"S","email":"spam@x.com"}','[{"description":"a","quantity":1}]');
 reset role;
+
+\echo '--- T26 contact widget / social links / certifications access'
+reset role;
+insert into social_links (platform, name, url, accessible_label, is_active) values ('instagram','Insta','https://instagram.com/kanz','Instagram',true), ('facebook','FB','https://facebook.com/kanz','Facebook',false);
+insert into certifications (name_en, is_active) values ('Active cert', true), ('Hidden cert', false), ('Expired cert', true);
+update certifications set valid_until = current_date - 1 where name_en = 'Expired cert';
+set role anon; select pg_temp.as_user(null);
+select count(*) as anon_sees_active_links from social_links;
+select name_en from certifications order by 1;
+insert into social_links (platform, name, url, accessible_label) values ('custom','x','https://evil.example','x');
+update contact_widget set whatsapp_number = '999999999';
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1'); set role authenticated;
+update contact_widget set whatsapp_number = '999999999';
+insert into social_links (platform, name, url, accessible_label) values ('custom','x','https://evil.example','x');
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+update contact_widget set whatsapp_number = '966507264938', position = 'left' returning whatsapp_number, position;
+insert into social_links (platform, name, url, accessible_label) values ('custom','bad','http://insecure.example','x');
+insert into social_links (platform, name, url, accessible_label) values ('custom','bad','javascript:alert(1)','x');
+update contact_widget set whatsapp_number = '+966 50';
+reset role;

@@ -14,6 +14,7 @@ import { formatSAR } from "@/lib/format";
 import { ProductVariants, type VariantRow } from "./product-variants";
 import { ProductAttributes, type AttrDef, type AttrValue } from "./product-attributes";
 import { ProductImages, ProductDocs, type ImageRow, type DocRow } from "./product-media";
+import { ProductCerts } from "./product-certs";
 import { ProductRelations, type RelRow } from "./product-relations";
 
 export interface ProductFull {
@@ -24,7 +25,7 @@ export interface ProductFull {
 interface Opt { id: string; name: string; parent_id?: string | null }
 
 export function ProductEditor(props: {
-  product: ProductFull | null; categories: Opt[]; brands: Opt[]; variants: VariantRow[]; attrDefs: AttrDef[]; attrValues: AttrValue[]; images: ImageRow[]; docs: DocRow[]; related: RelRow[]; alternatives: RelRow[]; isAdmin: boolean;
+  product: ProductFull | null; categories: Opt[]; brands: Opt[]; variants: VariantRow[]; attrDefs: AttrDef[]; attrValues: AttrValue[]; images: ImageRow[]; docs: DocRow[]; related: RelRow[]; alternatives: RelRow[]; isAdmin: boolean; allCerts: { id: string; name: string }[]; certIds: string[];
 }) {
   const { product: p } = props;
   const router = useRouter();
@@ -73,7 +74,7 @@ export function ProductEditor(props: {
       )}
       <Tabs defaultValue="general">
         <TabsList className="h-auto flex-wrap">
-          {["general", "pricing", "variants", "attributes", "images", "documents", "related", "seo"].map((t) => <TabsTrigger key={t} value={t} disabled={needsSave && t !== "general" && t !== "seo"} className="capitalize">{t}</TabsTrigger>)}
+          {["general", "pricing", "variants", "attributes", "images", "documents", "certifications", "related", "seo"].map((t) => <TabsTrigger key={t} value={t} disabled={needsSave && t !== "general" && t !== "seo"} className="capitalize">{t}</TabsTrigger>)}
         </TabsList>
 
         <TabsContent value="general"><Panel>
@@ -118,6 +119,7 @@ export function ProductEditor(props: {
           <TabsContent value="attributes"><ProductAttributes productId={p.id} defs={props.attrDefs} values={props.attrValues} /></TabsContent>
           <TabsContent value="images"><ProductImages productId={p.id} rows={props.images} /></TabsContent>
           <TabsContent value="documents"><ProductDocs productId={p.id} rows={props.docs} /></TabsContent>
+          <TabsContent value="certifications"><ProductCerts productId={p.id} all={props.allCerts} selected={props.certIds} /></TabsContent>
           <TabsContent value="related"><ProductRelations productId={p.id} related={props.related} alternatives={props.alternatives} /></TabsContent>
         </>}
 

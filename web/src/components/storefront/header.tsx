@@ -12,10 +12,12 @@ import { LangSwitch } from "./lang-switch";
 import { AccountMenu } from "./account-menu";
 import { CartButtons } from "./cart-button";
 import { MobileMenu } from "./mobile-menu";
+import { SocialLinks } from "@/components/social-icon";
+import { getContact } from "@/lib/queries/contact";
 
 export async function Header({ lang }: { lang: Locale }) {
   const dict = getDictionary(lang);
-  const [cats, settings, announcements] = await Promise.all([getCategories(), getSettings(), getAnnouncements()]);
+  const [cats, settings, announcements, { links }] = await Promise.all([getCategories(), getSettings(), getAnnouncements(), getContact()]);
   const tree = buildTree(cats);
   const nm = (c: { name_en: string; name_ar: string | null }) => (lang === "ar" && c.name_ar ? c.name_ar : c.name_en);
   const announcement = announcements[0];
@@ -33,18 +35,18 @@ export async function Header({ lang }: { lang: Locale }) {
             <a href={`tel:${s(settings, "company_phone").replace(/\s/g, "")}`} className="flex items-center gap-1.5 hover:text-white"><Phone className="size-3.5" /><span dir="ltr">{s(settings, "company_phone")}</span></a>
             <a href={`mailto:${s(settings, "company_email_sales")}`} className="flex items-center gap-1.5 hover:text-white"><Mail className="size-3.5" />{s(settings, "company_email_sales")}</a>
           </div>
-          <Suspense fallback={null}><LangSwitch lang={lang} label={dict.common.language} /></Suspense>
+          <div className="flex items-center gap-2"><SocialLinks links={links.filter((l) => l.show_header)} size={16} className="gap-0" itemClassName="size-8 sm:size-8 hover:bg-white/10" /><Suspense fallback={null}><LangSwitch lang={lang} label={dict.common.language} /></Suspense></div>
         </div>
       </div>
 
       <div className="bg-ink text-white">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:gap-6">
-          <MobileMenu tree={tree} lang={lang} dict={dict} />
+          <MobileMenu tree={tree} lang={lang} dict={dict} social={<SocialLinks links={links.filter((l) => l.show_mobile_menu)} size={20} itemClassName="bg-ink text-white hover:bg-primary" />} />
           <Link href={`/${lang}`} className="flex shrink-0 items-center gap-2.5" aria-label={dict.brand.name}>
             <Image src="/brand/logo-icon.png" alt="" width={48} height={38} priority className="h-9 w-auto" />
             <span className="hidden leading-tight sm:block">
               <span className="block text-base font-extrabold tracking-wide">KANZ CORNER</span>
-              <span className="block text-[10px] tracking-[0.35em] text-white/70">{lang === "ar" ? "للتجارة" : "TRADING EST."}</span>
+              <span className="block text-[11px] tracking-[0.3em] text-white/75">{lang === "ar" ? "للتجارة" : "TRADING EST."}</span>
             </span>
           </Link>
           <SearchBox lang={lang} dict={dict} className="hidden flex-1 md:block" />

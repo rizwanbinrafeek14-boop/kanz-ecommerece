@@ -16,13 +16,14 @@ export default async function EditProduct({ params }: { params: Promise<{ id: st
   const sb = await createClient();
   const { data: p } = await sb.from("products").select("*").eq("id", id).maybeSingle();
   if (!p) notFound();
-  const [cats, brands, cost, vars, vcosts, avail, defs, vals, imgs, docs, rels] = await Promise.all([
+  const [cats, brands, cost, vars, vcosts, avail, defs, vals, imgs, docs, rels, allCerts, pcerts] = await Promise.all([
     sb.from("categories").select("id, name_en, parent_id, sort_order").order("sort_order"), sb.from("brands").select("id, name").order("name"),
     sb.from("product_costs").select("purchase_cost").eq("product_id", id).maybeSingle(), sb.from("product_variants").select("*").eq("product_id", id).order("sort_order").order("sku"),
     sb.from("variant_costs").select("variant_id, purchase_cost"), sb.from("variant_availability").select("variant_id, available").eq("product_id", id),
     sb.from("attribute_defs").select("id, key, name_en, is_filterable").order("sort_order"), sb.from("product_attribute_values").select("*").eq("product_id", id),
     sb.from("product_images").select("*").eq("product_id", id).order("is_primary", { ascending: false }).order("sort_order"), sb.from("product_documents").select("*").eq("product_id", id).order("created_at"),
     sb.from("product_relations").select("related_id, relation, sort_order, products!product_relations_related_id_fkey(name_en)").eq("product_id", id).order("sort_order"),
+    sb.from("certifications").select("id, name_en").order("sort_order").order("name_en"), sb.from("product_certifications").select("certification_id").eq("product_id", id),
   ]);
   const vc = new Map((vcosts.data ?? []).map((c) => [c.variant_id, c.purchase_cost])); const av = new Map((avail.data ?? []).map((a) => [a.variant_id, Number(a.available)]));
   const mtc = (docs.data ?? []).filter((d) => !d.is_public).map((d) => d.storage_path);
@@ -40,7 +41,7 @@ export default async function EditProduct({ params }: { params: Promise<{ id: st
         attrDefs={defs.data ?? []} attrValues={vals.data ?? []}
         images={(imgs.data ?? []).map((i) => ({ id: i.id, storage_path: i.storage_path, is_primary: i.is_primary, needs_hires: i.needs_hires, sort_order: i.sort_order, alt_en: i.alt_en }))}
         docs={(docs.data ?? []).map((d) => ({ id: d.id, kind: d.kind, title: d.title, storage_path: d.storage_path, is_public: d.is_public, url: d.is_public ? publicUrl("product-docs", d.storage_path) : sUrl.get(d.storage_path) ?? null }))}
-        related={relRows("related")} alternatives={relRows("alternative")} />
+        allCerts={(allCerts.data ?? []).map((c) => ({ id: c.id, name: c.name_en }))} certIds={(pcerts.data ?? []).map((c) => c.certification_id)} related={relRows("related")} alternatives={relRows("alternative")} />
     </>
   );
 }

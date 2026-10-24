@@ -7,11 +7,11 @@ import type { CategoryNode } from "@/lib/queries/catalog";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-export function MobileMenu({ tree, lang, dict }: { tree: CategoryNode[]; lang: Locale; dict: Dictionary }) {
+export function MobileMenu({ tree, lang, dict, social }: { tree: CategoryNode[]; lang: Locale; dict: Dictionary; social?: React.ReactNode }) {
   const nm = (c: { name_en: string; name_ar: string | null }) => (lang === "ar" && c.name_ar ? c.name_ar : c.name_en);
   return (
     <Sheet>
-      <SheetTrigger className="p-2 lg:hidden" aria-label="Menu"><Menu className="size-6" /></SheetTrigger>
+      <SheetTrigger className="flex size-11 items-center justify-center lg:hidden" aria-label="Menu"><Menu className="size-6" /></SheetTrigger>
       <SheetContent side="start" className="overflow-y-auto">
         <SheetTitle className="border-b p-4 text-lg font-bold">{dict.nav.categories}</SheetTitle>
         <nav className="flex-1 p-2">
@@ -33,6 +33,7 @@ export function MobileMenu({ tree, lang, dict }: { tree: CategoryNode[]; lang: L
             <SheetClose asChild><Link href={`/${lang}/about`} className="px-3 py-2">{dict.nav.about}</Link></SheetClose>
             <SheetClose asChild><Link href={`/${lang}/contact`} className="px-3 py-2">{dict.nav.contact}</Link></SheetClose>
           </div>
+          {social && <div className="mt-3 border-t px-3 pt-3"><p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{dict.nav.followUs}</p>{social}</div>}
         </nav>
       </SheetContent>
     </Sheet>

@@ -8,7 +8,9 @@ import { CartProvider } from "@/components/storefront/cart-provider";
 import { Header } from "@/components/storefront/header";
 import { Footer } from "@/components/storefront/footer";
 import { PageTracker } from "@/components/storefront/page-tracker";
-import { WhatsAppFloat } from "@/components/storefront/whatsapp-float";
+import { ContactFloat } from "@/components/storefront/whatsapp-float";
+import { getContact } from "@/lib/queries/contact";
+import { publicUrl } from "@/lib/format";
 import { Toaster } from "@/components/ui/sonner";
 
 export const revalidate = 60;
@@ -31,7 +33,11 @@ export default async function RootLayout({ children, params }: { children: React
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const dict = getDictionary(lang);
-  const settings = await getSettings();
+  const [settings, { widget, links }] = await Promise.all([getSettings(), getContact()]);
+  const ar = lang === "ar";
+  const waNumber = widget ? (widget.whatsapp_enabled ? widget.whatsapp_number : "") : s(settings, "company_whatsapp").replace(/\D/g, "");
+  const waText = widget ? (ar ? widget.default_message_ar : widget.default_message_en) : dict.product.shareWhatsapp;
+  const callNumber = widget ? (widget.show_call ? (widget.call_number || s(settings, "company_phone")).replace(/[^\d+]/g, "") : "") : "";
   const orgJsonLd = {
     "@context": "https://schema.org", "@type": "Organization", name: "KANZ CORNER EST.", url: process.env.NEXT_PUBLIC_SITE_URL,
     telephone: s(settings, "company_phone"), email: s(settings, "company_email_sales"),
@@ -40,11 +46,16 @@ export default async function RootLayout({ children, params }: { children: React
   return (
     <html lang={lang} dir={dirOf(lang)}>
       <body className="flex min-h-screen flex-col bg-background text-foreground">
+        <a href="#main" className="skip-link">{lang === "ar" ? "تخطَّ إلى المحتوى" : "Skip to content"}</a>
         <CartProvider>
           <Header lang={lang} />
-          <main className="flex-1">{children}</main>
+          <main id="main" tabIndex={-1} className="flex-1 outline-none">{children}</main>
           <Footer lang={lang} />
-          <WhatsAppFloat number={s(settings, "company_whatsapp")} text={dict.product.shareWhatsapp} label={dict.nav.whatsapp} />
+          <ContactFloat whatsappHref={waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}` : null}
+            whatsappLabel={widget ? (ar ? widget.label_ar : widget.label_en) : dict.nav.whatsapp} whatsappDescription={widget ? (ar ? widget.description_ar : widget.description_en) : ""}
+            iconUrl={publicUrl("site-icons", widget?.icon_path)} callHref={callNumber ? `tel:${callNumber}` : null} callLabel={dict.nav.call}
+            menuLabel={widget ? (ar ? widget.menu_label_ar : widget.menu_label_en) : dict.nav.contactUs} closeLabel={dict.common.close}
+            position={widget?.position ?? "right"} showDesktop={widget?.show_desktop ?? true} showMobile={widget?.show_mobile ?? true} links={links.filter((l) => l.show_floating)} />
           <PageTracker lang={lang} />
           <Toaster />
         </CartProvider>

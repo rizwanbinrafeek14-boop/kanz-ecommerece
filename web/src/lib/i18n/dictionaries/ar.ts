@@ -5,7 +5,7 @@ const ar: Dictionary = {
   common: {
     search: "بحث", loading: "جارٍ التحميل…", save: "حفظ", cancel: "إلغاء", back: "رجوع", next: "التالي", submit: "إرسال",
     view: "عرض", viewAll: "عرض الكل", remove: "حذف", add: "إضافة", yes: "نعم", no: "لا", close: "إغلاق", required: "مطلوب",
-    inStock: "متوفر", outOfStock: "غير متوفر", lowStock: "كمية محدودة", onRequest: "التوفر عند الطلب",
+    stockConfirmed: "المخزون مؤكد (متوفر {n})", inStock: "متوفر", outOfStock: "غير متوفر", lowStock: "كمية محدودة", onRequest: "التوفر عند الطلب",
     sar: "ر.س", exVat: "بدون الضريبة", incVat: "شامل الضريبة", vat: "ضريبة القيمة المضافة", subtotal: "المجموع الفرعي", total: "الإجمالي", quantity: "الكمية",
     unit: "الوحدة", sku: "رمز المنتج", brand: "العلامة التجارية", category: "الفئة", price: "السعر", language: "English", error: "حدث خطأ. يرجى المحاولة مرة أخرى.",
     noResults: "لا توجد نتائج.", page: "صفحة", of: "من", home: "الرئيسية", all: "الكل", sortBy: "ترتيب حسب",
@@ -13,7 +13,7 @@ const ar: Dictionary = {
   nav: {
     products: "المنتجات", categories: "جميع الفئات", rfq: "اطلب عرض سعر", about: "من نحن", contact: "اتصل بنا",
     account: "الحساب", signIn: "تسجيل الدخول", signOut: "تسجيل الخروج", register: "إنشاء حساب", cart: "السلة", myOrders: "طلباتي", myQuotes: "عروض الأسعار",
-    profile: "الملف الشخصي", whatsapp: "واتساب", quote: "عرض سعر",
+    profile: "الملف الشخصي", whatsapp: "واتساب", quote: "عرض سعر", call: "اتصل بنا", contactUs: "تواصل معنا", followUs: "تابعنا",
   },
   search: { placeholder: "ابحث عن أنابيب، فلنجات، صمامات، درجات، معايير…", suggestions: "اقتراحات", viewAllResults: "عرض كل النتائج" },
   home: {
@@ -40,6 +40,7 @@ const ar: Dictionary = {
     documents: "المستندات", datasheet: "الورقة الفنية (PDF)", mtc: "شهادة اختبار المواد", related: "منتجات ذات صلة", alternatives: "منتجات بديلة",
     variants: "المقاسات والدرجات المتاحة", selectVariant: "اختر خياراً", priceOnRequest: "السعر عند الطلب", whatsappInquiry: "استفسر عبر واتساب",
     productFamily: "مجموعة المنتج", familyNote: "الأسعار والتوفر لهذه المجموعة تُقدَّم بعرض سعر.", minOrder: "الحد الأدنى للطلب", offer: "عرض", new: "جديد",
+    waProduct: "المنتج", waSku: "رمز الصنف", waVariant: "المقاس / الدرجة", waQty: "الكمية", waLink: "الرابط", certs: "الشهادات", docsHint: "الكتيبات والشهادات الخاصة بهذا المنتج", enquire: "استفسار", zoom: "تكبير", zoomOut: "تصغير", enlarge: "تكبير الصورة", prevImg: "الصورة السابقة", nextImg: "الصورة التالية",
     shareWhatsapp: "مرحباً كنز كورنر، أود الاستفسار عن:",
   },
   cart: {

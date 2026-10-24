@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, Plus, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -96,7 +97,7 @@ function Links({ rows }: { rows: Lnk[] }) {
 
 function Settings({ s, canEdit }: { s: Record<string, any>; canEdit: boolean }) {
   const router = useRouter(); const g = (k: string) => String(s[`public.${k}`] ?? "");
-  const [v, setV] = React.useState<Record<string, string>>(Object.fromEntries(["company_name_en", "company_name_ar", "company_tagline_en", "company_about_en", "company_phone", "company_whatsapp", "company_email_sales", "company_email_info", "company_address_en", "company_website", "vat_number", "company_cr_number", "seo_default_title", "seo_default_description"].map((k) => [k, g(k)])));
+  const [v, setV] = React.useState<Record<string, string>>(Object.fromEntries(["company_name_en", "company_name_ar", "company_tagline_en", "company_about_en", "company_phone", "company_email_sales", "company_email_info", "company_address_en", "company_website", "vat_number", "company_cr_number", "seo_default_title", "seo_default_description"].map((k) => [k, g(k)])));
   const [vat, setVat] = React.useState(g("vat_rate") || "15");
   const [del, setDel] = React.useState({ delivery: s["public.delivery_options"]?.delivery ?? true, pickup: s["public.delivery_options"]?.pickup ?? true });
   const [pay, setPay] = React.useState({ bank_transfer: s["public.payment_methods"]?.bank_transfer ?? true, cod: s["public.payment_methods"]?.cod ?? false });
@@ -108,7 +109,7 @@ function Settings({ s, canEdit }: { s: Record<string, any>; canEdit: boolean }) 
         <Field label="VAT rate (%)" hint="Applied to new orders, quotations and invoices. Existing documents keep the rate they were issued with."><Input type="number" min={0} max={100} step="0.01" disabled={!canEdit} value={vat} onChange={(e) => setVat(e.target.value)} /></Field>
         {f("vat_number", "Company VAT registration number", "15 digits starting with 3. Printed on quotations and invoices. Leave blank until you have it.")}{f("company_cr_number", "Commercial registration (CR) number")}</div></Panel>
       <Panel title="Company details & contact"><div className="grid gap-4 sm:grid-cols-2">
-        {f("company_name_en", "Company name (English)")}{f("company_name_ar", "Company name (Arabic)")}{f("company_phone", "Phone")}{f("company_whatsapp", "WhatsApp number", "Digits only with country code, e.g. 966507264938")}
+        {f("company_name_en", "Company name (English)")}{f("company_name_ar", "Company name (Arabic)")}{f("company_phone", "Phone")}<p className="text-xs text-muted-foreground sm:col-span-2">WhatsApp, Call and social links are managed under <Link className="underline" href="/admin/social">Social Media &amp; Contact Settings</Link>.</p>
         {f("company_email_sales", "Sales email")}{f("company_email_info", "Info email")}{f("company_website", "Website")}{f("company_tagline_en", "Tagline")}{f("company_address_en", "Address", undefined, true)}{f("company_about_en", "Short company description", undefined, true)}</div></Panel>
       <Panel title="Checkout options"><div className="flex flex-wrap gap-x-8 gap-y-3 text-sm">
         <label className="flex items-center gap-2"><Checkbox disabled={!canEdit} checked={del.delivery} onChange={(e) => setDel({ ...del, delivery: e.target.checked })} />Delivery</label><label className="flex items-center gap-2"><Checkbox disabled={!canEdit} checked={del.pickup} onChange={(e) => setDel({ ...del, pickup: e.target.checked })} />Pickup</label>

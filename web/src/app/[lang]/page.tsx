@@ -10,6 +10,7 @@ import { HeroCarousel, type Slide } from "@/components/storefront/hero-carousel"
 import { ProductGrid } from "@/components/storefront/product-card";
 import { ProductImage } from "@/components/storefront/product-image";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/storefront/reveal";
 
 export const revalidate = 60;
 
@@ -52,9 +53,9 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
           <Section key={sec.id} title={title || dict.home.shopByCategory} subtitle={subtitle}>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {list.map((c) => (
-                <Link key={c.id} href={`/${lang}/category/${c.slug}`} className="group overflow-hidden rounded-xl border bg-card text-center transition hover:border-primary hover:shadow-lg">
-                  <ProductImage path={c.image_path} bucket="category-images" alt={loc(c, "name", lang)} className="aspect-[4/3] w-full p-4 transition group-hover:scale-105" />
-                  <div className="border-t bg-ink px-3 py-3 text-sm font-semibold text-white group-hover:bg-primary">{loc(c, "name", lang)}</div>
+                <Link key={c.id} href={`/${lang}/category/${c.slug}`} className="group relative flex flex-col overflow-hidden rounded-2xl border bg-card text-center shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-primary hover:shadow-xl focus-visible:outline-offset-4 motion-reduce:transform-none">
+                  <ProductImage path={c.image_path} bucket="category-images" alt={loc(c, "name", lang)} className="aspect-[4/3] w-full bg-gradient-to-b from-white to-muted p-5 transition duration-500 group-hover:scale-105" />
+                  <div className="flex min-h-14 items-center justify-center gap-2 bg-ink px-3 py-3 text-sm font-semibold text-white transition-colors group-hover:bg-primary">{loc(c, "name", lang)}<ArrowRight className="size-4 shrink-0 opacity-70 rtl:rotate-180" aria-hidden="true" /></div>
                 </Link>
               ))}
             </div>
@@ -103,8 +104,8 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       }
       case "rfq_cta":
         out.push(
-          <section key={sec.id} className="mx-auto mt-14 max-w-7xl px-4">
-            <div className="bg-steel flex flex-col items-center gap-5 rounded-2xl px-6 py-12 text-center text-white md:flex-row md:justify-between md:text-start">
+          <section key={sec.id} className="mx-auto mt-20 max-w-7xl px-4">
+            <div className="bg-steel flex flex-col items-center gap-5 rounded-3xl px-6 py-14 md:px-12 text-center text-white md:flex-row md:justify-between md:text-start">
               <div className="max-w-2xl">
                 <h2 className="text-2xl font-bold sm:text-3xl">{title || dict.home.rfqTitle}</h2>
                 <p className="mt-2 text-white/75">{subtitle || dict.home.rfqText}</p>
@@ -129,15 +130,18 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
 
 function Section({ title, subtitle, href, more, children }: { title: string; subtitle?: string; href?: string; more?: string; children: React.ReactNode }) {
   return (
-    <section className="mx-auto mt-14 max-w-7xl px-4">
-      <div className="mb-6 flex items-end justify-between gap-4">
-        <div>
-          <h2 className="border-s-4 border-primary ps-3 text-2xl font-bold tracking-tight sm:text-3xl">{title}</h2>
-          {subtitle && <p className="mt-2 ps-4 text-muted-foreground">{subtitle}</p>}
+    <section className="mx-auto mt-16 max-w-7xl px-4 sm:mt-20">
+      <Reveal>
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <span className="mb-3 block h-1 w-12 rounded-full bg-primary" aria-hidden="true" />
+            <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+            {subtitle && <p className="mt-2 max-w-2xl text-muted-foreground sm:text-lg">{subtitle}</p>}
+          </div>
+          {href && more && <Link href={href} className="inline-flex min-h-11 shrink-0 items-center gap-1 font-semibold text-primary hover:underline">{more}<ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" /></Link>}
         </div>
-        {href && more && <Link href={href} className="shrink-0 text-sm font-semibold text-primary hover:underline">{more}</Link>}
-      </div>
-      {children}
+        {children}
+      </Reveal>
     </section>
   );
 }
@@ -154,12 +158,13 @@ function PromoTile({ s, wide }: { s: Slide; wide?: boolean }) {
 
 function DefaultHero({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   return (
-    <section className="bg-steel relative overflow-hidden text-white">
-      <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-14 md:grid-cols-2 md:py-20">
+    <section className="bg-steel relative isolate overflow-hidden text-white">
+      <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
+      <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-16 md:grid-cols-2 md:py-24">
         <div>
           <span dir="ltr" className="mb-4 inline-block rounded bg-primary px-3 py-1 text-xs font-bold tracking-widest">KANZ CORNER EST.</span>
-          <h1 className="text-3xl font-extrabold leading-tight sm:text-5xl">{dict.home.heroTitle}</h1>
-          <p className="mt-4 max-w-lg text-lg text-white/75">{dict.home.heroSub}</p>
+          <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-6xl">{dict.home.heroTitle}</h1>
+          <p className="mt-5 max-w-xl text-lg text-white/80 sm:text-xl">{dict.home.heroSub}</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Button asChild size="lg"><Link href={`/${lang}/products`}>{dict.home.heroCta}</Link></Button>
             <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"><Link href={`/${lang}/rfq`}>{dict.home.heroCta2}</Link></Button>

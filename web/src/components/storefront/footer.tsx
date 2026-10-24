@@ -4,12 +4,14 @@ import { MapPin, Phone, Mail } from "lucide-react";
 import { getMenu } from "@/lib/queries/catalog";
 import { getSettings, s } from "@/lib/settings";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { SocialLinks } from "@/components/social-icon";
+import { getContact } from "@/lib/queries/contact";
 import { loc, type Locale } from "@/lib/i18n/config";
 
 export async function Footer({ lang }: { lang: Locale }) {
   const dict = getDictionary(lang);
-  const [settings, company, products, support, legal] = await Promise.all([
-    getSettings(), getMenu("footer_company"), getMenu("footer_products"), getMenu("footer_support"), getMenu("footer_legal"),
+  const [settings, company, products, support, legal, { links }] = await Promise.all([
+    getSettings(), getMenu("footer_company"), getMenu("footer_products"), getMenu("footer_support"), getMenu("footer_legal"), getContact(),
   ]);
   const col = (title: string, links: typeof company) => links.length > 0 && (
     <div>
@@ -34,6 +36,7 @@ export async function Footer({ lang }: { lang: Locale }) {
             <li className="flex gap-2"><Phone className="size-4 shrink-0 text-primary" /><a href={`tel:${s(settings, "company_phone").replace(/\s/g, "")}`} dir="ltr">{s(settings, "company_phone")}</a></li>
             <li className="flex gap-2"><Mail className="size-4 shrink-0 text-primary" /><a href={`mailto:${s(settings, "company_email_sales")}`}>{s(settings, "company_email_sales")}</a></li>
           </ul>
+          {links.some((l) => l.show_footer) && <div className="mt-4"><p className="mb-1 text-xs font-semibold uppercase tracking-wide text-white/60">{dict.nav.followUs}</p><SocialLinks links={links.filter((l) => l.show_footer)} size={20} itemClassName="bg-white/10 hover:bg-primary" /></div>}
         </div>
         {col(dict.footer.company, company)}
         {col(dict.footer.products, products)}

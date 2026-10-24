@@ -8,13 +8,13 @@ const Dialog = D.Root;
 const DialogTrigger = D.Trigger;
 const DialogClose = D.Close;
 
-function DialogContent({ className, children, ...props }: React.ComponentProps<typeof D.Content>) {
+function DialogContent({ className, children, showCloseButton = true, ...props }: React.ComponentProps<typeof D.Content> & { showCloseButton?: boolean }) {
   return (
     <D.Portal>
       <D.Overlay className="fixed inset-0 z-50 bg-black/50" />
       <D.Content className={cn("fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border bg-background p-6 shadow-lg max-h-[90vh] overflow-y-auto", className)} {...props}>
         {children}
-        <D.Close className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100"><X className="size-4" /><span className="sr-only">Close</span></D.Close>
+        {showCloseButton && <D.Close className="absolute end-2 top-2 flex size-10 items-center justify-center rounded-md opacity-70 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><X className="size-4" /><span className="sr-only">Close</span></D.Close>}
       </D.Content>
     </D.Portal>
   );

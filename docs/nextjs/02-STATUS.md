@@ -6,7 +6,7 @@ What exists, how it was checked, and what is **not** done. Nothing here is claim
 
 | Layer | Method | Result |
 |---|---|---|
-| Database (schema, RLS, stock, orders, RFQ, reports, storage policies) | `supabase/tests/rls_and_stock.sql` run against a real **PostgreSQL 16** with the four migrations + seed applied, acting as `anon`, a customer and an admin | 25 scenarios pass (see list below) |
+| Database (schema, RLS, stock, orders, RFQ, reports, storage policies) | `supabase/tests/rls_and_stock.sql` run against a real **PostgreSQL 16** with the four migrations + seed applied, acting as `anon`, a customer and an admin | 26 scenarios pass (see list below) |
 | API security | `web/scripts/security-check.mjs` — 73 probes against a live PostgREST API as anonymous visitor and as an ordinary customer | all denials hold (storage checks are covered by the SQL tests because the sandbox mock does not enforce storage policy) |
 | Application | Real Chromium (Playwright) driving the Next.js app (dev **and** production build with the CSP active) against PostgreSQL + PostgREST, with a minimal stand-in for Supabase Auth/Storage | import → publish → price/stock → banner → storefront → customer checkout → guest RFQ → quote → PDF → accept → convert → ship → pay → invoice, plus a 40-route smoke test in both languages |
 | Static checks | `tsc --noEmit`, `eslint` (0 errors), `next build` | clean |
@@ -14,7 +14,7 @@ What exists, how it was checked, and what is **not** done. Nothing here is claim
 **Not tested here (needs your real accounts):** actual Supabase Auth emails (confirmation, invite, reset), Supabase Storage policy enforcement in the hosted service (the policies themselves are tested in SQL), Vercel deployment, a payment gateway, and real browsers on phones. The setup guide’s Step 9 checklist covers these.
 
 ## Database tests (all pass)
-T1 anon sees only published products · T2 costs invisible · T3 internal stock function locked · T4 anon cannot order · T5 no self-promotion to admin · T6 profile isolation · T7 stock tables hidden · T8 order priced from the database (VAT 15%) · T9 **overselling blocked** · T10 cost snapshot hidden · T11 no direct order insert · T12 customers cannot read each other’s orders · T13–T15 reserve → ship (stock out) → cancel (release) · T16 invoice issued and immutable · T17 guest RFQ → quote → convert · T18 invalid RFQ rejected · T19 analytics counters · T20 dashboard staff-only · T21 search/filters/facets · T22 customer accepts a quotation (once) · T23 reports staff-only · T24 storage write policies · T25 RFQ spam throttle.
+T1 anon sees only published products · T2 costs invisible · T3 internal stock function locked · T4 anon cannot order · T5 no self-promotion to admin · T6 profile isolation · T7 stock tables hidden · T8 order priced from the database (VAT 15%) · T9 **overselling blocked** · T10 cost snapshot hidden · T11 no direct order insert · T12 customers cannot read each other’s orders · T13–T15 reserve → ship (stock out) → cancel (release) · T16 invoice issued and immutable · T17 guest RFQ → quote → convert · T18 invalid RFQ rejected · T19 analytics counters · T20 dashboard staff-only · T21 search/filters/facets · T22 customer accepts a quotation (once) · T23 reports staff-only · T24 storage write policies · T25 RFQ spam throttle · T26 social links / contact widget / certifications (anon sees only active ones, expired certifications hidden, only staff can write, `http://` and `javascript:` URLs rejected).
 
 ## Phase checklist
 
@@ -33,6 +33,24 @@ T1 anon sees only published products · T2 costs invisible · T3 internal stock 
 ## Added later: grooved fittings from supplier MTCs
 `scripts/build_mtc_import.py` read the 22-page mill-test-certificate bundle (324 certificate rows) and produced 23 draft product families with the sizes seen on the certificates and the pages each appears on. Rows the scan's text layer garbled were checked against the page images (e.g. 5" sizes, 8"×3" reducer, 8"×2" threaded mechanical tee). Test values, lot codes and the manufacturer's name were intentionally not imported. The PDF is attached privately by staff, never committed (the repository is public). Verified in the browser: 23 draft products, one shared private file, zero public documents, zero variants/prices/SKUs.
 
+## Added later: UI/UX upgrade (your “improve the UI/UX” brief)
+Decisions you made: keep the journey exactly as is (RFQ, cart, checkout, accounts) and only improve the look; premium corporate style with subtle animation; keep the homepage sections; filter chips; product-page upgrades A–F; expandable contact button; no external service and no cost.
+
+| Area | What changed |
+|---|---|
+| Look & feel | Larger type scale, calmer spacing, rounded cards with soft shadows, dark hero with subtle grid, refined category and product cards, darker success green for contrast |
+| Motion | Gentle fade-up on scroll and small hover lifts. **All of it is switched off when the visitor’s device asks for reduced motion** (CSS rule + the scroll effect checks the setting) |
+| Accessibility | “Skip to content” link, 3 px focus ring (white on dark areas), tap targets ≥ 44 px on phones, labelled icon buttons, `aria-expanded` menus, Escape closes the contact menu/lightbox. Automated axe-core (WCAG 2.1 A/AA) run on the home page (EN/AR), a product page and a filtered listing: 0 violations |
+| Listing | Active filter chips (click to remove one), “Clear all”, and a clearer “Sort by” control that shows the current choice |
+| Product page | Image lightbox with 2.5× zoom and keyboard arrows; certification badges (only ones you enter, linked to the document, hidden automatically after expiry); sticky enquiry bar on phones; WhatsApp message with product name, SKU, size/grade, quantity and page URL; **availability wording is honest**: “Stock confirmed (N available)” only when the system holds stock, otherwise “Availability on request”; a prominent “Documents” box |
+| Admin → Social & contact | WhatsApp/Contact button: enable, number (international format, normalised), default message EN/AR, placement left/right, desktop/mobile visibility, labels and accessible description, optional Call action, custom icon (official icon by default), live preview. Social links: add/edit/reorder/enable/disable/delete for Instagram, Facebook, LinkedIn, X, YouTube, TikTok, Snapchat and custom; built-in or uploaded icon; choose Header / Footer / Mobile menu / Floating menu per link; preview before saving |
+| Admin → Certifications | Create real certifications (issuer, number, expiry, document), attach them per product (new “Certifications” tab) |
+| Validation | URLs must be `https://` and on the platform’s own domain (use “Custom” otherwise); icons must be PNG/WebP/SVG ≤ 512 KB and are checked by content, not by file name; SVGs are cleaned (scripts, event handlers, links and external references are rejected) and all icons render in a fixed square so proportions are kept |
+
+Verification: 51 automated browser checks (admin creates/rejects links and icons, storefront shows them, left/right placement, mobile-only/desktop-only, WhatsApp on/off, mobile overflow at 390 px in EN/AR, reduced motion, sticky bar vs floating button, keyboard skip link, axe) plus SQL scenario T26 and extra API probes (anonymous visitors cannot create links/certifications or change the WhatsApp number).
+
+**Not claimed:** no reviews, ratings, customer counts, delivery promises or certifications were added. The cookie question: the site only uses anonymous first-party counting and no third-party cookies, so no cookie banner was added; keep the Privacy page linked and have a lawyer confirm.
+
 ## Known limitations (honest list)
 1. **No prices, SKUs, stock, certifications or availability were invented.** Every imported product is a *draft, quote-only family*. You must add real data.
 2. **Catalogue images are 150–475 px crops** and are flagged *low-res*. Replace them with originals before launch.
@@ -46,4 +64,5 @@ T1 anon sees only published products · T2 costs invisible · T3 internal stock 
 10. **Analytics** are first-party and anonymous (distinct browser sessions, no IP). `track_event` is callable by anyone, so counts are indicative, not tamper-proof.
 11. **Stock on RFQ-converted orders is not auto-reserved** (items are often made-to-order); staff adjust stock manually.
 12. Shipping cost is not calculated automatically (“freight quoted separately”); a shipping amount can be added in a later iteration.
-13. **Next.js 16 note:** `cacheComponents` was deliberately turned off so that admin edits appear immediately via on-demand revalidation.
+13. Contact/social changes appear on the website within about a minute (cached pages refresh on a 60-second cycle, and immediately after the next request following a save).
+14. **Next.js 16 note:** `cacheComponents` was deliberately turned off so that admin edits appear immediately via on-demand revalidation.

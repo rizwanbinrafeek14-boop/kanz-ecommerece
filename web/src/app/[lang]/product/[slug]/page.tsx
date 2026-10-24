@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, FileText, Download } from "lucide-react";
+import { ChevronRight, FileText, Download, BadgeCheck, ShieldCheck } from "lucide-react";
 import { isLocale, loc } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getProductBySlug } from "@/lib/queries/catalog";
@@ -12,6 +12,7 @@ import { BuyBox } from "@/components/storefront/product-buybox";
 import { ProductGrid } from "@/components/storefront/product-card";
 import { ProductViewTracker } from "@/components/storefront/page-tracker";
 import { Badge } from "@/components/ui/badge";
+import { getContact, getProductCertifications, whatsappNumber } from "@/lib/queries/contact";
 
 export const revalidate = 60;
 // No pages are pre-rendered at build time; each product is generated on first visit, then cached and refreshed every 60s (and instantly when an admin saves).
@@ -37,8 +38,10 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
   const d = await getProductBySlug(slug);
   if (!d) notFound();
   const dict = getDictionary(lang);
-  const settings = await getSettings();
+  const [settings, { widget }, certs] = await Promise.all([getSettings(), getContact(), getProductCertifications(d.product.id)]);
   const { product: p } = d;
+  const today = new Date().toISOString().slice(0, 10);
+  const liveCerts = certs.filter((c) => !c.valid_until || c.valid_until >= today);
   const name = loc(p, "name", lang);
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const url = `${site}/${lang}/product/${slug}`;
@@ -52,7 +55,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
+    <div className="mx-auto max-w-7xl px-4 py-6 pb-28 lg:pb-6">
       <nav className="mb-5 flex flex-wrap items-center gap-1 text-sm text-muted-foreground" aria-label="Breadcrumb">
         <Link href={`/${lang}`} className="hover:text-primary">{dict.common.home}</Link><ChevronRight className="size-3.5 rtl:rotate-180" />
         {d.category && <><Link href={`/${lang}/category/${d.category.slug}`} className="hover:text-primary">{loc(d.category, "name", lang)}</Link><ChevronRight className="size-3.5 rtl:rotate-180" /></>}
@@ -60,7 +63,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_440px]">
-        <Gallery images={images} alt={name} />
+        <Gallery images={images} alt={name} labels={{ enlarge: dict.product.enlarge, zoomIn: dict.product.zoom, zoomOut: dict.product.zoomOut, close: dict.common.close, prev: dict.product.prevImg, next: dict.product.nextImg, image: lang === "ar" ? "صورة" : "Image" }} />
         <div>
           <div className="mb-2 flex flex-wrap gap-2">
             {p.is_special_offer && <Badge>{loc(p, "offer_label", lang) || dict.product.offer}</Badge>}
@@ -73,8 +76,14 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
             {p.sku && <>{dict.common.sku}: <span dir="ltr" className="font-mono text-foreground">{p.sku}</span></>}
           </p>
           {loc(p, "short_desc", lang) && <p className="mt-4 text-muted-foreground">{loc(p, "short_desc", lang)}</p>}
+          {liveCerts.length > 0 && (
+            <ul className="mt-4 flex flex-wrap gap-2" aria-label={dict.product.certs}>
+              {liveCerts.map((c) => { const nm = lang === "ar" && c.name_ar ? c.name_ar : c.name_en; const tip = [c.issuer, c.reference_number && `Ref. ${c.reference_number}`, c.valid_until && `→ ${c.valid_until}`].filter(Boolean).join(" · ");
+                const inner = <><BadgeCheck className="size-4 text-primary" aria-hidden="true" />{nm}</>; const cls = "inline-flex min-h-9 items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-sm font-medium text-ink";
+                return <li key={c.id}>{c.document_path ? <a href={publicUrl("product-docs", c.document_path) ?? "#"} target="_blank" rel="noopener noreferrer" title={tip || undefined} className={`${cls} hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}>{inner}</a> : <span title={tip || undefined} className={cls}>{inner}</span>}</li>; })}
+            </ul>)}
           <div className="mt-5">
-            <BuyBox lang={lang} dict={dict} url={url} vatRate={vatRateOf(settings)} whatsapp={s(settings, "company_whatsapp")}
+            <BuyBox lang={lang} dict={dict} url={url} vatRate={vatRateOf(settings)} whatsapp={whatsappNumber(widget, s(settings, "company_whatsapp"))} waGreeting={lang === "ar" ? (widget?.default_message_ar ?? dict.product.shareWhatsapp) : (widget?.default_message_en ?? dict.product.shareWhatsapp)}
               product={{ id: p.id, slug: p.slug, name, unit: p.unit, quoteOnly: p.is_quote_only, basePrice: p.base_price, minQty: Number(p.min_order_qty), image: d.images[0]?.storage_path ?? null }}
               variants={d.variants.map((v) => ({ id: v.id, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), spec: [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), price: v.price, available: v.available }))} />
           </div>
@@ -82,7 +91,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
       </div>
 
       <div className="mt-12 grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-10">
+        <div className="space-y-10 lg:col-span-2 lg:row-start-1">
           {d.attributes.length > 0 && (
             <section>
               <h2 className="mb-3 border-s-4 border-primary ps-3 text-xl font-bold">{dict.product.specs}</h2>
@@ -123,15 +132,18 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
           )}
         </div>
         {d.documents.length > 0 && (
-          <aside>
-            <h2 className="mb-3 border-s-4 border-primary ps-3 text-xl font-bold">{dict.product.documents}</h2>
-            <ul className="space-y-2">
-              {d.documents.map((doc) => (
-                <li key={doc.id}><a href={publicUrl("product-docs", doc.storage_path) ?? "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-lg border p-3 text-sm font-medium hover:border-primary hover:text-primary">
-                  <FileText className="size-5 text-primary" /><span className="flex-1">{doc.title}</span><Download className="size-4" />
-                </a></li>
-              ))}
-            </ul>
+          <aside className="order-first lg:order-none lg:col-start-3 lg:row-start-1" aria-labelledby="docs-h">
+            <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-5 lg:sticky lg:top-32">
+              <h2 id="docs-h" className="flex items-center gap-2 text-lg font-bold"><ShieldCheck className="size-5 text-primary" aria-hidden="true" />{dict.product.documents}</h2>
+              <p className="mb-3 mt-1 text-sm text-muted-foreground">{dict.product.docsHint}</p>
+              <ul className="space-y-2">
+                {d.documents.map((doc) => (
+                  <li key={doc.id}><a href={publicUrl("product-docs", doc.storage_path) ?? "#"} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-lg border bg-background p-3 text-sm font-medium hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <FileText className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="flex-1">{doc.title}</span><Download className="size-4 shrink-0" aria-hidden="true" />
+                  </a></li>
+                ))}
+              </ul>
+            </div>
           </aside>
         )}
       </div>
