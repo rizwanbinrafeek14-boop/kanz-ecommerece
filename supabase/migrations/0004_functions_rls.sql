@@ -329,20 +329,22 @@ begin
   execute format('create policy "%1$s admin delete" on %1$I for delete using (is_admin())', t);
 end $$;
 
-select _rls_public_read_staff_write('categories', 'is_active');
-select _rls_public_read_staff_write('brands', 'is_active');
-select _rls_public_read_staff_write('attribute_defs');
-select _rls_public_read_staff_write('products', $$status = 'published'$$);
-select _rls_public_read_staff_write('product_images', $$exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
-select _rls_public_read_staff_write('product_documents', $$is_public and exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
-select _rls_public_read_staff_write('product_attribute_values', $$exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
-select _rls_public_read_staff_write('product_variants', $$is_active and exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
-select _rls_public_read_staff_write('product_relations', $$exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
-select _rls_public_read_staff_write('banners', $$is_active and (starts_at is null or starts_at <= now()) and (ends_at is null or ends_at > now())$$);
-select _rls_public_read_staff_write('homepage_sections', 'is_enabled');
-select _rls_public_read_staff_write('announcements', $$is_active and (starts_at is null or starts_at <= now()) and (ends_at is null or ends_at > now())$$);
-select _rls_public_read_staff_write('menu_links', 'is_active');
-select _rls_public_read_staff_write('site_settings', $$key like 'public.%'$$);
+do $do$ begin
+  perform _rls_public_read_staff_write('categories', 'is_active');
+  perform _rls_public_read_staff_write('brands', 'is_active');
+  perform _rls_public_read_staff_write('attribute_defs');
+  perform _rls_public_read_staff_write('products', $$status = 'published'$$);
+  perform _rls_public_read_staff_write('product_images', $$exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
+  perform _rls_public_read_staff_write('product_documents', $$is_public and exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
+  perform _rls_public_read_staff_write('product_attribute_values', $$exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
+  perform _rls_public_read_staff_write('product_variants', $$is_active and exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
+  perform _rls_public_read_staff_write('product_relations', $$exists (select 1 from products p where p.id = product_id and p.status = 'published')$$);
+  perform _rls_public_read_staff_write('banners', $$is_active and (starts_at is null or starts_at <= now()) and (ends_at is null or ends_at > now())$$);
+  perform _rls_public_read_staff_write('homepage_sections', 'is_enabled');
+  perform _rls_public_read_staff_write('announcements', $$is_active and (starts_at is null or starts_at <= now()) and (ends_at is null or ends_at > now())$$);
+  perform _rls_public_read_staff_write('menu_links', 'is_active');
+  perform _rls_public_read_staff_write('site_settings', $$key like 'public.%'$$);
+end $do$;
 drop function _rls_public_read_staff_write(text, text);
 
 -- Staff may delete DRAFT products (e.g. a failed import); deleting live/archived products needs an admin.
