@@ -23,7 +23,7 @@ export default async function EditProduct({ params }: { params: Promise<{ id: st
     sb.from("attribute_defs").select("id, key, name_en, is_filterable").order("sort_order"), sb.from("product_attribute_values").select("*").eq("product_id", id),
     sb.from("product_images").select("*").eq("product_id", id).order("is_primary", { ascending: false }).order("sort_order"), sb.from("product_documents").select("*").eq("product_id", id).order("created_at"),
     sb.from("product_relations").select("related_id, relation, sort_order, products!product_relations_related_id_fkey(name_en)").eq("product_id", id).order("sort_order"),
-    sb.from("certifications").select("id, name_en").order("sort_order").order("name_en"), sb.from("product_certifications").select("certification_id").eq("product_id", id),
+    sb.from("certifications").select("id, name_en, is_active, valid_until, issued_at").order("sort_order").order("name_en"), sb.from("product_certifications").select("*").eq("product_id", id),
   ]);
   const vc = new Map((vcosts.data ?? []).map((c) => [c.variant_id, c.purchase_cost])); const av = new Map((avail.data ?? []).map((a) => [a.variant_id, Number(a.available)]));
   const mtc = (docs.data ?? []).filter((d) => !d.is_public).map((d) => d.storage_path);
@@ -41,7 +41,9 @@ export default async function EditProduct({ params }: { params: Promise<{ id: st
         attrDefs={defs.data ?? []} attrValues={vals.data ?? []}
         images={(imgs.data ?? []).map((i) => ({ id: i.id, storage_path: i.storage_path, is_primary: i.is_primary, needs_hires: i.needs_hires, sort_order: i.sort_order, alt_en: i.alt_en }))}
         docs={(docs.data ?? []).map((d) => ({ id: d.id, kind: d.kind, title: d.title, storage_path: d.storage_path, is_public: d.is_public, url: d.is_public ? publicUrl("product-docs", d.storage_path) : sUrl.get(d.storage_path) ?? null }))}
-        allCerts={(allCerts.data ?? []).map((c) => ({ id: c.id, name: c.name_en }))} certIds={(pcerts.data ?? []).map((c) => c.certification_id)} related={relRows("related")} alternatives={relRows("alternative")} />
+        certOptions={(allCerts.data ?? []).map((c) => ({ id: c.id, name: c.name_en, note: !c.is_active ? "Unpublished — hidden" : c.valid_until && c.valid_until < new Date().toISOString().slice(0, 10) ? "Expired — hidden" : c.issued_at && c.issued_at > new Date().toISOString().slice(0, 10) ? "Not valid yet — hidden" : null }))}
+        assignments={(pcerts.data ?? []).map((a) => ({ certification_id: a.certification_id, status: a.status, reference_number: a.reference_number, document_path: a.document_path, verification_url: a.verification_url, scope_note: a.scope_note, variant_ids: a.variant_ids ?? [] }))}
+        variantOptions={(vars.data ?? []).map((v) => ({ id: v.id, label: [v.label_en || v.size, v.sku].filter(Boolean).join(" · ") }))} related={relRows("related")} alternatives={relRows("alternative")} />
     </>
   );
 }

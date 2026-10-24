@@ -103,6 +103,8 @@ Anything without a price stays “Request a quote”.
 ## Step 8a — WhatsApp, call and social links
 Admin → **Social & contact**. Turn the contact button on, enter your WhatsApp number in international format (e.g. `+966 50 726 4938`), add your **real** social profile addresses (they must start with `https://`) and tick where each one should appear. Nothing is shown for a social network until you add it. Admin → **Certifications**: add only certifications the company really holds; attach them to products on the product’s **Certifications** tab.
 
+**Quality & Certifications:** after running `0010`, also run `supabase/migrations/0011_quality_certifications.sql` once (copy the file’s contents, not its name). Then Admin → **Certifications** → add your real certificates (upload each issuer’s official logo and certificate PDF), publish them, and attach them to products on each product’s **Certifications** tab with status *Verified*. The public page is at `/quality`.
+
 *If your database was created before this feature, run `supabase/migrations/0009_*.sql` (if you have not yet) and then `supabase/migrations/0010_social_contact_certs.sql` once in the SQL Editor, then redeploy.*
 
 ## Step 8 — Website content

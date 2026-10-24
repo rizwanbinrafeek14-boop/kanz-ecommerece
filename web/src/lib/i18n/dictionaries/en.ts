@@ -11,7 +11,7 @@ const en = {
   nav: {
     products: "Products", categories: "All categories", rfq: "Request a Quote", about: "About Us", contact: "Contact",
     account: "Account", signIn: "Sign in", signOut: "Sign out", register: "Create account", cart: "Cart", myOrders: "My orders", myQuotes: "My quotations",
-    profile: "Profile", whatsapp: "WhatsApp", quote: "Quote", call: "Call us", contactUs: "Contact us", followUs: "Follow us",
+    profile: "Profile", whatsapp: "WhatsApp", quote: "Quote", quality: "Quality & Certifications", call: "Call us", contactUs: "Contact us", followUs: "Follow us",
   },
   search: { placeholder: "Search pipes, flanges, valves, grades, standards…", suggestions: "Suggestions", viewAllResults: "View all results" },
   home: {
@@ -39,6 +39,7 @@ const en = {
     variants: "Available sizes & grades", selectVariant: "Select an option", priceOnRequest: "Price on request", whatsappInquiry: "Inquire on WhatsApp",
     productFamily: "Product range", familyNote: "Prices and availability for this range are provided by quotation.", minOrder: "Minimum order", offer: "Offer", new: "New",
     shareWhatsapp: "Hi KANZ CORNER, I would like to inquire about:",
+    approvals: "Approvals", approvalsNone: "Certification information not available. Please contact us for details.", viewCert: "View certificate", opensNew: "opens in a new tab", certNumber: "Certificate no.", certScope: "Applies to", certValid: "Valid until", certIssuer: "Issued by",
     waProduct: "Product", waSku: "SKU", waVariant: "Size / grade", waQty: "Quantity", waLink: "Link", certs: "Certifications", docsHint: "Datasheets and certificates for this product", enquire: "Enquire", zoom: "Zoom in", zoomOut: "Zoom out", enlarge: "Enlarge image", prevImg: "Previous image", nextImg: "Next image",
   },
   cart: {

@@ -180,3 +180,33 @@ insert into social_links (platform, name, url, accessible_label) values ('custom
 insert into social_links (platform, name, url, accessible_label) values ('custom','bad','javascript:alert(1)','x');
 update contact_widget set whatsapp_number = '+966 50';
 reset role;
+
+\echo '--- T27 certifications: admin-only management, only live + verified approvals are public'
+reset role;
+insert into certifications (id, name_en, is_active, scope) values
+  ('30000000-0000-0000-0000-000000000001','Live cert',true,'company'),
+  ('30000000-0000-0000-0000-000000000002','Unpublished cert',false,'company'),
+  ('30000000-0000-0000-0000-000000000003','Future cert',true,'company');
+update certifications set valid_until = current_date - 1 where name_en = 'Expired cert';
+update certifications set issued_at = current_date + 30 where name_en = 'Future cert';
+insert into product_certifications (product_id, certification_id, status) values
+  ('10000000-0000-0000-0000-000000000001','30000000-0000-0000-0000-000000000001','verified'),
+  ('10000000-0000-0000-0000-000000000001','30000000-0000-0000-0000-000000000002','pending'),
+  ('10000000-0000-0000-0000-000000000002','30000000-0000-0000-0000-000000000001','verified');
+set role anon; select pg_temp.as_user(null);
+select name_en as anon_visible_certs from certifications where name_en in ('Live cert','Unpublished cert','Future cert','Expired cert') order by 1;
+select status as anon_visible_assignments from product_certifications;
+insert into product_certifications (product_id, certification_id, status) values ('10000000-0000-0000-0000-000000000001','30000000-0000-0000-0000-000000000003','verified');
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1'); set role authenticated;
+insert into certifications (name_en) values ('Customer cert');
+update product_certifications set status = 'verified';
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+update product_certifications set status = 'verified', reference_number = 'REF-1', variant_ids = array['20000000-0000-0000-0000-000000000001']::uuid[] where certification_id = '30000000-0000-0000-0000-000000000002' returning status, reference_number;
+update product_certifications set status = 'bogus' where certification_id = '30000000-0000-0000-0000-000000000002';
+update product_certifications set verification_url = 'http://insecure.example' where certification_id = '30000000-0000-0000-0000-000000000002';
+update certifications set scope = 'galaxy' where name_en = 'Live cert';
+delete from certifications where id = '30000000-0000-0000-0000-000000000002';
+select count(*) as assignments_left_after_cert_delete from product_certifications where certification_id = '30000000-0000-0000-0000-000000000002';
+reset role;

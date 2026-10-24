@@ -28,3 +28,12 @@ export async function uploadToBucket(bucket: string, file: File, folder: string)
 export async function removeFromBucket(bucket: string, paths: string[]) {
   if (paths.length) await createClient().storage.from(bucket).remove(paths);
 }
+
+/** Certificate PDFs only (max 10 MB). Stored in product-docs/certificates/…; the server re-checks the path shape. */
+export async function uploadCertificatePdf(file: File): Promise<string> {
+  const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+  if (!isPdf) throw new Error("Certificates must be PDF files.");
+  if (file.size > 10 * 1024 * 1024) throw new Error("The PDF is larger than 10 MB.");
+  const base = file.name.replace(/\.pdf$/i, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "certificate";
+  return uploadToBucket("product-docs", new File([file], `${base}.pdf`, { type: "application/pdf" }), "certificates");
+}

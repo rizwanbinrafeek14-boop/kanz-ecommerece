@@ -13,6 +13,8 @@ export async function Footer({ lang }: { lang: Locale }) {
   const [settings, company, products, support, legal, { links }] = await Promise.all([
     getSettings(), getMenu("footer_company"), getMenu("footer_products"), getMenu("footer_support"), getMenu("footer_legal"), getContact(),
   ]);
+  // “Quality & Certifications” is always reachable from the footer, even if the menu was edited in the admin panel.
+  if (!company.some((l) => l.url === "/quality")) company.push({ ...(company[0] ?? ({} as (typeof company)[number])), id: "quality-link", label_en: "Quality & Certifications", label_ar: "الجودة والشهادات", url: "/quality" });
   const col = (title: string, links: typeof company) => links.length > 0 && (
     <div>
       <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">{title}</h3>
