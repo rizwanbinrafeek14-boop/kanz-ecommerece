@@ -30,6 +30,9 @@ T1 anon sees only published products · T2 costs invisible · T3 internal stock 
 | 8 | Analytics & reports (real events, sales/product/category/RFQ/banner/stock reports, CSV export) | ✅ done, tested |
 | 9 | Security testing & deployment (RLS, headers/CSP, throttling, security probe, setup guide) | ✅ done; deployment itself is yours (guide) |
 
+## Added later: grooved fittings from supplier MTCs
+`scripts/build_mtc_import.py` read the 22-page mill-test-certificate bundle (324 certificate rows) and produced 23 draft product families with the sizes seen on the certificates and the pages each appears on. Rows the scan's text layer garbled were checked against the page images (e.g. 5" sizes, 8"×3" reducer, 8"×2" threaded mechanical tee). Test values, lot codes and the manufacturer's name were intentionally not imported. The PDF is attached privately by staff, never committed (the repository is public). Verified in the browser: 23 draft products, one shared private file, zero public documents, zero variants/prices/SKUs.
+
 ## Known limitations (honest list)
 1. **No prices, SKUs, stock, certifications or availability were invented.** Every imported product is a *draft, quote-only family*. You must add real data.
 2. **Catalogue images are 150–475 px crops** and are flagged *low-res*. Replace them with originals before launch.

@@ -262,7 +262,9 @@ export async function deleteProductDocument(productId: string, docId: string, bu
   const sb = await createClient();
   const { error } = await sb.from("product_documents").delete().eq("id", docId);
   if (error) return fail(error.message);
-  await sb.storage.from(bucket === "product-mtc" ? "product-mtc" : "product-docs").remove([path]);
+  // A file can be shared by several products (e.g. an MTC bundle): only delete it when nothing else points at it.
+  const { count } = await sb.from("product_documents").select("id", { count: "exact", head: true }).eq("storage_path", path);
+  if (!count) await sb.storage.from(bucket === "product-mtc" ? "product-mtc" : "product-docs").remove([path]);
   revalidatePath(`/admin/products/${productId}`); refreshStorefront();
   return ok(null);
 }

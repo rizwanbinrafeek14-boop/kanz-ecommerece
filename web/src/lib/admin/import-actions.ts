@@ -9,10 +9,11 @@ import { revalidatePath } from "next/cache";
 
 interface PkgItem {
   key: string; batch: "pdf" | "legacy"; name_en: string; name_ar: string | null; category_slug: string; source_page: number | null; image: string | null;
-  extra_images: string[]; description_en: string | null; specs: Record<string, string[]>; flags: string[]; review_note: string | null; document?: { title: string; image: string };
+  extra_images: string[]; mtc?: { title: string; pages: number[] }; description_en: string | null; specs: Record<string, string[]>; flags: string[]; review_note: string | null; document?: { title: string; image: string };
 }
 const BATCHES = {
   pdf: "Uploaded catalogue PDF (kanz-CATALOGE.pdf, 10 pages)",
+  mtc: "Supplier mill test certificates — grooved fittings (MTC 26-1095)",
   legacy: "Earlier WordPress extraction — items NOT found in the uploaded PDF",
 } as const;
 const DATA_DIR = () => path.join(process.cwd(), "data", "catalogue-import");
@@ -23,9 +24,10 @@ export async function loadCatalogueExtraction(): Promise<Result<{ created: strin
   const sb = await createClient();
   let pkg: { items: PkgItem[] };
   try { pkg = JSON.parse(fs.readFileSync(path.join(DATA_DIR(), "import.json"), "utf8")); } catch { return fail("Extraction package not found on the server (web/data/catalogue-import/import.json)."); }
+  try { pkg.items.push(...(JSON.parse(fs.readFileSync(path.join(DATA_DIR(), "import-mtc.json"), "utf8")).items as PkgItem[])); } catch { /* optional package */ }
 
   const created: string[] = [], skipped: string[] = [];
-  for (const kind of ["pdf", "legacy"] as const) {
+  for (const kind of ["pdf", "legacy", "mtc"] as const) {
     const items = pkg.items.filter((i) => i.batch === kind);
     const { data: existing } = await sb.from("import_batches").select("id").eq("source_name", BATCHES[kind]).maybeSingle();
     if (existing) { skipped.push(BATCHES[kind]); continue; }
@@ -48,7 +50,7 @@ export async function loadCatalogueExtraction(): Promise<Result<{ created: strin
         rows.push({
           batch_id: batch.id, source_page: it.source_page, name_en: it.name_en, name_ar: it.name_ar, suggested_category_slug: it.category_slug,
           description_en: it.description_en, specs: it.specs, image_path: await up(it.image), flags: it.flags, review_note: it.review_note,
-          extra: { key: it.key, images: await Promise.all((it.extra_images ?? []).map(up)), document: it.document ? { title: it.document.title, path: await up(it.document.image) } : null },
+          extra: { key: it.key, images: await Promise.all((it.extra_images ?? []).map(up)), document: it.document ? { title: it.document.title, path: await up(it.document.image) } : null, mtc: it.mtc ?? null },
         });
       }
       const { error: ie } = await sb.from("import_items").insert(rows);
@@ -108,7 +110,7 @@ async function copyObject(sb: Awaited<ReturnType<typeof createClient>>, from: { 
 export async function publishImportItems(ids: string[]): Promise<Result<{ published: number; errors: string[] }>> {
   const user = await requireStaff();
   const sb = await createClient();
-  const { data: items } = await sb.from("import_items").select("*").in("id", ids).eq("status", "approved");
+  const { data: items } = await sb.from("import_items").select("*, import_batches(shared_file_path)").in("id", ids).eq("status", "approved");
   if (!items?.length) return fail("No approved items selected.");
   const [{ data: cats }, { data: defs }] = await Promise.all([sb.from("categories").select("id, slug"), sb.from("attribute_defs").select("id, key")]);
   const catId = new Map((cats ?? []).map((c) => [c.slug, c.id]));
@@ -144,6 +146,12 @@ export async function publishImportItems(ids: string[]): Promise<Result<{ publis
         await copyObject(sb, { bucket: "import-staging", path: doc.path }, { bucket: "product-docs", path: dest });
         await sb.from("product_documents").insert({ product_id: product.id, kind: "datasheet", title: doc.title, storage_path: dest, is_public: true });
       }
+      const mtc = it.extra?.mtc as { title: string } | null;
+      if (mtc) {   // supplier certificate bundle: ONE private file shared by all products of the batch
+        const shared = (Array.isArray(it.import_batches) ? it.import_batches[0] : it.import_batches)?.shared_file_path as string | undefined;
+        if (shared) await sb.from("product_documents").insert({ product_id: product.id, kind: "mtc", title: mtc.title, storage_path: shared, is_public: false });
+        else errors.push(`${it.name_en}: created, but the MTC file has not been uploaded to this batch yet — attach it later on the product's Documents tab.`);
+      }
       await sb.from("import_items").update({ status: "published", published_product_id: product.id }).eq("id", it.id);
       await audit(sb, user.id, "import.publish_item", "products", product.id, { import_item: it.id });
       published++;
@@ -165,5 +173,16 @@ export async function deleteImportBatch(batchId: string): Promise<Result> {
   const { error } = await sb.from("import_batches").delete().eq("id", batchId);
   if (error) return fail(error.message);
   revalidatePath("/admin/import");
+  return ok(null);
+}
+
+/** Records the single private file (uploaded by the browser to the product-mtc bucket) that is attached to this batch's products. */
+export async function setBatchSharedFile(batchId: string, path: string | null): Promise<Result> {
+  await requireStaff();
+  if (path !== null && !/^[\w./-]{1,300}$/.test(path)) return fail("Invalid file path.");
+  const sb = await createClient();
+  const { error } = await sb.from("import_batches").update({ shared_file_path: path }).eq("id", batchId);
+  if (error) return fail(error.message);
+  revalidatePath(`/admin/import/${batchId}`);
   return ok(null);
 }

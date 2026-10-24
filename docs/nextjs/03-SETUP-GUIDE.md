@@ -83,6 +83,14 @@ From then on, add colleagues from **Admin → Staff & roles → Invite staff** (
 3. Select the approved items → **Create draft products**. They are created as *draft*, *quote-only* products: **no price, SKU or stock is invented**.
 4. Go to **Products**, open each one, add real data when you have it (variants with SKUs, prices, datasheets, MTCs), then press **Publish**. Only published products appear on the website.
 
+### Third batch: grooved fittings from the supplier certificates (MTC 26-1095)
+**Import review** also shows **“Supplier mill test certificates — grooved fittings”**: 23 product families (elbows, tees, reducers, couplings, end caps, grooved flanges and flange adaptors) with the **sizes that appear on the certificates**.
+1. Open that batch and **upload the certificate PDF** in the panel at the top. It is stored **privately** and attached to every product as an *MTC*, with the relevant page numbers in its title. (The PDF is deliberately **not** in the GitHub repository, which is public.)
+2. Approve the items, then **Create draft products**. There are **no photos, prices, SKUs or stock**: add a real photo to each, and variants/SKUs/prices when you have them.
+3. Check before publishing: the 300 psi value is printed as “working pressure” on some pages and “hydro test max. pressure” on others, so confirm the rating with the supplier; the manufacturer named on the certificates is not used as a brand on the site.
+
+*If you set up your database before this feature existed, run this once in the SQL Editor:* `alter table import_batches add column if not exists shared_file_path text;`
+
 ### Prices and stock — when the product becomes “buyable”
 A product is a **family** (e.g. “Carbon Steel Pipe — ERW”). To sell it online:
 1. **Variants** tab → add a variant per sellable size/grade/schedule with a **real, unique SKU** and **price**.

@@ -1,0 +1,1197 @@
+{
+ "source": "Supplier MTC bundle 26-1095 (grooved fittings)",
+ "generated_by": "scripts/build_mtc_import.py",
+ "items": [
+  {
+   "key": "mtc-elbow90s",
+   "batch": "mtc",
+   "name_en": "Grooved 90° Elbow — Short",
+   "name_ar": "كوع مخدد 90 درجة (قصير)",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "4\"",
+     "5\"",
+     "6\"",
+     "8\"",
+     "10\"",
+     "12\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (2, 6, 9, 10, 11, 13, 18, 20). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 2, 6, 9, 10, 11, 13, 18, 20",
+    "pages": [
+     2,
+     6,
+     9,
+     10,
+     11,
+     13,
+     18,
+     20
+    ]
+   }
+  },
+  {
+   "key": "mtc-elbow90l",
+   "batch": "mtc",
+   "name_en": "Grooved 90° Elbow — Long",
+   "name_ar": "كوع مخدد 90 درجة (طويل)",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2\"",
+     "2½\"",
+     "3\"",
+     "4\"",
+     "6\"",
+     "8\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (6, 13, 18, 20). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 6, 13, 18, 20",
+    "pages": [
+     6,
+     13,
+     18,
+     20
+    ]
+   }
+  },
+  {
+   "key": "mtc-elbow45",
+   "batch": "mtc",
+   "name_en": "Grooved 45° Elbow — Short",
+   "name_ar": "كوع مخدد 45 درجة (قصير)",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "3\"",
+     "4\"",
+     "6\"",
+     "8\"",
+     "12\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (2, 6, 9, 10, 13, 18, 19, 21). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 2, 6, 9, 10, 13, 18, 19, 21",
+    "pages": [
+     2,
+     6,
+     9,
+     10,
+     13,
+     18,
+     19,
+     21
+    ]
+   }
+  },
+  {
+   "key": "mtc-elbow225",
+   "batch": "mtc",
+   "name_en": "Grooved 22.5° Elbow — Short",
+   "name_ar": "كوع مخدد 22.5 درجة",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "4\"",
+     "6\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (19, 21). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 19, 21",
+    "pages": [
+     19,
+     21
+    ]
+   }
+  },
+  {
+   "key": "mtc-elbow1125",
+   "batch": "mtc",
+   "name_en": "Grooved 11.25° Elbow — Short",
+   "name_ar": "كوع مخدد 11.25 درجة",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "4\"",
+     "6\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (3, 19, 21). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 3, 19, 21",
+    "pages": [
+     3,
+     19,
+     21
+    ]
+   }
+  },
+  {
+   "key": "mtc-teel",
+   "batch": "mtc",
+   "name_en": "Grooved Equal Tee — Long",
+   "name_ar": "تيه مخدد متساوي (طويل)",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "3\"",
+     "4\"",
+     "6\"",
+     "8\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (2, 4, 6, 11, 13, 18, 20). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 2, 4, 6, 11, 13, 18, 20",
+    "pages": [
+     2,
+     4,
+     6,
+     11,
+     13,
+     18,
+     20
+    ]
+   }
+  },
+  {
+   "key": "mtc-tees",
+   "batch": "mtc",
+   "name_en": "Grooved Equal Tee — Short",
+   "name_ar": "تيه مخدد متساوي (قصير)",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "6\"",
+     "12\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (7, 8, 9, 17, 19, 21). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 7, 8, 9, 17, 19, 21",
+    "pages": [
+     7,
+     8,
+     9,
+     17,
+     19,
+     21
+    ]
+   }
+  },
+  {
+   "key": "mtc-cross",
+   "batch": "mtc",
+   "name_en": "Grooved Cross Tee",
+   "name_ar": "تيه صليب مخدد",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (10). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 10",
+    "pages": [
+     10
+    ]
+   }
+  },
+  {
+   "key": "mtc-cap",
+   "batch": "mtc",
+   "name_en": "Grooved End Cap",
+   "name_ar": "غطاء نهاية مخدد",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "3\"",
+     "4\"",
+     "6\"",
+     "8\"",
+     "12\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (2, 4, 14, 17). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 2, 4, 14, 17",
+    "pages": [
+     2,
+     4,
+     14,
+     17
+    ]
+   }
+  },
+  {
+   "key": "mtc-redg",
+   "batch": "mtc",
+   "name_en": "Concentric Grooved Reducer",
+   "name_ar": "مخفض مخدد متحد المركز",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "3\"×2½\"",
+     "4\"×2½\"",
+     "4\"×3\"",
+     "6\"×2½\"",
+     "6\"×3\"",
+     "6\"×4\"",
+     "8\"×3\"",
+     "8\"×6\"",
+     "10\"×8\"",
+     "12\"×8\"",
+     "12\"×10\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (2, 4, 9, 10, 14, 19, 21). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 2, 4, 9, 10, 14, 19, 21",
+    "pages": [
+     2,
+     4,
+     9,
+     10,
+     14,
+     19,
+     21
+    ]
+   }
+  },
+  {
+   "key": "mtc-redt",
+   "batch": "mtc",
+   "name_en": "Concentric Threaded Reducer",
+   "name_ar": "مخفض مسنن متحد المركز",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2\"×1½\"",
+     "2½\"×1\"",
+     "2½\"×1¼\"",
+     "2½\"×1½\"",
+     "2½\"×2\"",
+     "3\"×1\"",
+     "3\"×1¼\"",
+     "3\"×1½\"",
+     "3\"×2\"",
+     "4\"×1\"",
+     "4\"×1½\"",
+     "4\"×2\"",
+     "6\"×1¼\"",
+     "6\"×1½\"",
+     "6\"×2\""
+    ],
+    "end_type": [
+     "Grooved × threaded outlet"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (2, 4, 7, 8, 9, 10, 14, 17, 21, 22). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 2, 4, 7, 8, 9, 10, 14, 17, 21, 22",
+    "pages": [
+     2,
+     4,
+     7,
+     8,
+     9,
+     10,
+     14,
+     17,
+     21,
+     22
+    ]
+   }
+  },
+  {
+   "key": "mtc-teerg",
+   "batch": "mtc",
+   "name_en": "Grooved Reducing Tee",
+   "name_ar": "تيه مخدد مخفض",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "3\"×2½\"",
+     "4\"×2½\"",
+     "4\"×3\"",
+     "6\"×2½\"",
+     "6\"×3\"",
+     "6\"×4\"",
+     "8\"×6\"",
+     "10\"×4\"",
+     "10\"×6\"",
+     "12\"×4\"",
+     "12\"×6\"",
+     "12\"×8\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (4, 7, 9, 10, 14, 17, 19, 22). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 4, 7, 9, 10, 14, 17, 19, 22",
+    "pages": [
+     4,
+     7,
+     9,
+     10,
+     14,
+     17,
+     19,
+     22
+    ]
+   }
+  },
+  {
+   "key": "mtc-teert",
+   "batch": "mtc",
+   "name_en": "Threaded Reducing Tee",
+   "name_ar": "تيه مسنن مخفض",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"×1\"",
+     "2½\"×1¼\"",
+     "2½\"×1½\"",
+     "2½\"×2\"",
+     "3\"×1\"",
+     "3\"×1¼\"",
+     "3\"×1½\"",
+     "3\"×2\"",
+     "4\"×1\"",
+     "4\"×1¼\"",
+     "4\"×1½\"",
+     "4\"×2\"",
+     "6\"×2\""
+    ],
+    "end_type": [
+     "Grooved × threaded outlet"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (1, 7, 9, 10, 14, 15, 17, 22). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 1, 7, 9, 10, 14, 15, 17, 22",
+    "pages": [
+     1,
+     7,
+     9,
+     10,
+     14,
+     15,
+     17,
+     22
+    ]
+   }
+  },
+  {
+   "key": "mtc-mechg",
+   "batch": "mtc",
+   "name_en": "Grooved Mechanical Tee",
+   "name_ar": "تيه ميكانيكي مخدد",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "4\"×2½\"",
+     "4\"×3\"",
+     "6\"×2½\"",
+     "6\"×3\"",
+     "8\"×2½\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (5, 6, 12, 16, 18, 20). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 5, 6, 12, 16, 18, 20",
+    "pages": [
+     5,
+     6,
+     12,
+     16,
+     18,
+     20
+    ]
+   }
+  },
+  {
+   "key": "mtc-secht",
+   "batch": "mtc",
+   "name_en": "Threaded Mechanical Tee",
+   "name_ar": "تيه ميكانيكي بمخرج مسنن",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"×1\"",
+     "2½\"×1¼\"",
+     "2½\"×1½\"",
+     "3\"×1\"",
+     "3\"×1¼\"",
+     "3\"×1½\"",
+     "3\"×2\"",
+     "4\"×1\"",
+     "4\"×1¼\"",
+     "4\"×1½\"",
+     "4\"×2\"",
+     "6\"×1\"",
+     "6\"×1¼\"",
+     "6\"×1½\"",
+     "6\"×2\"",
+     "8\"×2\""
+    ],
+    "end_type": [
+     "Grooved × threaded outlet"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (7, 11, 12, 16, 20). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 7, 11, 12, 16, 20",
+    "pages": [
+     7,
+     11,
+     12,
+     16,
+     20
+    ]
+   }
+  },
+  {
+   "key": "mtc-ubolt",
+   "batch": "mtc",
+   "name_en": "U-Bolt Mechanical Tee",
+   "name_ar": "تيه ميكانيكي بمسمار U",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "1½\"×½\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (12). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 12",
+    "pages": [
+     12
+    ]
+   }
+  },
+  {
+   "key": "mtc-rigid",
+   "batch": "mtc",
+   "name_en": "Rigid Coupling",
+   "name_ar": "وصلة تخديد صلبة",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request. A hot-dip galvanised (\"HDG\") 6\" rigid coupling also appears on the certificates.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "3\"",
+     "4\"",
+     "5\"",
+     "6\"",
+     "8\"",
+     "10\"",
+     "12\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (5, 7, 8, 11, 12, 16, 18, 20). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 5, 7, 8, 11, 12, 16, 18, 20",
+    "pages": [
+     5,
+     7,
+     8,
+     11,
+     12,
+     16,
+     18,
+     20
+    ]
+   }
+  },
+  {
+   "key": "mtc-flex",
+   "batch": "mtc",
+   "name_en": "Flexible Coupling",
+   "name_ar": "وصلة تخديد مرنة",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "3\"",
+     "4\"",
+     "6\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (5, 6, 12). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 5, 6, 12",
+    "pages": [
+     5,
+     6,
+     12
+    ]
+   }
+  },
+  {
+   "key": "mtc-redcpl",
+   "batch": "mtc",
+   "name_en": "Reducing Coupling (Grooved)",
+   "name_ar": "وصلة تخديد مخفضة",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"×2\"",
+     "4\"×3\"",
+     "6\"×4\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (5, 20). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 5, 20",
+    "pages": [
+     5,
+     20
+    ]
+   }
+  },
+  {
+   "key": "mtc-gfl150",
+   "batch": "mtc",
+   "name_en": "Grooved Flange — Class 150",
+   "name_ar": "فلنجة مخددة فئة 150",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2\"",
+     "2½\"",
+     "3\"",
+     "4\"",
+     "6\"",
+     "8\"",
+     "10\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (3, 7, 8, 12, 13). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 3, 7, 8, 12, 13",
+    "pages": [
+     3,
+     7,
+     8,
+     12,
+     13
+    ]
+   }
+  },
+  {
+   "key": "mtc-gflpn16",
+   "batch": "mtc",
+   "name_en": "Grooved Flange — PN16",
+   "name_ar": "فلنجة مخددة PN16",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2\"",
+     "2½\"",
+     "3\"",
+     "4\"",
+     "8\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (3, 13). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 3, 13",
+    "pages": [
+     3,
+     13
+    ]
+   }
+  },
+  {
+   "key": "mtc-fad150",
+   "batch": "mtc",
+   "name_en": "Flange Adaptor — Class 150",
+   "name_ar": "وصلة فلنج (أدابتر) فئة 150",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2\"",
+     "2½\"",
+     "3\"",
+     "4\"",
+     "6\"",
+     "8\"",
+     "10\"",
+     "12\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (3, 13, 19, 21). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 3, 13, 19, 21",
+    "pages": [
+     3,
+     13,
+     19,
+     21
+    ]
+   }
+  },
+  {
+   "key": "mtc-fadpn16",
+   "batch": "mtc",
+   "name_en": "Flange Adaptor — PN16",
+   "name_ar": "وصلة فلنج (أدابتر) PN16",
+   "category_slug": "grooved-fittings",
+   "source_page": null,
+   "image": null,
+   "extra_images": [],
+   "description_en": "Ductile iron grooved pipe fitting. Sizes listed are those that appear on the supplier mill test certificates supplied to KANZ CORNER; other sizes may be available on request.",
+   "specs": {
+    "material": [
+     "Ductile iron ASTM A536 (65-45-12)",
+     "EPDM gasket (ASTM D2000, per MTC)"
+    ],
+    "standard": [
+     "AWWA-606 for grooved & threaded (as stated on MTC)",
+     "ASTM A449 / A183 bolts & nuts (as stated on MTC)"
+    ],
+    "pressure_class": [
+     "300 psi (as stated on MTC)"
+    ],
+    "size": [
+     "2½\"",
+     "3\"",
+     "4\"",
+     "6\"",
+     "8\""
+    ],
+    "end_type": [
+     "Grooved"
+    ]
+   },
+   "flags": [
+    "no_image",
+    "verify_specs",
+    "ar_draft"
+   ],
+   "review_note": "Created from supplier mill test certificates (MTC bundle 26-1095), not from the catalogue.\n• Sizes = sizes seen on the MTC pages (3, 11, 13, 14, 17, 19). They are sizes that were SUPPLIED, not necessarily everything you stock — add or remove as needed.\n• The MTC prints 300 psi under different headings ('Working Pressure' on some pages, 'Hydro Test Max. Pressure' on others). Confirm the rated working pressure with the supplier before publishing.\n• 'AWWA-606' is printed on the MTC; the usual designation is AWWA C606. Confirm wording.\n• The manufacturer named on the MTC is NOT used as a brand or shown on the website.\n• No photo: upload a real photo of this fitting. No price, SKU or stock has been created.",
+   "mtc": {
+    "title": "Supplier MTC bundle 26-1095 — relevant pages: 3, 11, 13, 14, 17, 19",
+    "pages": [
+     3,
+     11,
+     13,
+     14,
+     17,
+     19
+    ]
+   }
+  }
+ ]
+}
