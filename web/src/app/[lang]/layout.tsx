@@ -11,21 +11,22 @@ import { PageTracker } from "@/components/storefront/page-tracker";
 import { ContactFloat } from "@/components/storefront/whatsapp-float";
 import { getContact } from "@/lib/queries/contact";
 import { publicUrl } from "@/lib/format";
+import { abs, siteUrl } from "@/lib/seo";
+import { localBusinessLd } from "@/lib/jsonld";
 import { Toaster } from "@/components/ui/sonner";
 
 export const revalidate = 60;
 export function generateStaticParams() { return LOCALES.map((lang) => ({ lang })); }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
-  const { lang } = await params;
+  await params;
   const settings = await getSettings();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   return {
     metadataBase: new URL(siteUrl),
     title: { default: s(settings, "seo_default_title", "KANZ CORNER EST."), template: "%s | KANZ CORNER EST." },
     description: s(settings, "seo_default_description"),
-    alternates: { languages: { en: "/en", ar: "/ar" } },
-    openGraph: { siteName: "KANZ CORNER EST.", locale: lang === "ar" ? "ar_SA" : "en_US", type: "website" },
+    verification: s(settings, "google_site_verification") ? { google: s(settings, "google_site_verification") } : undefined,
   };
 }
 
@@ -38,11 +39,10 @@ export default async function RootLayout({ children, params }: { children: React
   const waNumber = widget ? (widget.whatsapp_enabled ? widget.whatsapp_number : "") : s(settings, "company_whatsapp").replace(/\D/g, "");
   const waText = widget ? (ar ? widget.default_message_ar : widget.default_message_en) : dict.product.shareWhatsapp;
   const callNumber = widget ? (widget.show_call ? (widget.call_number || s(settings, "company_phone")).replace(/[^\d+]/g, "") : "") : "";
-  const orgJsonLd = {
-    "@context": "https://schema.org", "@type": "Organization", name: "KANZ CORNER EST.", url: process.env.NEXT_PUBLIC_SITE_URL,
-    telephone: s(settings, "company_phone"), email: s(settings, "company_email_sales"),
-    address: { "@type": "PostalAddress", streetAddress: s(settings, "company_address_en"), addressCountry: "SA" },
-  };
+  const orgJsonLd = localBusinessLd({
+    name: "KANZ CORNER EST.", url: siteUrl(), phone: s(settings, "company_phone"), email: s(settings, "company_email_sales"), street: s(settings, "company_address_en"),
+    logo: abs("/brand/logo-icon.png"), description: s(settings, "seo_default_description") || undefined, sameAs: links.map((x) => x.url),
+  });
   return (
     <html lang={lang} dir={dirOf(lang)}>
       <body className="flex min-h-screen flex-col bg-background text-foreground">

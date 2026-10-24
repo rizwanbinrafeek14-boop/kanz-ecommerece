@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ChevronRight, FileText, Download, ShieldCheck } from "lucide-react";
 import { isLocale, loc } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getProductBySlug } from "@/lib/queries/catalog";
+import { getProductBySlug, getSlugRedirect } from "@/lib/queries/catalog";
+import { pageMetadata, abs } from "@/lib/seo";
+import { defaultProductDescription, defaultProductTitle, type SeoProductInput } from "@/lib/seo-defaults";
+import { breadcrumbLd, productLd } from "@/lib/jsonld";
+import { TrackedLink } from "@/components/storefront/tracked-link";
 import { getSettings, s, vatRateOf } from "@/lib/settings";
 import { publicUrl } from "@/lib/format";
 import { Gallery } from "@/components/storefront/gallery";
@@ -25,12 +29,21 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const d = await getProductBySlug(slug);
   if (!d || !isLocale(lang)) return {};
   const p = d.product;
-  const img = publicUrl("product-images", d.images[0]?.storage_path);
+  const img = publicUrl("product-images", p.og_image_path ?? d.images[0]?.storage_path);
+  const input = seoInput(d, lang);
+  return pageMetadata({
+    lang, path: `/product/${slug}`, has: { ar: !!p.name_ar }, noindex: p.seo_noindex, image: img,
+    title: loc(p, "seo_title", lang) || defaultProductTitle(input, lang), description: loc(p, "seo_desc", lang) || defaultProductDescription(input, lang),
+    ogTitle: loc(p, "og_title", lang) || null, ogDescription: loc(p, "og_desc", lang) || null,
+  });
+}
+
+/** Real catalogue facts used for generated titles/descriptions. */
+function seoInput(d: NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>, lang: "en" | "ar"): SeoProductInput {
+  const std = d.attributes.find((a) => /standard/i.test(a.def.key) || /standard/i.test(a.def.name_en));
   return {
-    title: loc(p, "seo_title", lang) || loc(p, "name", lang),
-    description: loc(p, "seo_desc", lang) || loc(p, "short_desc", lang) || undefined,
-    alternates: { canonical: `/${lang}/product/${slug}`, languages: { en: `/en/product/${slug}`, ar: `/ar/product/${slug}` } },
-    openGraph: { title: loc(p, "name", lang), images: img ? [img] : undefined, type: "website" },
+    name: loc(d.product, "name", lang), sku: d.product.sku ?? d.variants[0]?.sku, shortDesc: loc(d.product, "short_desc", lang), brand: d.brand ? (lang === "ar" && d.brand.name_ar ? d.brand.name_ar : d.brand.name) : null,
+    sizes: d.variants.map((v) => v.size), grades: d.variants.map((v) => v.grade), standards: std ? std.values.map((v) => (lang === "ar" && v.value_ar ? v.value_ar : v.value_en)) : [],
   };
 }
 
@@ -38,22 +51,23 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
   const { lang, slug } = await params;
   if (!isLocale(lang)) notFound();
   const d = await getProductBySlug(slug);
-  if (!d) notFound();
+  if (!d) { const to = await getSlugRedirect("product", slug); if (to) permanentRedirect(`/${lang}/product/${to}`); notFound(); }
   const dict = getDictionary(lang);
   const [settings, { widget }, certs] = await Promise.all([getSettings(), getContact(), getProductApprovals(d.product.id)]);
   const { product: p } = d;
   const approvalLabels: ApprovalLabels = { heading: dict.product.approvals, none: dict.product.approvalsNone, view: dict.product.viewCert, opensNew: dict.product.opensNew, number: dict.product.certNumber, scope: dict.product.certScope, validUntil: dict.product.certValid, issuer: dict.product.certIssuer };
   const name = loc(p, "name", lang);
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  const url = `${site}/${lang}/product/${slug}`;
-  const images = d.images.map((i) => ({ url: publicUrl("product-images", i.storage_path)!, needsHires: i.needs_hires }));
-  const minPrice = p.is_quote_only ? null : (p.base_price ?? Math.min(...d.variants.map((v) => v.price ?? Infinity)));
+  const url = abs(`/${lang}/product/${slug}`);
+  const images = d.images.map((i, n) => ({ url: publicUrl("product-images", i.storage_path)!, needsHires: i.needs_hires, alt: (lang === "ar" ? i.alt_ar || i.alt_en : i.alt_en) || `${name}${d.images.length > 1 ? ` — ${lang === "ar" ? "صورة" : "image"} ${n + 1}` : ""}` }));
 
-  const jsonLd = {
-    "@context": "https://schema.org", "@type": "Product", name, description: loc(p, "short_desc", lang) || undefined, sku: p.sku ?? undefined,
-    image: images.map((i) => i.url), brand: d.brand ? { "@type": "Brand", name: d.brand.name } : undefined,
-    ...(minPrice != null && Number.isFinite(minPrice) ? { offers: { "@type": "Offer", priceCurrency: "SAR", price: minPrice, url, availability: d.variants.some((v) => v.available > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock" } } : {}),
-  };
+  const input = seoInput(d, lang);
+  const prices = p.is_quote_only ? [] : [p.base_price, ...d.variants.map((v) => v.price)].filter((x): x is number => x != null && x > 0);
+  const jsonLd = productLd({
+    name, description: loc(p, "seo_desc", lang) || defaultProductDescription(input, lang), images: images.map((i) => i.url), sku: input.sku ?? undefined, brand: input.brand ?? undefined, url,
+    category: d.category ? loc(d.category, "name", lang) : undefined, prices, anyInStock: d.variants.some((v) => v.available > 0),
+    properties: d.attributes.map((a) => ({ name: lang === "ar" && a.def.name_ar ? a.def.name_ar : a.def.name_en, value: a.values.map((v) => (lang === "ar" && v.value_ar ? v.value_ar : v.value_en)).join(", ") })),
+  });
+  const crumbs = [{ name: dict.common.home, path: `/${lang}` }, ...(d.category ? [{ name: loc(d.category, "name", lang), path: `/${lang}/category/${d.category.slug}` }] : []), { name, path: `/${lang}/product/${slug}` }];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 pb-28 lg:pb-6">
@@ -134,9 +148,9 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
               <p className="mb-3 mt-1 text-sm text-muted-foreground">{dict.product.docsHint}</p>
               <ul className="space-y-2">
                 {d.documents.map((doc) => (
-                  <li key={doc.id}><a href={publicUrl("product-docs", doc.storage_path) ?? "#"} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-lg border bg-background p-3 text-sm font-medium hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <li key={doc.id}><TrackedLink event="datasheet_download" product={p.id} href={publicUrl("product-docs", doc.storage_path) ?? "#"} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-lg border bg-background p-3 text-sm font-medium hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     <FileText className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="flex-1">{doc.title}</span><Download className="size-4 shrink-0" aria-hidden="true" />
-                  </a></li>
+                  </TrackedLink></li>
                 ))}
               </ul>
             </div>
@@ -148,7 +162,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
       {d.related.length > 0 && <section className="mt-14"><h2 className="mb-5 border-s-4 border-primary ps-3 text-xl font-bold">{dict.product.related}</h2><ProductGrid products={d.related} lang={lang} dict={dict} /></section>}
 
       <ProductViewTracker productId={p.id} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumbLd(crumbs)]) }} />
     </div>
   );
 }

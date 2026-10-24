@@ -210,3 +210,19 @@ update certifications set scope = 'galaxy' where name_en = 'Live cert';
 delete from certifications where id = '30000000-0000-0000-0000-000000000002';
 select count(*) as assignments_left_after_cert_delete from product_certifications where certification_id = '30000000-0000-0000-0000-000000000002';
 reset role;
+
+\echo '--- T28 SEO: slug-change redirects, extra measurement events'
+reset role;
+update products set slug = 'renamed-pipe' where slug = 'test-pipe';
+update products set slug = 'renamed-pipe-2' where slug = 'renamed-pipe';
+select old_slug, new_slug from slug_redirects where entity = 'product' order by old_slug;
+update products set slug = 'test-pipe' where slug = 'renamed-pipe-2';
+select count(*) as redirects_after_returning_to_original from slug_redirects where entity = 'product' and old_slug = 'test-pipe';
+set role anon; select pg_temp.as_user(null);
+select count(*) as anon_can_read_redirects from slug_redirects;
+insert into slug_redirects (entity, old_slug, new_slug) values ('product', 'evil', 'x');
+select track_event('phone_click', 'sess-1', '/en/contact', null, null, null, 'en');
+select track_event('datasheet_download', 'sess-1', '/en/product/x', null, null, null, 'en');
+select track_event('made_up_event', 'sess-1');
+reset role;
+select event, count(*) from analytics_events where session_id = 'sess-1' group by event order by 1;

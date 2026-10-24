@@ -100,6 +100,9 @@ A product is a **family** (e.g. “Carbon Steel Pipe — ERW”). To sell it onl
 
 Anything without a price stays “Request a quote”.
 
+## Step 8b — SEO and Google (after the site is live on your domain)
+Run `supabase/migrations/0012_seo.sql` (copy the file’s contents into the SQL Editor) and make sure `NEXT_PUBLIC_SITE_URL` is exactly `https://www.kanzcorner.com`. Then follow `docs/seo/README.md`: verify Search Console (paste the code in Admin → Content & settings), submit `sitemap.xml`, create your Google Business Profile (`docs/seo/GOOGLE-BUSINESS-PROFILE-CHECKLIST.md`), enter opening hours and the Arabic address, and fill the SEO tab of your priority products.
+
 ## Step 8a — WhatsApp, call and social links
 Admin → **Social & contact**. Turn the contact button on, enter your WhatsApp number in international format (e.g. `+966 50 726 4938`), add your **real** social profile addresses (they must start with `https://`) and tick where each one should appear. Nothing is shown for a social network until you add it. Admin → **Certifications**: add only certifications the company really holds; attach them to products on the product’s **Certifications** tab.
 

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -6,8 +7,8 @@ import { createClient } from "@/lib/supabase/server";
 import { RfqForm } from "@/components/storefront/rfq-form";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
-  const { lang } = await params;
-  return { title: getDictionary(isLocale(lang) ? lang : "en").rfq.title, alternates: { languages: { en: "/en/rfq", ar: "/ar/rfq" } } };
+  const { lang } = await params; const l = isLocale(lang) ? lang : "en";
+  return pageMetadata({ lang: l, path: "/rfq", title: getDictionary(l).rfq.title, description: l === "ar" ? "أرسل طلب عرض سعر إلى كنز كورنر للأنابيب والوصلات والفلنجات والمحابس، مع المقاسات والدرجات والكميات المطلوبة." : "Send a request for quotation to KANZ CORNER EST. for pipes, fittings, flanges and valves. Tell us the sizes, grades and quantities you need." });
 }
 
 export default async function RfqPage({ params }: { params: Promise<{ lang: string }> }) {

@@ -11,7 +11,7 @@ const opt = (n: number) => z.string().trim().max(n).nullable();
 const categorySchema = z.object({
   name_en: z.string().trim().min(1, "English name is required").max(150), name_ar: opt(150), slug: opt(120), parent_id: z.string().uuid().nullable(),
   description_en: opt(1000), description_ar: opt(1000), image_path: opt(300), sort_order: z.number().int().min(0).max(100000), is_active: z.boolean(), is_featured: z.boolean(),
-  seo_title_en: opt(120), seo_title_ar: opt(120), seo_desc_en: opt(300), seo_desc_ar: opt(300),
+  seo_title_en: opt(120), seo_title_ar: opt(120), seo_desc_en: opt(300), seo_desc_ar: opt(300), seo_noindex: z.boolean(), buying_guide_en: opt(4000), buying_guide_ar: opt(4000),
 });
 export async function saveCategory(id: string | null, input: z.input<typeof categorySchema>): Promise<Result<{ id: string }>> {
   const user = await requireStaff();

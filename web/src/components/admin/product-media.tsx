@@ -11,7 +11,7 @@ import { addProductDocument, addProductImages, deleteImage, deleteProductDocumen
 import { run, uploadToBucket } from "@/lib/admin/client";
 import { publicUrl } from "@/lib/format";
 
-export interface ImageRow { id: string; storage_path: string; is_primary: boolean; needs_hires: boolean; sort_order: number; alt_en: string | null }
+export interface ImageRow { id: string; storage_path: string; is_primary: boolean; needs_hires: boolean; sort_order: number; alt_en: string | null; alt_ar: string | null }
 export interface DocRow { id: string; kind: string; title: string; storage_path: string; is_public: boolean; url: string | null }
 
 export function ProductImages({ productId, rows }: { productId: string; rows: ImageRow[] }) {
@@ -35,6 +35,10 @@ export function ProductImages({ productId, rows }: { productId: string; rows: Im
             <li key={r.id} className="rounded-xl border p-3">
               <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-lg border bg-white"><img src={publicUrl("product-images", r.storage_path)!} alt={r.alt_en ?? ""} className="size-full object-contain" />
                 {r.is_primary && <Badge className="absolute start-2 top-2">Main</Badge>}{r.needs_hires && <Badge variant="warning" className="absolute end-2 top-2">low-res</Badge>}</div>
+              <div className="mt-2 grid gap-1.5">
+                <label className="text-xs font-medium">Alt text (English)<Input defaultValue={r.alt_en ?? ""} maxLength={200} placeholder="Describe what the image shows" onBlur={async (e) => { const v = e.target.value.trim(); if (v !== (r.alt_en ?? "") && (await run(updateImageMeta(productId, r.id, { alt_en: v || null }), "Alt text saved"))) router.refresh(); }} /></label>
+                <label className="text-xs font-medium">Alt text (Arabic)<Input dir="rtl" defaultValue={r.alt_ar ?? ""} maxLength={200} onBlur={async (e) => { const v = e.target.value.trim(); if (v !== (r.alt_ar ?? "") && (await run(updateImageMeta(productId, r.id, { alt_ar: v || null }), "Alt text saved"))) router.refresh(); }} /></label>
+              </div>
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 {!r.is_primary && <Button size="sm" variant="outline" onClick={async () => { if (await run(setPrimaryImage(productId, r.id))) router.refresh(); }}><Star className="size-4" />Main</Button>}
                 <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium hover:bg-accent"><RefreshCw className="size-3.5" />Replace<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => replace(r.id, e.target.files?.[0])} /></label>

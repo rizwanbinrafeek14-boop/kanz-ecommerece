@@ -16,6 +16,8 @@ const generalSchema = z.object({
   short_desc_en: z.string().trim().max(500).nullable(), short_desc_ar: z.string().trim().max(500).nullable(),
   description_en: z.string().trim().max(10000).nullable(), description_ar: z.string().trim().max(10000).nullable(),
   seo_title_en: z.string().trim().max(120).nullable(), seo_title_ar: z.string().trim().max(120).nullable(), seo_desc_en: z.string().trim().max(300).nullable(), seo_desc_ar: z.string().trim().max(300).nullable(),
+  og_title_en: z.string().trim().max(120).nullable(), og_title_ar: z.string().trim().max(120).nullable(), og_desc_en: z.string().trim().max(300).nullable(), og_desc_ar: z.string().trim().max(300).nullable(),
+  og_image_path: z.string().trim().max(300).nullable(), seo_noindex: z.boolean(),
 });
 export type ProductGeneralInput = z.input<typeof generalSchema>;
 
@@ -28,6 +30,10 @@ export async function saveProductGeneral(id: string | null, input: ProductGenera
   if (d.sku) {
     const { data: used } = await sb.rpc("sku_in_use", { p_sku: d.sku, p_exclude_product: id });
     if (used) return fail(`SKU “${d.sku}” is already used by another product or variant.`);
+  }
+  if (d.og_image_path) {   // the social image must be one of this product's own images
+    const { data: own } = id ? await sb.from("product_images").select("id").eq("product_id", id).eq("storage_path", d.og_image_path).maybeSingle() : { data: null };
+    if (!own) return fail("The social sharing image must be one of this product's uploaded images.");
   }
   const slug = await uniqueSlug(sb, "products", d.slug ? slugify(d.slug) : d.name_en, id ?? undefined);
   if (id) {

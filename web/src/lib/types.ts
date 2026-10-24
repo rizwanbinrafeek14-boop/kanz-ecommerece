@@ -6,6 +6,7 @@ export interface Category {
   description_en: string | null; description_ar: string | null; image_path: string | null;
   sort_order: number; is_active: boolean; is_featured: boolean;
   seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null;
+  seo_noindex: boolean; buying_guide_en: string | null; buying_guide_ar: string | null;
 }
 export interface Brand { id: string; slug: string; name: string; name_ar: string | null; logo_path: string | null; website: string | null; sort_order: number; is_active: boolean; show_on_homepage: boolean }
 export interface ProductImage { id: string; product_id: string; storage_path: string; alt_en: string | null; alt_ar: string | null; sort_order: number; is_primary: boolean; needs_hires: boolean }
@@ -24,6 +25,7 @@ export interface Product {
   is_featured: boolean; is_new_arrival: boolean; is_special_offer: boolean; offer_label_en: string | null; offer_label_ar: string | null;
   base_price: number | null; compare_at_price: number | null; unit: string; min_order_qty: number; view_count: number;
   source_page: number | null; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null;
+  og_title_en: string | null; og_title_ar: string | null; og_desc_en: string | null; og_desc_ar: string | null; og_image_path: string | null; seo_noindex: boolean;
   published_at: string | null; created_at: string; updated_at: string;
 }
 export interface ProductCard extends Product {

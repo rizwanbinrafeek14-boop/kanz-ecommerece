@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
+import { siteUrl } from "@/lib/seo";
 
+/** robots.txt only guides well-behaved crawlers; it is not a security control (admin and account pages are protected by login and also marked noindex). */
 export default function robots(): MetadataRoute.Robots {
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   return {
-    rules: [{ userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/en/account", "/ar/account", "/en/checkout", "/ar/checkout", "/en/cart", "/ar/cart"] }],
-    sitemap: `${site}/sitemap.xml`,
+    rules: [{ userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/auth/", "/en/account", "/ar/account", "/en/checkout", "/ar/checkout", "/en/cart", "/ar/cart"] }],
+    sitemap: `${siteUrl()}/sitemap.xml`,
   };
 }
