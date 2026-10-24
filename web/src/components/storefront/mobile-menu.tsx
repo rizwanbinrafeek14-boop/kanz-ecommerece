@@ -30,6 +30,7 @@ export function MobileMenu({ tree, lang, dict, social }: { tree: CategoryNode[];
           ))}
           <div className="mt-3 grid gap-1 border-t pt-3 text-sm">
             <SheetClose asChild><Link href={`/${lang}/rfq`} className="px-3 py-2 font-medium">{dict.nav.rfq}</Link></SheetClose>
+            <SheetClose asChild><Link href={`/${lang}/quality`} className="px-3 py-2">{dict.nav.quality}</Link></SheetClose>
             <SheetClose asChild><Link href={`/${lang}/about`} className="px-3 py-2">{dict.nav.about}</Link></SheetClose>
             <SheetClose asChild><Link href={`/${lang}/contact`} className="px-3 py-2">{dict.nav.contact}</Link></SheetClose>
           </div>

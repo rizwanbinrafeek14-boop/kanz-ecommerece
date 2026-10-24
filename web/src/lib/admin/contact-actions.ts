@@ -124,29 +124,3 @@ export async function setSocialActive(id: string, active: boolean): Promise<Resu
   const { error } = await sb.from("social_links").update({ is_active: active }).eq("id", id);
   if (error) return fail(error.message); done(); return ok(null);
 }
-
-// ───────── Certifications (only real ones; the business enters them) ─────────
-const opt = (n: number) => z.string().trim().max(n).nullable();
-const certSchema = z.object({ name_en: z.string().trim().min(2, "Certification name is required").max(150), name_ar: opt(150), issuer: opt(150), reference_number: opt(100), valid_until: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(), document_path: opt(300), is_active: z.boolean(), sort_order: z.number().int().min(0).max(10000) });
-export async function saveCertification(id: string | null, input: z.input<typeof certSchema>): Promise<Result> {
-  const user = await requireStaff();
-  const p = certSchema.safeParse(input); if (!p.success) return fail(p.error.issues[0]?.message ?? "Please check the form.");
-  const sb = await createClient();
-  const { error } = id ? await sb.from("certifications").update(p.data).eq("id", id) : await sb.from("certifications").insert(p.data);
-  if (error) return fail(error.message);
-  await audit(sb, user.id, id ? "certification.update" : "certification.create", "certifications", id ?? undefined);
-  refreshStorefront(); revalidatePath("/admin/certifications"); return ok(null);
-}
-export async function deleteCertification(id: string): Promise<Result> {
-  await requireStaff(); const sb = await createClient();
-  const { count, error } = await sb.from("certifications").delete({ count: "exact" }).eq("id", id);
-  if (error) return fail(error.message);
-  if (!count) return fail("Only administrators can delete a certification. You can deactivate it instead.");
-  refreshStorefront(); revalidatePath("/admin/certifications"); return ok(null);
-}
-export async function setProductCertifications(productId: string, certIds: string[]): Promise<Result> {
-  await requireStaff(); const sb = await createClient();
-  await sb.from("product_certifications").delete().eq("product_id", productId);
-  const ids = [...new Set(certIds)]; if (ids.length) { const { error } = await sb.from("product_certifications").insert(ids.map((certification_id) => ({ product_id: productId, certification_id }))); if (error) return fail(error.message); }
-  refreshStorefront(); revalidatePath(`/admin/products/${productId}`); return ok(null);
-}

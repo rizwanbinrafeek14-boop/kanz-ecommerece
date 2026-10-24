@@ -13,7 +13,7 @@ export default async function NewProduct() {
     <>
       <Link href="/admin/products" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ChevronLeft className="size-4" />Products</Link>
       <PageHeader title="New product" description="Create the basics first; pricing, variants, images and documents unlock after saving." />
-      <ProductEditor product={null} categories={(cats ?? []).map((c) => ({ id: c.id, name: c.name_en, parent_id: c.parent_id }))} brands={(brands ?? []).map((b) => ({ id: b.id, name: b.name }))} variants={[]} attrDefs={[]} attrValues={[]} images={[]} docs={[]} related={[]} alternatives={[]} isAdmin={false} allCerts={[]} certIds={[]} />
+      <ProductEditor product={null} categories={(cats ?? []).map((c) => ({ id: c.id, name: c.name_en, parent_id: c.parent_id }))} brands={(brands ?? []).map((b) => ({ id: b.id, name: b.name }))} variants={[]} attrDefs={[]} attrValues={[]} images={[]} docs={[]} related={[]} alternatives={[]} isAdmin={false} certOptions={[]} assignments={[]} variantOptions={[]} />
     </>
   );
 }

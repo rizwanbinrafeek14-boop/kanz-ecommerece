@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, FileText, Download, BadgeCheck, ShieldCheck } from "lucide-react";
+import { ChevronRight, FileText, Download, ShieldCheck } from "lucide-react";
 import { isLocale, loc } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getProductBySlug } from "@/lib/queries/catalog";
@@ -12,7 +12,9 @@ import { BuyBox } from "@/components/storefront/product-buybox";
 import { ProductGrid } from "@/components/storefront/product-card";
 import { ProductViewTracker } from "@/components/storefront/page-tracker";
 import { Badge } from "@/components/ui/badge";
-import { getContact, getProductCertifications, whatsappNumber } from "@/lib/queries/contact";
+import { getContact, whatsappNumber } from "@/lib/queries/contact";
+import { getProductApprovals } from "@/lib/queries/certs";
+import { ApprovalsSection, type ApprovalLabels } from "@/components/storefront/approvals";
 
 export const revalidate = 60;
 // No pages are pre-rendered at build time; each product is generated on first visit, then cached and refreshed every 60s (and instantly when an admin saves).
@@ -38,10 +40,9 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
   const d = await getProductBySlug(slug);
   if (!d) notFound();
   const dict = getDictionary(lang);
-  const [settings, { widget }, certs] = await Promise.all([getSettings(), getContact(), getProductCertifications(d.product.id)]);
+  const [settings, { widget }, certs] = await Promise.all([getSettings(), getContact(), getProductApprovals(d.product.id)]);
   const { product: p } = d;
-  const today = new Date().toISOString().slice(0, 10);
-  const liveCerts = certs.filter((c) => !c.valid_until || c.valid_until >= today);
+  const approvalLabels: ApprovalLabels = { heading: dict.product.approvals, none: dict.product.approvalsNone, view: dict.product.viewCert, opensNew: dict.product.opensNew, number: dict.product.certNumber, scope: dict.product.certScope, validUntil: dict.product.certValid, issuer: dict.product.certIssuer };
   const name = loc(p, "name", lang);
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const url = `${site}/${lang}/product/${slug}`;
@@ -76,14 +77,8 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
             {p.sku && <>{dict.common.sku}: <span dir="ltr" className="font-mono text-foreground">{p.sku}</span></>}
           </p>
           {loc(p, "short_desc", lang) && <p className="mt-4 text-muted-foreground">{loc(p, "short_desc", lang)}</p>}
-          {liveCerts.length > 0 && (
-            <ul className="mt-4 flex flex-wrap gap-2" aria-label={dict.product.certs}>
-              {liveCerts.map((c) => { const nm = lang === "ar" && c.name_ar ? c.name_ar : c.name_en; const tip = [c.issuer, c.reference_number && `Ref. ${c.reference_number}`, c.valid_until && `→ ${c.valid_until}`].filter(Boolean).join(" · ");
-                const inner = <><BadgeCheck className="size-4 text-primary" aria-hidden="true" />{nm}</>; const cls = "inline-flex min-h-9 items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-sm font-medium text-ink";
-                return <li key={c.id}>{c.document_path ? <a href={publicUrl("product-docs", c.document_path) ?? "#"} target="_blank" rel="noopener noreferrer" title={tip || undefined} className={`${cls} hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}>{inner}</a> : <span title={tip || undefined} className={cls}>{inner}</span>}</li>; })}
-            </ul>)}
           <div className="mt-5">
-            <BuyBox lang={lang} dict={dict} url={url} vatRate={vatRateOf(settings)} whatsapp={whatsappNumber(widget, s(settings, "company_whatsapp"))} waGreeting={lang === "ar" ? (widget?.default_message_ar ?? dict.product.shareWhatsapp) : (widget?.default_message_en ?? dict.product.shareWhatsapp)}
+            <BuyBox approvals={certs} approvalLabels={approvalLabels} lang={lang} dict={dict} url={url} vatRate={vatRateOf(settings)} whatsapp={whatsappNumber(widget, s(settings, "company_whatsapp"))} waGreeting={lang === "ar" ? (widget?.default_message_ar ?? dict.product.shareWhatsapp) : (widget?.default_message_en ?? dict.product.shareWhatsapp)}
               product={{ id: p.id, slug: p.slug, name, unit: p.unit, quoteOnly: p.is_quote_only, basePrice: p.base_price, minQty: Number(p.min_order_qty), image: d.images[0]?.storage_path ?? null }}
               variants={d.variants.map((v) => ({ id: v.id, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), spec: [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), price: v.price, available: v.available }))} />
           </div>
@@ -130,6 +125,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
               <div className="whitespace-pre-line leading-relaxed text-muted-foreground">{loc(p, "description", lang)}</div>
             </section>
           )}
+          <ApprovalsSection approvals={certs} lang={lang} labels={approvalLabels} />
         </div>
         {d.documents.length > 0 && (
           <aside className="order-first lg:order-none lg:col-start-3 lg:row-start-1" aria-labelledby="docs-h">

@@ -89,6 +89,7 @@ export async function Header({ lang }: { lang: Locale }) {
               <li key={c.id}><Link href={`/${lang}/category/${c.slug}`} className="block whitespace-nowrap px-3 py-3.5 hover:text-primary">{nm(c)}</Link></li>
             ))}
           </ul>
+          <Link href={`/${lang}/quality`} className="mx-1 flex items-center whitespace-nowrap px-3 text-sm font-medium hover:text-primary">{dict.nav.quality}</Link>
           <Link href={`/${lang}/rfq`} className="my-2 flex items-center rounded-md bg-ink px-4 text-sm font-semibold text-white hover:bg-ink-soft">{dict.nav.rfq}</Link>
         </div>
       </nav>

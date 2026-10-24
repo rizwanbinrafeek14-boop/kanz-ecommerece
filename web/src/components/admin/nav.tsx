@@ -8,7 +8,7 @@ const GROUPS: { label: string; items: { href: string; label: string; icon: React
   { label: "Overview", items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }, { href: "/admin/reports", label: "Reports", icon: BarChart3 }] },
   { label: "Catalogue", items: [
     { href: "/admin/import", label: "Import review", icon: ScanSearch }, { href: "/admin/products", label: "Products", icon: Package },
-    { href: "/admin/categories", label: "Categories", icon: FolderTree }, { href: "/admin/brands", label: "Brands", icon: Tags }, { href: "/admin/attributes", label: "Attributes", icon: SlidersHorizontal }, { href: "/admin/certifications", label: "Certifications", icon: BadgeCheck },
+    { href: "/admin/categories", label: "Categories", icon: FolderTree }, { href: "/admin/brands", label: "Brands", icon: Tags }, { href: "/admin/attributes", label: "Attributes", icon: SlidersHorizontal }, { href: "/admin/certifications", label: "Certifications", icon: BadgeCheck, admin: true },
   ] },
   { label: "Operations", items: [
     { href: "/admin/inventory", label: "Inventory", icon: Warehouse }, { href: "/admin/rfqs", label: "Quotations (RFQ)", icon: FileText },

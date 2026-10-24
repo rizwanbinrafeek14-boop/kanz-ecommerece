@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: { languages: { en: `${site}/en${path}`, ar: `${site}/ar${path}` } },
     }));
   return [
-    ...both("", undefined, 1), ...both("/products", undefined, 0.9), ...both("/rfq", undefined, 0.8), ...both("/about"), ...both("/contact"),
+    ...both("", undefined, 1), ...both("/products", undefined, 0.9), ...both("/rfq", undefined, 0.8), ...both("/about"), ...both("/quality"), ...both("/contact"),
     ...categories.flatMap((c) => both(`/category/${c.slug}`, c.updated_at, 0.8)),
     ...products.flatMap((p) => both(`/product/${p.slug}`, p.updated_at, 0.7)),
   ];
