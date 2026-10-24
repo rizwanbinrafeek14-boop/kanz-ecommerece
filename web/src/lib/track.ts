@@ -11,7 +11,7 @@ export function getSessionId(): string {
 }
 
 export interface TrackArgs { path?: string; product?: string; banner?: string; query?: string; lang?: string }
-export function track(event: "page_view" | "product_view" | "search" | "banner_impression" | "banner_click" | "add_to_cart" | "whatsapp_click", a: TrackArgs = {}) {
+export function track(event: "page_view" | "product_view" | "search" | "banner_impression" | "banner_click" | "add_to_cart" | "whatsapp_click" | "phone_click" | "datasheet_download", a: TrackArgs = {}) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return;
   try {
     void createClient().rpc("track_event", {

@@ -5,6 +5,7 @@ import { isLocale, loc, type Locale } from "@/lib/i18n/config";
 import { getDictionary, type Dictionary } from "@/lib/i18n/dictionaries";
 import { buildTree, getBanners, getBestSellers, getCategories, getFlagged, getHomepageBrands, getHomepageSections, countPublishedProducts } from "@/lib/queries/catalog";
 import { publicUrl } from "@/lib/format";
+import { pageMetadata } from "@/lib/seo";
 import type { HomepageSection } from "@/lib/types";
 import { HeroCarousel, type Slide } from "@/components/storefront/hero-carousel";
 import { ProductGrid } from "@/components/storefront/product-card";
@@ -17,6 +18,13 @@ export const revalidate = 60;
 const DEFAULT_ORDER: Pick<HomepageSection, "type" | "title_en" | "title_ar" | "subtitle_en" | "subtitle_ar" | "config" | "id">[] =
   ["hero", "category_cards", "featured_products", "special_offers", "new_arrivals", "best_sellers", "brands", "why_us", "rfq_cta"]
     .map((type) => ({ id: type, type, title_en: null, title_ar: null, subtitle_en: null, subtitle_ar: null, config: {} }));
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params; const l = isLocale(lang) ? lang : "en";
+  return pageMetadata({ lang: l, path: "", absoluteTitle: true,
+    title: l === "ar" ? "كنز كورنر — مورّد الأنابيب والوصلات والفلنجات والمحابس الصناعية في الخبر" : "KANZ CORNER EST. — industrial pipes, fittings, flanges & valves supplier in Al Khobar",
+    description: l === "ar" ? "تورّد مؤسسة كنز كورنر الأنابيب والوصلات والوصلات المخددة والفلنجات والمحابس (الصمامات) الصناعية من الخبر إلى المملكة. اطلب عرض سعر للصلب الكربوني والستانلس ستيل والدوبلكس." : "KANZ CORNER EST. supplies industrial pipes, pipe fittings, grooved fittings, flanges and valves from Al Khobar to customers across Saudi Arabia. Request a quotation for carbon steel, stainless steel and duplex products." });
+}
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: l } = await params;

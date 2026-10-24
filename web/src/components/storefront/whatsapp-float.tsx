@@ -30,9 +30,9 @@ export function ContactFloat(p: FloatProps) {
       {open && (
         <ul id="contact-menu" className={cn("flex flex-col gap-2 motion-safe:animate-[fade-up_.2s_ease-out]", p.position === "left" ? "items-start" : "items-end")}>
           {p.whatsappHref && (
-            <li><a href={p.whatsappHref} target="_blank" rel="noopener noreferrer" onClick={() => track("whatsapp_click")} aria-label={`${p.whatsappLabel}. ${p.whatsappDescription}`} className={cn(item, "bg-[#128C4A] text-white")}>
+            <li><a href={p.whatsappHref} target="_blank" rel="noopener noreferrer" onClick={() => track("whatsapp_click")} aria-label={`${p.whatsappLabel}. ${p.whatsappDescription}`} className={cn(item, "bg-[#0f7a40] text-white")}>
               {p.iconUrl ? <img src={p.iconUrl} alt="" className="size-5 object-contain" /> : <SocialIcon platform="whatsapp" size={20} />}{p.whatsappLabel}</a></li>)}
-          {p.callHref && <li><a href={p.callHref} className={cn(item, "bg-primary text-white")}><Phone className="size-5" aria-hidden="true" />{p.callLabel}</a></li>}
+          {p.callHref && <li><a href={p.callHref} onClick={() => track("phone_click")} className={cn(item, "bg-primary text-white")}><Phone className="size-5" aria-hidden="true" />{p.callLabel}</a></li>}
           {p.links.length > 0 && (
             <li><ul className="flex flex-wrap gap-2 rounded-full bg-white/95 p-1.5 shadow-lg ring-1 ring-black/5">
               {p.links.map((l) => <li key={l.id}><a href={l.url} target="_blank" rel="noopener noreferrer" aria-label={l.accessible_label} title={l.name} className="flex size-11 items-center justify-center rounded-full bg-ink text-white hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><SocialIcon platform={l.platform} iconPath={l.icon_path} size={20} /></a></li>)}

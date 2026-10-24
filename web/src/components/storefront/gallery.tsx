@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export interface GalleryLabels { enlarge: string; zoomIn: string; zoomOut: string; close: string; prev: string; next: string; image: string }
 
 /** Product gallery: thumbnails, click to open a lightbox with keyboard navigation and a 2.5× zoom you can pan by moving the pointer. */
-export function Gallery({ images, alt, labels }: { images: { url: string; needsHires?: boolean }[]; alt: string; labels: GalleryLabels }) {
+export function Gallery({ images, alt, labels }: { images: { url: string; needsHires?: boolean; alt?: string }[]; alt: string; labels: GalleryLabels }) {
   const [i, setI] = React.useState(0); const [open, setOpen] = React.useState(false); const [zoom, setZoom] = React.useState(false); const [origin, setOrigin] = React.useState("50% 50%");
   if (!images.length) return <div className="flex aspect-square items-center justify-center rounded-xl border bg-muted text-muted-foreground/40"><Package className="size-20" aria-hidden="true" /></div>;
   const go = (d: number) => { setI((n) => (n + d + images.length) % images.length); setZoom(false); };
@@ -23,7 +23,7 @@ export function Gallery({ images, alt, labels }: { images: { url: string; needsH
   return (
     <div>
       <button type="button" onClick={() => setOpen(true)} aria-label={`${labels.enlarge}: ${alt}`} className="group relative flex aspect-square w-full cursor-zoom-in items-center justify-center overflow-hidden rounded-xl border bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-        <img src={images[i].url} alt={alt} className="size-full object-contain p-4" />
+        <img src={images[i].url} alt={images[i].alt ?? alt} className="size-full object-contain p-4" />
         <span className="absolute end-3 top-3 flex size-9 items-center justify-center rounded-full bg-ink/80 text-white opacity-90"><Search className="size-4" aria-hidden="true" /></span>
       </button>
       {thumbs("mt-3")}
@@ -38,7 +38,7 @@ export function Gallery({ images, alt, labels }: { images: { url: string; needsH
             </div>
           </div>
           <div className="relative min-h-0 flex-1 overflow-hidden rounded-lg border bg-white" onPointerMove={move} onClick={() => setZoom((z) => !z)}>
-            <img src={images[i].url} alt={alt} style={{ transformOrigin: origin }} className={cn("size-full object-contain p-2 motion-safe:transition-transform motion-safe:duration-200", zoom ? "scale-[2.5] cursor-zoom-out" : "cursor-zoom-in")} />
+            <img src={images[i].url} alt={images[i].alt ?? alt} style={{ transformOrigin: origin }} className={cn("size-full object-contain p-2 motion-safe:transition-transform motion-safe:duration-200", zoom ? "scale-[2.5] cursor-zoom-out" : "cursor-zoom-in")} />
             {images.length > 1 && <>
               <button type="button" onClick={(e) => { e.stopPropagation(); go(-1); }} aria-label={labels.prev} className="absolute start-2 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-ink/80 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ChevronLeft className="size-6 rtl:rotate-180" /></button>
               <button type="button" onClick={(e) => { e.stopPropagation(); go(1); }} aria-label={labels.next} className="absolute end-2 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-ink/80 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ChevronRight className="size-6 rtl:rotate-180" /></button></>}

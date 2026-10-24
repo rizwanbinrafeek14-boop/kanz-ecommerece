@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -5,8 +6,8 @@ import { PRIVACY } from "@/lib/static-content";
 
 export const revalidate = 3600;
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
-  const { lang } = await params;
-  return { title: getDictionary(isLocale(lang) ? lang : "en").static.privacy, alternates: { languages: { en: "/en/privacy", ar: "/ar/privacy" } } };
+  const { lang } = await params; const l = isLocale(lang) ? lang : "en";
+  return pageMetadata({ lang: l, path: "/privacy", title: getDictionary(l).static.privacy, description: l === "ar" ? "كيف تتعامل مؤسسة كنز كورنر مع البيانات الشخصية التي تُجمع عبر هذا الموقع." : "How KANZ CORNER EST. handles personal data collected through this website." });
 }
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;

@@ -1,19 +1,23 @@
 import type { MetadataRoute } from "next";
 import { getAllSlugsForSitemap } from "@/lib/queries/catalog";
+import { siteUrl } from "@/lib/seo";
 
-export const revalidate = 3600;
+// Generated on request (then cached by crawlers/CDN), never frozen at build time, so it always reflects the live catalogue.
+export const dynamic = "force-dynamic";
 
+/** Only canonical, indexable public pages. A language version is listed only if it has genuine content (Arabic needs an Arabic name). */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const site = siteUrl();
   const { products, categories } = await getAllSlugsForSitemap();
-  const both = (path: string, lastModified?: string, priority = 0.6) =>
-    (["en", "ar"] as const).map((l) => ({
-      url: `${site}/${l}${path}`, lastModified: lastModified ? new Date(lastModified) : undefined, priority,
-      alternates: { languages: { en: `${site}/en${path}`, ar: `${site}/ar${path}` } },
-    }));
+  const entry = (path: string, o: { lastModified?: string; priority?: number; ar?: boolean } = {}) => {
+    const langs = (o.ar === false ? ["en"] : ["en", "ar"]) as ("en" | "ar")[];
+    const alternates = { languages: { ...Object.fromEntries(langs.map((l) => [l, `${site}/${l}${path}`])), "x-default": `${site}/en${path}` } };
+    return langs.map((l) => ({ url: `${site}/${l}${path}`, lastModified: o.lastModified ? new Date(o.lastModified) : undefined, priority: o.priority ?? 0.6, alternates }));
+  };
   return [
-    ...both("", undefined, 1), ...both("/products", undefined, 0.9), ...both("/rfq", undefined, 0.8), ...both("/about"), ...both("/quality"), ...both("/contact"),
-    ...categories.flatMap((c) => both(`/category/${c.slug}`, c.updated_at, 0.8)),
-    ...products.flatMap((p) => both(`/product/${p.slug}`, p.updated_at, 0.7)),
+    ...entry("", { priority: 1 }), ...entry("/products", { priority: 0.9 }), ...entry("/rfq", { priority: 0.8 }), ...entry("/quality", { priority: 0.6 }),
+    ...entry("/contact", { priority: 0.6 }), ...entry("/about", { priority: 0.5 }),
+    ...categories.flatMap((c) => entry(`/category/${c.slug}`, { lastModified: c.updated_at, priority: 0.8, ar: !!c.name_ar })),
+    ...products.flatMap((p) => entry(`/product/${p.slug}`, { lastModified: p.updated_at, priority: 0.7, ar: !!p.name_ar })),
   ];
 }

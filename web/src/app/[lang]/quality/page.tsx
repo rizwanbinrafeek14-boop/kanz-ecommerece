@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BadgeCheck } from "lucide-react";
+import { pageMetadata } from "@/lib/seo";
 import { isLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getSettings, s } from "@/lib/settings";
@@ -27,7 +28,7 @@ const T = {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params; if (!isLocale(lang)) return {};
-  return { title: T[lang].title, alternates: { canonical: `/${lang}/quality`, languages: { en: "/en/quality", ar: "/ar/quality" } } };
+  return pageMetadata({ lang, path: "/quality", title: T[lang].title, description: lang === "ar" ? "الشهادات والاعتمادات والمستندات المتوفرة لدى كنز كورنر لمنتجات الأنابيب والوصلات والفلنجات والمحابس." : "Certificates, approvals and quality documents held by KANZ CORNER EST. for pipes, fittings, flanges and valves." });
 }
 
 const linkOf = (c: QualityCert) => (c.document_path ? publicUrl("product-docs", c.document_path) : c.verification_url);

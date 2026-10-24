@@ -12,8 +12,8 @@ import { deleteCategory, saveCategory } from "@/lib/admin/catalog-actions";
 import { run, uploadToBucket } from "@/lib/admin/client";
 import { ProductImage } from "@/components/storefront/product-image";
 
-export interface Cat { id: string; parent_id: string | null; slug: string; name_en: string; name_ar: string | null; description_en: string | null; description_ar: string | null; image_path: string | null; sort_order: number; is_active: boolean; is_featured: boolean; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null; products: number }
-const empty = (parent: string | null = null): Cat => ({ id: "", parent_id: parent, slug: "", name_en: "", name_ar: "", description_en: "", description_ar: "", image_path: null, sort_order: 0, is_active: true, is_featured: false, seo_title_en: "", seo_title_ar: "", seo_desc_en: "", seo_desc_ar: "", products: 0 });
+export interface Cat { id: string; parent_id: string | null; slug: string; name_en: string; name_ar: string | null; description_en: string | null; description_ar: string | null; image_path: string | null; sort_order: number; is_active: boolean; is_featured: boolean; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null; seo_noindex: boolean; buying_guide_en: string | null; buying_guide_ar: string | null; products: number }
+const empty = (parent: string | null = null): Cat => ({ id: "", parent_id: parent, slug: "", name_en: "", name_ar: "", description_en: "", description_ar: "", image_path: null, sort_order: 0, is_active: true, is_featured: false, seo_title_en: "", seo_title_ar: "", seo_desc_en: "", seo_desc_ar: "", seo_noindex: false, buying_guide_en: "", buying_guide_ar: "", products: 0 });
 const nn = (s: string | null) => (s == null || s.trim() === "" ? null : s.trim());
 
 export function CategoryManager({ cats, isAdmin }: { cats: Cat[]; isAdmin: boolean }) {
@@ -23,7 +23,7 @@ export function CategoryManager({ cats, isAdmin }: { cats: Cat[]; isAdmin: boole
 
   async function save() {
     if (!edit) return; setBusy(true);
-    const r = await run(saveCategory(edit.id || null, { name_en: edit.name_en, name_ar: nn(edit.name_ar), slug: nn(edit.slug), parent_id: edit.parent_id, description_en: nn(edit.description_en), description_ar: nn(edit.description_ar), image_path: edit.image_path, sort_order: Number(edit.sort_order) || 0, is_active: edit.is_active, is_featured: edit.is_featured, seo_title_en: nn(edit.seo_title_en), seo_title_ar: nn(edit.seo_title_ar), seo_desc_en: nn(edit.seo_desc_en), seo_desc_ar: nn(edit.seo_desc_ar) }), "Category saved");
+    const r = await run(saveCategory(edit.id || null, { name_en: edit.name_en, name_ar: nn(edit.name_ar), slug: nn(edit.slug), parent_id: edit.parent_id, description_en: nn(edit.description_en), description_ar: nn(edit.description_ar), image_path: edit.image_path, sort_order: Number(edit.sort_order) || 0, is_active: edit.is_active, is_featured: edit.is_featured, seo_title_en: nn(edit.seo_title_en), seo_title_ar: nn(edit.seo_title_ar), seo_desc_en: nn(edit.seo_desc_en), seo_desc_ar: nn(edit.seo_desc_ar), seo_noindex: edit.seo_noindex, buying_guide_en: nn(edit.buying_guide_en), buying_guide_ar: nn(edit.buying_guide_ar) }), "Category saved");
     setBusy(false); if (r) { setEdit(null); router.refresh(); }
   }
   const row = (c: Cat, depth: number) => (
@@ -54,7 +54,7 @@ export function CategoryManager({ cats, isAdmin }: { cats: Cat[]; isAdmin: boole
               <Field label="Name (English) *"><Input value={edit.name_en} onChange={set("name_en")} /></Field>
               <Field label="Name (Arabic)"><Input dir="rtl" value={edit.name_ar ?? ""} onChange={set("name_ar")} /></Field>
               <Field label="Parent category"><NativeSelect value={edit.parent_id ?? ""} onChange={(e) => setEdit({ ...edit, parent_id: e.target.value || null })}><option value="">— top level —</option>{roots.filter((r) => r.id !== edit.id).map((r) => <option key={r.id} value={r.id}>{r.name_en}</option>)}</NativeSelect></Field>
-              <Field label="URL slug" hint="Auto-generated if empty."><Input dir="ltr" value={edit.slug} onChange={set("slug")} className="font-mono" /></Field>
+              <Field label="URL slug" hint="Auto-generated if empty. Changing it later redirects the old address automatically."><Input dir="ltr" value={edit.slug} onChange={set("slug")} className="font-mono" /></Field>
               <Field label="Display order"><Input type="number" min={0} value={edit.sort_order} onChange={(e) => setEdit({ ...edit, sort_order: Number(e.target.value) })} /></Field>
               <div className="flex items-end gap-5 pb-2"><label className="flex items-center gap-2 text-sm"><Checkbox checked={edit.is_active} onChange={(e) => setEdit({ ...edit, is_active: e.target.checked })} />Visible</label><label className="flex items-center gap-2 text-sm"><Checkbox checked={edit.is_featured} onChange={(e) => setEdit({ ...edit, is_featured: e.target.checked })} />Featured on homepage</label></div>
               <Field label="Description (English)" className="sm:col-span-2"><Textarea rows={2} value={edit.description_en ?? ""} onChange={set("description_en")} /></Field>
@@ -69,6 +69,9 @@ export function CategoryManager({ cats, isAdmin }: { cats: Cat[]; isAdmin: boole
               <Field label="SEO title (Arabic)"><Input dir="rtl" value={edit.seo_title_ar ?? ""} onChange={set("seo_title_ar")} /></Field>
               <Field label="Meta description (English)"><Textarea rows={2} value={edit.seo_desc_en ?? ""} onChange={set("seo_desc_en")} /></Field>
               <Field label="Meta description (Arabic)"><Textarea rows={2} dir="rtl" value={edit.seo_desc_ar ?? ""} onChange={set("seo_desc_ar")} /></Field>
+              <Field label="Buying guide (English)" hint="Practical selection advice shown below the products. Separate paragraphs with a blank line. Keep it factual." className="sm:col-span-2"><Textarea rows={5} value={edit.buying_guide_en ?? ""} onChange={set("buying_guide_en")} /></Field>
+              <Field label="Buying guide (Arabic)" className="sm:col-span-2"><Textarea rows={5} dir="rtl" value={edit.buying_guide_ar ?? ""} onChange={set("buying_guide_ar")} /></Field>
+              <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" checked={edit.seo_noindex} onChange={(e) => setEdit({ ...edit, seo_noindex: e.target.checked })} />Hide this category from search engines (noindex). Categories with no published products are hidden automatically.</label>
             </div>
           )}
           <DialogFooter><Button variant="outline" onClick={() => setEdit(null)}>Cancel</Button><Button disabled={busy || !edit?.name_en.trim()} onClick={save}>Save</Button></DialogFooter>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrackedLink } from "./tracked-link";
 import Image from "next/image";
 import { Suspense } from "react";
 import { Phone, Mail, ChevronDown } from "lucide-react";
@@ -32,7 +33,7 @@ export async function Header({ lang }: { lang: Locale }) {
       <div className="hidden bg-ink-soft text-xs text-white/80 lg:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5">
           <div className="flex items-center gap-5">
-            <a href={`tel:${s(settings, "company_phone").replace(/\s/g, "")}`} className="flex items-center gap-1.5 hover:text-white"><Phone className="size-3.5" /><span dir="ltr">{s(settings, "company_phone")}</span></a>
+            <TrackedLink event="phone_click" href={`tel:${s(settings, "company_phone").replace(/\s/g, "")}`} className="flex items-center gap-1.5 hover:text-white"><Phone className="size-3.5" /><span dir="ltr">{s(settings, "company_phone")}</span></TrackedLink>
             <a href={`mailto:${s(settings, "company_email_sales")}`} className="flex items-center gap-1.5 hover:text-white"><Mail className="size-3.5" />{s(settings, "company_email_sales")}</a>
           </div>
           <div className="flex items-center gap-2"><SocialLinks links={links.filter((l) => l.show_header)} size={16} className="gap-0" itemClassName="size-8 sm:size-8 hover:bg-white/10" /><Suspense fallback={null}><LangSwitch lang={lang} label={dict.common.language} /></Suspense></div>

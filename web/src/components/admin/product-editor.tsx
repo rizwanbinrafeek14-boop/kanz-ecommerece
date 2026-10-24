@@ -14,6 +14,7 @@ import { formatSAR } from "@/lib/format";
 import { ProductVariants, type VariantRow } from "./product-variants";
 import { ProductAttributes, type AttrDef, type AttrValue } from "./product-attributes";
 import { ProductImages, ProductDocs, type ImageRow, type DocRow } from "./product-media";
+import { SeoTab } from "./product-seo";
 import { ProductCerts, type CertOption, type VariantOption } from "./product-certs";
 import type { Assignment } from "@/lib/admin/cert-actions";
 import { ProductRelations, type RelRow } from "./product-relations";
@@ -21,7 +22,7 @@ import { ProductRelations, type RelRow } from "./product-relations";
 export interface ProductFull {
   id: string; slug: string; sku: string | null; barcode: string | null; name_en: string; name_ar: string | null; short_desc_en: string | null; short_desc_ar: string | null; description_en: string | null; description_ar: string | null;
   category_id: string | null; brand_id: string | null; status: "draft" | "published" | "archived"; is_quote_only: boolean; is_featured: boolean; is_new_arrival: boolean; is_special_offer: boolean; offer_label_en: string | null; offer_label_ar: string | null;
-  base_price: number | null; compare_at_price: number | null; unit: string; min_order_qty: number; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null; source_page: number | null; purchase_cost: number | null;
+  base_price: number | null; compare_at_price: number | null; unit: string; min_order_qty: number; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null; og_title_en: string | null; og_title_ar: string | null; og_desc_en: string | null; og_desc_ar: string | null; og_image_path: string | null; seo_noindex: boolean; source_page: number | null; purchase_cost: number | null;
 }
 interface Opt { id: string; name: string; parent_id?: string | null }
 
@@ -35,6 +36,7 @@ export function ProductEditor(props: {
     is_featured: p?.is_featured ?? false, is_new_arrival: p?.is_new_arrival ?? false, is_special_offer: p?.is_special_offer ?? false, offer_label_en: p?.offer_label_en ?? "", offer_label_ar: p?.offer_label_ar ?? "",
     unit: p?.unit ?? "pcs", min_order_qty: String(p?.min_order_qty ?? 1), short_desc_en: p?.short_desc_en ?? "", short_desc_ar: p?.short_desc_ar ?? "", description_en: p?.description_en ?? "", description_ar: p?.description_ar ?? "",
     seo_title_en: p?.seo_title_en ?? "", seo_title_ar: p?.seo_title_ar ?? "", seo_desc_en: p?.seo_desc_en ?? "", seo_desc_ar: p?.seo_desc_ar ?? "",
+    og_title_en: p?.og_title_en ?? "", og_title_ar: p?.og_title_ar ?? "", og_desc_en: p?.og_desc_en ?? "", og_desc_ar: p?.og_desc_ar ?? "", og_image_path: p?.og_image_path ?? "", seo_noindex: p?.seo_noindex ?? false,
   });
   const [pr, setPr] = React.useState({ quote: p?.is_quote_only ?? true, base: p?.base_price?.toString() ?? "", compare: p?.compare_at_price?.toString() ?? "", cost: p?.purchase_cost?.toString() ?? "" });
   const [busy, setBusy] = React.useState(false);
@@ -48,6 +50,7 @@ export function ProductEditor(props: {
       ...g, name_ar: g.name_ar || null, slug: g.slug || null, sku: g.sku || null, barcode: g.barcode || null, category_id: g.category_id || null, brand_id: g.brand_id || null,
       offer_label_en: g.offer_label_en || null, offer_label_ar: g.offer_label_ar || null, min_order_qty: Number(g.min_order_qty) || 1, short_desc_en: g.short_desc_en || null, short_desc_ar: g.short_desc_ar || null,
       description_en: g.description_en || null, description_ar: g.description_ar || null, seo_title_en: g.seo_title_en || null, seo_title_ar: g.seo_title_ar || null, seo_desc_en: g.seo_desc_en || null, seo_desc_ar: g.seo_desc_ar || null,
+      og_title_en: g.og_title_en || null, og_title_ar: g.og_title_ar || null, og_desc_en: g.og_desc_en || null, og_desc_ar: g.og_desc_ar || null, og_image_path: g.og_image_path || null, seo_noindex: g.seo_noindex,
     }), "Saved");
     setBusy(false);
     if (r) { if (!p) router.push(`/admin/products/${r.id}`); else router.refresh(); }
@@ -87,7 +90,7 @@ export function ProductEditor(props: {
             <Field label="Category"><NativeSelect value={g.category_id} onChange={set("category_id")}><option value="">— none —</option>{props.categories.map((c) => <option key={c.id} value={c.id}>{c.parent_id ? "   ↳ " : ""}{c.name}</option>)}</NativeSelect></Field>
             <Field label="Brand"><NativeSelect value={g.brand_id} onChange={set("brand_id")}><option value="">— none —</option>{props.brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</NativeSelect></Field>
             <Field label="Status"><NativeSelect value={g.status} onChange={set("status")}><option value="draft">Draft (hidden)</option><option value="published">Published (live)</option><option value="archived">Archived (hidden)</option></NativeSelect></Field>
-            <Field label="URL slug" hint="Auto-generated from the name if empty."><Input value={g.slug} onChange={set("slug")} className="font-mono" dir="ltr" /></Field>
+            <Field label="URL slug" hint="Auto-generated from the name if empty. If you change it later, the old address redirects to the new one automatically (permanent redirect)."><Input value={g.slug} onChange={set("slug")} className="font-mono" dir="ltr" /></Field>
             <Field label="Unit"><Input value={g.unit} onChange={set("unit")} placeholder="pcs, m, kg, set…" /></Field>
             <Field label="Minimum order quantity"><Input type="number" min="0.01" step="any" value={g.min_order_qty} onChange={set("min_order_qty")} /></Field>
             <div className="flex flex-wrap items-center gap-5 sm:col-span-2">
@@ -124,15 +127,7 @@ export function ProductEditor(props: {
           <TabsContent value="related"><ProductRelations productId={p.id} related={props.related} alternatives={props.alternatives} /></TabsContent>
         </>}
 
-        <TabsContent value="seo"><Panel>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="SEO title (English)" hint="Shown in Google. Leave empty to use the product name."><Input value={g.seo_title_en} onChange={set("seo_title_en")} maxLength={120} /></Field>
-            <Field label="SEO title (Arabic)"><Input dir="rtl" value={g.seo_title_ar} onChange={set("seo_title_ar")} maxLength={120} /></Field>
-            <Field label="Meta description (English)"><Textarea rows={3} value={g.seo_desc_en} onChange={set("seo_desc_en")} maxLength={300} /></Field>
-            <Field label="Meta description (Arabic)"><Textarea dir="rtl" rows={3} value={g.seo_desc_ar} onChange={set("seo_desc_ar")} maxLength={300} /></Field>
-          </div>
-          <div className="mt-5"><Button disabled={busy || needsSave} onClick={saveGeneral}>Save SEO</Button>{needsSave && <span className="ms-3 text-sm text-muted-foreground">Create the product first.</span>}</div>
-        </Panel></TabsContent>
+        <TabsContent value="seo"><SeoTab g={g} set={set} setG={setG} p={p} variants={props.variants} images={props.images} brandName={props.brands.find((b) => b.id === g.brand_id)?.name ?? null} busy={busy} needsSave={needsSave} onSave={saveGeneral} /></TabsContent>
       </Tabs>
     </div>
   );

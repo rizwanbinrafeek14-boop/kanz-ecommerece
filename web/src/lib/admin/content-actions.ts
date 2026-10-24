@@ -42,7 +42,7 @@ export async function saveMenuLink(id: string | null, input: z.input<typeof link
 export async function deleteMenuLink(id: string): Promise<Result> { await requireStaff(); const sb = await createClient(); const { error } = await sb.from("menu_links").delete().eq("id", id); if (error) return fail(error.message); done(); return ok(null); }
 
 // Only whitelisted keys can be written; every key is stored under the public. prefix (readable by the storefront).
-const KEYS = ["company_name_en", "company_name_ar", "company_tagline_en", "company_about_en", "company_phone", "company_whatsapp", "company_email_sales", "company_email_info", "company_address_en", "company_website", "vat_number", "company_cr_number", "seo_default_title", "seo_default_description"] as const;
+const KEYS = ["company_name_en", "company_name_ar", "company_tagline_en", "company_about_en", "company_phone", "company_whatsapp", "company_email_sales", "company_email_info", "company_address_en", "company_website", "vat_number", "company_cr_number", "seo_default_title", "seo_default_description", "company_address_ar", "company_hours_en", "company_hours_ar", "google_site_verification"] as const;
 const settingsSchema = z.object({
   vat_rate: z.number().min(0).max(100), values: z.partialRecord(z.enum(KEYS), z.string().trim().max(1000)),
   delivery: z.object({ delivery: z.boolean(), pickup: z.boolean() }).refine((d) => d.delivery || d.pickup, "Enable at least one delivery option"),
@@ -54,6 +54,7 @@ export async function saveSettings(input: z.input<typeof settingsSchema>): Promi
   const d = p.data;
   if (d.values.company_whatsapp && !/^\d{8,15}$/.test(d.values.company_whatsapp)) return fail("WhatsApp number: digits only with country code, e.g. 966507264938");
   if (d.values.vat_number && !/^3\d{14}$/.test(d.values.vat_number)) return fail("A Saudi VAT registration number has 15 digits and starts with 3. Leave it blank until you have it.");
+  if (d.values.google_site_verification && !/^[A-Za-z0-9_-]{20,100}$/.test(d.values.google_site_verification)) return fail("Search Console verification code: paste only the code (letters, numbers, - and _), not the whole tag.");
   const sb = await createClient();
   const rows = [
     { key: "public.vat_rate", value: d.vat_rate }, { key: "public.delivery_options", value: d.delivery }, { key: "public.payment_methods", value: { ...d.payments, card: false, mada: false, apple_pay: false, stc_pay: false } },

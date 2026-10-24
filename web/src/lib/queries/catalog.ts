@@ -118,13 +118,34 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
   };
 }
 
+/** Where an old product/category address now lives (kept automatically whenever a slug changes). */
+export async function getSlugRedirect(entity: "product" | "category", slug: string): Promise<string | null> {
+  const c = sb(); if (!c) return null;
+  const { data } = await c.from("slug_redirects").select("new_slug").eq("entity", entity).eq("old_slug", slug).maybeSingle();
+  return data?.new_slug ?? null;
+}
+
+/** Published-product counts per category, including sub-categories. Empty categories are kept out of the sitemap and set to noindex until they have products. */
+export async function getCategoryProductCounts(): Promise<Map<string, number>> {
+  const c = sb(); const out = new Map<string, number>(); if (!c) return out;
+  const cats = await safe(() => c.from("categories").select("id, parent_id").eq("is_active", true), [] as { id: string; parent_id: string | null }[]);
+  const parent = new Map(cats.map((x) => [x.id, x.parent_id]));
+  for (let from = 0; from < 50000; from += 1000) {
+    const rows = await safe(() => c.from("products").select("category_id").eq("status", "published").not("category_id", "is", null).range(from, from + 999), [] as { category_id: string }[]);
+    for (const r of rows) { let id: string | null = r.category_id; let guard = 0; while (id && guard++ < 5) { out.set(id, (out.get(id) ?? 0) + 1); id = parent.get(id) ?? null; } }
+    if (rows.length < 1000) break;
+  }
+  return out;
+}
+
 export async function getAllSlugsForSitemap() {
   const c = sb(); if (!c) return { products: [], categories: [] };
-  const [products, categories] = await Promise.all([
-    safe(() => c.from("products").select("slug, updated_at").eq("status", "published"), [] as { slug: string; updated_at: string }[]),
-    safe(() => c.from("categories").select("slug, updated_at").eq("is_active", true), [] as { slug: string; updated_at: string }[]),
+  const [products, categories, counts] = await Promise.all([
+    safe(() => c.from("products").select("slug, updated_at, name_ar, seo_noindex").eq("status", "published"), [] as { slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean }[]),
+    safe(() => c.from("categories").select("id, slug, updated_at, name_ar, seo_noindex").eq("is_active", true), [] as { id: string; slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean }[]),
+    getCategoryProductCounts(),
   ]);
-  return { products, categories };
+  return { products: products.filter((p) => !p.seo_noindex), categories: categories.filter((x) => !x.seo_noindex && (counts.get(x.id) ?? 0) > 0) };
 }
 
 // ── CMS ───────────────────────────────────────────────────────

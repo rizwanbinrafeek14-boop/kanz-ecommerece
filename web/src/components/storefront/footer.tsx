@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrackedLink } from "./tracked-link";
 import Image from "next/image";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { getMenu } from "@/lib/queries/catalog";
@@ -35,7 +36,7 @@ export async function Footer({ lang }: { lang: Locale }) {
           <p className="max-w-md text-sm leading-relaxed text-white/70">{s(settings, "company_tagline_en", dict.brand.tagline)}</p>
           <ul className="mt-5 space-y-2 text-sm">
             <li className="flex gap-2"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" />{s(settings, "company_address_en")}</li>
-            <li className="flex gap-2"><Phone className="size-4 shrink-0 text-primary" /><a href={`tel:${s(settings, "company_phone").replace(/\s/g, "")}`} dir="ltr">{s(settings, "company_phone")}</a></li>
+            <li className="flex gap-2"><Phone className="size-4 shrink-0 text-primary" /><TrackedLink event="phone_click" href={`tel:${s(settings, "company_phone").replace(/\s/g, "")}`} dir="ltr">{s(settings, "company_phone")}</TrackedLink></li>
             <li className="flex gap-2"><Mail className="size-4 shrink-0 text-primary" /><a href={`mailto:${s(settings, "company_email_sales")}`}>{s(settings, "company_email_sales")}</a></li>
           </ul>
           {links.some((l) => l.show_footer) && <div className="mt-4"><p className="mb-1 text-xs font-semibold uppercase tracking-wide text-white/60">{dict.nav.followUs}</p><SocialLinks links={links.filter((l) => l.show_footer)} size={20} itemClassName="bg-white/10 hover:bg-primary" /></div>}

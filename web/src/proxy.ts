@@ -1,11 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { LOCALES, DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { canonicalRedirect } from "@/lib/canonical-host";
 
 const PUBLIC_FILE = /\.(.*)$/;
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // 0. One canonical address: https + the configured host (e.g. non-www -> www), permanent redirect.
+  const canon = canonicalRedirect(request.url, request.headers.get("host"), request.headers.get("x-forwarded-proto"), process.env.NEXT_PUBLIC_SITE_URL);
+  if (canon) return NextResponse.redirect(canon, 308);
 
   // 1. Locale routing for storefront paths: / -> /en or /ar (cookie, then Accept-Language)
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");

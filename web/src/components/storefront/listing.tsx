@@ -161,6 +161,12 @@ export async function Listing({ lang, dict, category, sp, basePath }: { lang: Lo
               <Link href={`/${lang}/rfq`} className="mt-3 inline-block font-semibold text-primary hover:underline">{dict.nav.rfq} →</Link>
             </div>
           )}
+          {category && loc(category, "buying_guide", lang) && st.page === 1 && !Object.keys(st.f).length && !st.q && (
+            <section className="mt-12 rounded-xl border bg-muted/40 p-6" aria-labelledby="guide-h">
+              <h2 id="guide-h" className="mb-3 text-xl font-bold">{lang === "ar" ? `دليل الشراء: ${loc(category, "name", lang)}` : `Buying guide: ${loc(category, "name", lang)}`}</h2>
+              <div className="max-w-3xl space-y-3 leading-relaxed text-muted-foreground">{loc(category, "buying_guide", lang).split(/\n\s*\n/).map((p) => <p key={p.slice(0, 20)}>{p}</p>)}</div>
+              <p className="mt-4 text-sm"><Link href={`/${lang}/rfq`} className="font-semibold text-primary hover:underline">{dict.nav.rfq} →</Link></p>
+            </section>)}
           {pages > 1 && (
             <nav className="mt-8 flex flex-wrap items-center justify-center gap-1" aria-label="Pagination">
               {Array.from({ length: pages }, (_, i) => i + 1).slice(Math.max(0, st.page - 4), st.page + 3).map((n) => (
