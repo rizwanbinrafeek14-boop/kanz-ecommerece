@@ -19,6 +19,8 @@ const csp = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // Small hosts (e.g. Hostinger Node.js apps) limit processes/memory during build: keep the build single-worker.
+  experimental: { cpus: 1 },
   // Tailwind CSS v4 is compiled through this Turbopack rule (kept from the create-next-app scaffold).
   turbopack: { rules: { "*.css": { loaders: ["@tailwindcss/turbopack"], as: "*.css" } } },
   images: {
