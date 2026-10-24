@@ -1341,6 +1341,11 @@ grant execute on function search_products(text,uuid,jsonb,text,text,text,int,int
   submit_rfq(jsonb,jsonb), get_rfq_by_token(uuid), respond_rfq(uuid,boolean), track_event(text,text,text,uuid,uuid,text,text) to anon, authenticated;
 grant execute on function is_staff(), is_admin(), setting_numeric(text,numeric), product_display_price(uuid), category_descendants(uuid), sku_in_use(text,uuid,uuid) to anon, authenticated;
 
+-- ═════════ 0009_import_shared_file.sql ═════════
+-- A staged import batch can carry ONE shared private file (e.g. a supplier's mill-test-certificate bundle) that is attached
+-- to every product created from that batch. The file lives in the private product-mtc bucket.
+alter table import_batches add column if not exists shared_file_path text;
+
 -- ═════════ seed.sql ═════════
 -- Seed: structure only. NO products, prices, stock, certifications or SKUs are invented.
 

@@ -13,7 +13,7 @@ import { ProductImage } from "@/components/storefront/product-image";
 
 export interface ReviewItem { id: string; name_en: string; name_ar: string | null; status: string; flags: string[]; image: string | null; source_page: number | null; category: string | null; published_product_id: string | null }
 export const FLAG_LABEL: Record<string, string> = {
-  foreign_branding: "Third-party branding", verify_specs: "Verify specs", low_res: "Low-res image", not_in_uploaded_pdf: "Not in uploaded PDF", ar_draft: "Arabic = draft",
+  foreign_branding: "Third-party branding", verify_specs: "Verify specs", low_res: "Low-res image", not_in_uploaded_pdf: "Not in uploaded PDF", ar_draft: "Arabic = draft", no_image: "No photo",
 };
 const flagVariant = (f: string) => (f === "foreign_branding" ? "destructive" : f === "verify_specs" || f === "not_in_uploaded_pdf" ? "warning" : "secondary") as "destructive" | "warning" | "secondary";
 const statusVariant = { pending: "warning", approved: "info", rejected: "secondary", published: "success" } as const;
