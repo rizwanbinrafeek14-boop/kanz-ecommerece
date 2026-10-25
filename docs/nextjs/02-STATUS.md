@@ -68,6 +68,13 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
 - Admin banners still work (new "Promotion banners" block under the hero). All sections can be reordered/disabled in Content & settings.
 - Verified: 46 homepage checks (search tabs/keyboard/suggestions, real counters, reduced motion, mobile 390 px, Arabic RTL, axe 0 violations, CLS 0) plus the full SEO (81), social/contact (51) and certifications (60) suites re-run green.
 
+## Added later: catalogue extraction & import (migration 0014)
+- **Admin → Catalogue import:** upload a manufacturer PDF (private bucket), render its pages in the browser (scanned JPX pages and Japanese fonts included), extract with Claude vision (optional `ANTHROPIC_API_KEY`, live cost display, page-by-page with stop) or load a checked `kanz-catalogue-extraction/1` file, review each product beside its source page (options, variants, dimension tables, standards, materials, drawing crops), validate (errors block approval), detect duplicates, approve, and import atomically as unpublished quote-only drafts. Export to JSON/CSV/Excel. Guide: `docs/nextjs/04-CATALOGUE-IMPORT.md`.
+- **Data model:** product families (shared across manufacturers), product options/values, variants with option values, manufacturer code, weight and source page, dimension tables/rows, per-product standards/materials/applications. Public read only for published products.
+- **Product page:** dependent selectors (only real combinations can be chosen), Dimensions tab with the selected size highlighted and the drawing credited to the manufacturer catalogue, Materials & standards, Applications, variants table with weights, and a per-variant English datasheet PDF (`/api/datasheet/[slug]?variant=`).
+- **Batch 1 (Bothwell, 6 pages):** extracted by hand into a review file (not in the repository): 15 products, 557 variants, 177 dimension rows, 6 drawings. 90° elbow, tee and full coupling have full ASME B16.11 dimension tables; the other 12 items carry weights only and are flagged. Reducing couplings were not created (ambiguous sizes). Verified end to end in the browser: upload → render → load → review → approve → import → publish → selectors/dimensions/datasheet, plus SQL tests T29–T30.
+- **Not yet done:** Mega, Thai Benkan, Benken and Delcorte batches; no live Claude extraction was run here (no API key in the test environment).
+
 ## Known limitations (honest list)
 1. **No prices, SKUs, stock, certifications or availability were invented.** Every imported product is a *draft, quote-only family*. You must add real data.
 2. **Catalogue images are 150–475 px crops** and are flagged *low-res*. Replace them with originals before launch.

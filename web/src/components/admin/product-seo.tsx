@@ -14,7 +14,7 @@ export function SeoTab({ g, set, setG, p, variants, images, brandName, busy, nee
   variants: VariantRow[]; images: ImageRow[]; brandName: string | null; busy: boolean; needsSave: boolean; onSave: () => void;
 }) {
   const sizes = variants.map((v) => v.size); const grades = variants.map((v) => v.grade);
-  const mk = (lang: "en" | "ar") => ({ name: (lang === "ar" ? g.name_ar || g.name_en : g.name_en) as string, sku: g.sku || variants[0]?.sku, shortDesc: lang === "ar" ? g.short_desc_ar : g.short_desc_en, brand: brandName, sizes, grades });
+  const mk = (lang: "en" | "ar") => ({ name: (lang === "ar" ? g.name_ar || g.name_en : g.name_en) as string, sku: g.sku || (variants.length === 1 ? variants[0]?.sku : null), shortDesc: lang === "ar" ? g.short_desc_ar : g.short_desc_en, brand: brandName, sizes, grades });
   const dflt = (lang: "en" | "ar") => ({ title: defaultProductTitle(mk(lang), lang), description: defaultProductDescription(mk(lang), lang) });
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.kanzcorner.com";
   const block = (lang: "en" | "ar") => {

@@ -17,6 +17,7 @@ export interface Variant {
   id: string; product_id: string; sku: string; barcode: string | null; label_en: string | null; label_ar: string | null;
   size: string | null; grade: string | null; schedule: string | null; pressure_class: string | null; material: string | null;
   price: number | null; is_active: boolean; sort_order: number;
+  options?: Record<string, string>; manufacturer_code?: string | null; weight_kg?: number | null;
 }
 export interface Product {
   id: string; slug: string; sku: string | null; barcode: string | null; name_en: string; name_ar: string | null;
@@ -27,6 +28,9 @@ export interface Product {
   source_page: number | null; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null;
   og_title_en: string | null; og_title_ar: string | null; og_desc_en: string | null; og_desc_ar: string | null; og_image_path: string | null; seo_noindex: boolean;
   published_at: string | null; created_at: string; updated_at: string;
+  manufacturer_ref?: string | null; country_of_origin?: string | null; applications_en?: string | null; applications_ar?: string | null;
+  specs?: { standards?: { code: string; scope: "product" | "general" }[]; materials?: { type: string; grades: string[] }[]; notes?: string[] } | null;
+  source_ref?: { title?: string; pages?: number[] } | null;
 }
 export interface ProductCard extends Product {
   product_images: Pick<ProductImage, "storage_path" | "is_primary" | "sort_order">[];

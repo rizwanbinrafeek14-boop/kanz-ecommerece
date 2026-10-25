@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, FolderTree, Tags, SlidersHorizontal, Warehouse, Image as ImageIcon, FileText, ShoppingBag, Users, PenSquare, MessageCircle, BadgeCheck, BarChart3, ScanSearch, UserCog, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Package, FolderTree, Tags, SlidersHorizontal, Warehouse, Image as ImageIcon, FileText, ShoppingBag, Users, PenSquare, MessageCircle, BookOpen, BadgeCheck, BarChart3, ScanSearch, UserCog, LogOut, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const GROUPS: { label: string; items: { href: string; label: string; icon: React.ElementType; admin?: boolean }[] }[] = [
   { label: "Overview", items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }, { href: "/admin/reports", label: "Reports", icon: BarChart3 }] },
   { label: "Catalogue", items: [
-    { href: "/admin/import", label: "Import review", icon: ScanSearch }, { href: "/admin/products", label: "Products", icon: Package },
+    { href: "/admin/import", label: "Import review", icon: ScanSearch }, { href: "/admin/catalogue", label: "Catalogue import", icon: BookOpen }, { href: "/admin/products", label: "Products", icon: Package },
     { href: "/admin/categories", label: "Categories", icon: FolderTree }, { href: "/admin/brands", label: "Brands", icon: Tags }, { href: "/admin/attributes", label: "Attributes", icon: SlidersHorizontal }, { href: "/admin/certifications", label: "Certifications", icon: BadgeCheck, admin: true },
   ] },
   { label: "Operations", items: [

@@ -226,3 +226,59 @@ select track_event('datasheet_download', 'sess-1', '/en/product/x', null, null, 
 select track_event('made_up_event', 'sess-1');
 reset role;
 select event, count(*) from analytics_events where session_id = 'sess-1' group by event order by 1;
+
+\echo '--- T29 catalogue extraction: staff-only workspace, public option/dimension data only for published products'
+reset role;
+insert into catalogue_sources (id, title) values ('40000000-0000-0000-0000-000000000001', 'Test catalogue');
+insert into extracted_products (source_id, data) values ('40000000-0000-0000-0000-000000000001', '{"name_en":"x"}');
+insert into product_options (id, product_id, key, name_en) values
+  ('50000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000001','size','Size'),
+  ('50000000-0000-0000-0000-000000000002','10000000-0000-0000-0000-000000000002','size','Size');
+insert into dimension_tables (id, product_id, title_en, columns) values
+  ('60000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000001','Dims','[{"key":"A","unit":"mm"}]'),
+  ('60000000-0000-0000-0000-000000000002','10000000-0000-0000-0000-000000000002','Draft dims','[{"key":"A","unit":"mm"}]');
+insert into dimension_rows (table_id, match, "values") values ('60000000-0000-0000-0000-000000000001','{"size":"2in"}','{"A":"38"}'), ('60000000-0000-0000-0000-000000000002','{"size":"2in"}','{"A":"1"}');
+set role anon; select pg_temp.as_user(null);
+select count(*) as anon_sees_sources from catalogue_sources;
+select count(*) as anon_sees_extracted from extracted_products;
+select count(*) as anon_sees_options from product_options;
+select count(*) as anon_sees_dimension_rows from dimension_rows;
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1'); set role authenticated;
+select count(*) as customer_sees_extracted from extracted_products;
+insert into catalogue_sources (title) values ('hack');
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+select count(*) as admin_sees_extracted from extracted_products;
+insert into product_variants (product_id, sku, options) values ('10000000-0000-0000-0000-000000000001','OPT-1','{"size":"2in"}');
+insert into product_variants (product_id, sku, options) values ('10000000-0000-0000-0000-000000000001','OPT-2','{"size":"2in"}');
+reset role;
+
+\echo '--- T30 catalogue_import_product: approved only, atomic, creates draft with options/variants/dimensions'
+reset role;
+insert into extracted_products (id, source_id, data, status) values
+  ('41000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000001','{}','pending'),
+  ('41000000-0000-0000-0000-000000000002','40000000-0000-0000-0000-000000000001','{}','approved');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1'); set role authenticated;
+select catalogue_import_product('41000000-0000-0000-0000-000000000002', '{}');
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+select catalogue_import_product('41000000-0000-0000-0000-000000000001', '{}');
+select catalogue_import_product('41000000-0000-0000-0000-000000000002', $j${
+  "family": {"slug":"test-elbow-90","name_en":"90° Elbow","product_type":"elbow_90"},
+  "product": {"slug":"test-maker-90-elbow","name_en":"TestMaker 90° Elbow","specs":{"standards":[{"code":"ASME B16.11","scope":"product"}]},"source_ref":{"pages":[3]}},
+  "options": [{"key":"connection","name_en":"Connection","values":[{"value":"sw","label_en":"Socket weld"}]},{"key":"size","name_en":"Size","values":[{"value":"1/2","label_en":"1/2\""},{"value":"3/4","label_en":"3/4\""}]}],
+  "variants": [{"sku":"TM-E90-SW-12","options":{"connection":"sw","size":"1/2"},"size":"1/2\"","manufacturer_code":"E90-12"},{"sku":"TM-E90-SW-34","options":{"connection":"sw","size":"3/4"},"size":"3/4\""}],
+  "dimension_tables": [{"title_en":"Socket weld 3000","columns":[{"key":"A","label_en":"Centre to bottom","unit":"mm"}],"applies":{"connection":"sw"},"rows":[{"match":{"size":"1/2"},"values":{"A":"15.5"}},{"match":{"size":"3/4"},"values":{"A":"19.5"}}],"source_page":3}]
+}$j$::jsonb) is not null as imported;
+select p.status, p.is_quote_only, (select count(*) from product_variants v where v.product_id = p.id) variants, (select count(*) from product_options o where o.product_id = p.id) options,
+  (select count(*) from dimension_rows r join dimension_tables t on t.id = r.table_id where t.product_id = p.id) dim_rows, f.slug family
+from products p left join product_families f on f.id = p.family_id where p.slug = 'test-maker-90-elbow';
+select status from extracted_products where id = '41000000-0000-0000-0000-000000000002';
+reset role;
+-- atomicity: a bad variant (duplicate SKU) must roll back the whole product
+update extracted_products set status = 'approved' where id = '41000000-0000-0000-0000-000000000001';
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+select catalogue_import_product('41000000-0000-0000-0000-000000000001', '{"product":{"slug":"atomic-test","name_en":"Atomic"},"variants":[{"sku":"DUP-1"},{"sku":"DUP-1"}]}');
+reset role;
+select count(*) as atomic_rolled_back from products where slug = 'atomic-test';
