@@ -1590,6 +1590,26 @@ update categories set buying_guide_en = $kb$Bolting must suit the flange and the
 update categories set buying_guide_en = $kb$A gasket must suit the flange face, the pressure class and the fluid: spiral-wound and ring-type joints are used in higher-pressure services, while non-metallic sheet gaskets suit lower pressures. For pressure gauges, confirm the dial size, pressure range (the working pressure should sit within the middle of the scale), connection thread and position, and whether a liquid-filled case is needed for vibration.$kb$, buying_guide_ar = $kb$يجب أن يناسب الجوان وجه الفلنج وفئة الضغط والمائع: تُستخدم الجوانات الحلزونية وجوانات الحلقة (RTJ) في الخدمات ذات الضغط الأعلى، بينما تناسب الجوانات غير المعدنية الضغوط الأقل. وبالنسبة لمقاييس الضغط، أكّد قطر الميناء ومدى الضغط (ويفضّل أن يقع ضغط التشغيل في منتصف المقياس) ومقاس سن التوصيل واتجاهه، وهل تحتاج إلى علبة مملوءة بسائل للحد من أثر الاهتزاز.$kb$ where slug = 'gaskets-gauges' and buying_guide_en is null and buying_guide_ar is null;
 update categories c set buying_guide_en = p.buying_guide_en, buying_guide_ar = p.buying_guide_ar from categories p where c.slug = 'grooved-fittings' and p.slug = 'copper-grooved-fittings' and c.buying_guide_en is null;
 
+-- ═════════ 0013_homepage_sections.sql ═════════
+-- Homepage redesign: new section types the admin can enable, disable and reorder like the existing ones.
+alter table homepage_sections drop constraint if exists homepage_sections_type_check;
+alter table homepage_sections add constraint homepage_sections_type_check check (type in (
+  'hero','category_cards','featured_products','new_arrivals','best_sellers','special_offers','brands','announcement','why_us','rfq_cta','custom_html',
+  'quick_filters','industries','certifications','rfq_steps','recently_viewed','promo_banners'));
+
+-- Add the new blocks once, in a sensible position (existing order and texts are left untouched).
+insert into homepage_sections (type, title_en, title_ar, sort_order, is_enabled)
+select v.type, v.title_en, v.title_ar, v.sort_order, true
+from (values
+  ('promo_banners',   null::text, null::text, 12),
+  ('quick_filters',   'Browse by material & standard', 'تصفح حسب المادة والمواصفة', 15),
+  ('industries',      'Products for your sector', 'منتجات لقطاعك', 25),
+  ('certifications',  'Certificates & approvals', 'الشهادات والاعتمادات', 75),
+  ('rfq_steps',       'Request a quotation in 3 steps', 'اطلب عرض سعر في 3 خطوات', 35),
+  ('recently_viewed', 'Recently viewed', 'شوهدت مؤخراً', 87)
+) as v(type, title_en, title_ar, sort_order)
+where not exists (select 1 from homepage_sections h where h.type = v.type);
+
 -- ═════════ seed.sql ═════════
 -- Seed: structure only. NO products, prices, stock, certifications or SKUs are invented.
 

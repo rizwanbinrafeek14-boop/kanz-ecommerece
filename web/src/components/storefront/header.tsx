@@ -86,8 +86,8 @@ export async function Header({ lang }: { lang: Locale }) {
             </div>
           </div>
           <ul className="flex flex-1 items-center gap-1 overflow-hidden ps-3 text-sm font-medium">
-            {tree.slice(0, 6).map((c) => (
-              <li key={c.id}><Link href={`/${lang}/category/${c.slug}`} className="block whitespace-nowrap px-3 py-3.5 hover:text-primary">{nm(c)}</Link></li>
+            {tree.slice(0, 4).map((c, i) => (
+              <li key={c.id} className={i === 3 ? "hidden xl:block" : undefined}><Link href={`/${lang}/category/${c.slug}`} className="block whitespace-nowrap px-3 py-3.5 hover:text-primary">{nm(c)}</Link></li>
             ))}
           </ul>
           <Link href={`/${lang}/quality`} className="mx-1 flex items-center whitespace-nowrap px-3 text-sm font-medium hover:text-primary">{dict.nav.quality}</Link>

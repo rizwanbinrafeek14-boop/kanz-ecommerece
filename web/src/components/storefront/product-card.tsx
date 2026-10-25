@@ -13,15 +13,16 @@ export function ProductCard({ p, lang, dict }: { p: PC; lang: Locale; dict: Dict
   const price = cardPrice(p);
   const hasVariants = (p.product_variants ?? []).filter((v) => v.is_active && v.price != null).length > 1 && p.base_price == null;
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-xl motion-reduce:transform-none">
+    <article className="group flex flex-col overflow-hidden rounded-md border border-steel-200 bg-card transition duration-300 hover:-translate-y-0.5 hover:border-steel-700 hover:shadow-[6px_6px_0_0_var(--steel-200)] motion-reduce:transform-none">
       <Link href={`/${lang}/product/${p.slug}`} className="relative block">
-        <ProductImage path={img?.storage_path} alt={name} className="aspect-square w-full bg-gradient-to-b from-white to-muted/60 p-3 transition duration-500 group-hover:scale-[1.03]" />
+        <ProductImage path={img?.storage_path} alt={name} className="aspect-square w-full bg-steel-50 p-3 transition duration-500 group-hover:scale-[1.06]" />
         <div className="absolute start-2 top-2 flex flex-col gap-1">
           {p.is_special_offer && <Badge>{loc(p, "offer_label", lang) || dict.product.offer}</Badge>}
           {p.is_new_arrival && <Badge variant="dark">{dict.product.new}</Badge>}
         </div>
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-4">
+        {p.sku && <span className="spec-label truncate text-steel-500" dir="ltr">{p.sku}</span>}
         {p.brands && <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{lang === "ar" && p.brands.name_ar ? p.brands.name_ar : p.brands.name}</span>}
         <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-snug"><Link href={`/${lang}/product/${p.slug}`} className="hover:text-primary">{name}</Link></h3>
         <div className="mt-auto pt-1">

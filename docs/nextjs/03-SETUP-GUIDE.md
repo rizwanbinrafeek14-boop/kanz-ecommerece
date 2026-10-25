@@ -100,6 +100,9 @@ A product is a **family** (e.g. “Carbon Steel Pipe — ERW”). To sell it onl
 
 Anything without a price stays “Request a quote”.
 
+## Step 8c — New homepage
+Run `supabase/migrations/0013_homepage_sections.sql` (contents, not the file name) and redeploy. The new homepage blocks appear in Admin → Content & settings → Homepage sections, where you can reorder or disable them. Blocks without real data (featured products, brands, certificates, material/standard chips) stay hidden automatically.
+
 ## Step 8b — SEO and Google (after the site is live on your domain)
 Run `supabase/migrations/0012_seo.sql` (copy the file’s contents into the SQL Editor) and make sure `NEXT_PUBLIC_SITE_URL` is exactly `https://www.kanzcorner.com`. Then follow `docs/seo/README.md`: verify Search Console (paste the code in Admin → Content & settings), submit `sitemap.xml`, create your Google Business Profile (`docs/seo/GOOGLE-BUSINESS-PROFILE-CHECKLIST.md`), enter opening hours and the Arabic address, and fill the SEO tab of your priority products.
 

@@ -1,6 +1,10 @@
 @import "tailwindcss";
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/cairo";
+@import "@fontsource-variable/ibm-plex-sans/wght.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
 
 /* Brand tokens sampled from the KANZ CORNER logo: red bar, near-black mark, steel-grey gradient pipe. */
 :root {
@@ -27,6 +31,10 @@
   --success: #17794b;
   --warning: #c77a1f;
   --radius: 0.5rem;
+  /* Cool steel neutrals (engineering-drawing palette) */
+  --steel-50: #f5f7f9; --steel-100: #eef1f4; --steel-200: #dde2e8; --steel-300: #c3cbd4; --steel-400: #94a0ad;
+  --steel-500: #6b7785; --steel-600: #4f5a67; --steel-700: #3a434e; --steel-800: #262d36; --steel-900: #161b22;
+  --grid-line: rgba(58, 67, 78, 0.07); --grid-line-major: rgba(58, 67, 78, 0.12);
 }
 
 .dark { color-scheme: dark; }
@@ -58,8 +66,11 @@
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 6px);
-  --font-sans: "Inter Variable", "Cairo Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-arabic: "Cairo Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans Variable", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: "IBM Plex Sans Arabic", "IBM Plex Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-steel-50: var(--steel-50); --color-steel-100: var(--steel-100); --color-steel-200: var(--steel-200); --color-steel-300: var(--steel-300); --color-steel-400: var(--steel-400);
+  --color-steel-500: var(--steel-500); --color-steel-600: var(--steel-600); --color-steel-700: var(--steel-700); --color-steel-800: var(--steel-800); --color-steel-900: var(--steel-900);
 }
 
 @layer base {
@@ -101,3 +112,33 @@
 /* Lift the floating contact button above the mobile enquiry bar on product pages */
 body:has([data-sticky-bar]) .contact-float { bottom: 5.5rem; }
 @media (min-width: 1024px) { body:has([data-sticky-bar]) .contact-float { bottom: 1rem; } }
+
+/* ───────── Engineering-drawing utilities (homepage) ───────── */
+/* Drafting grid: fine 8px minor lines, 40px major lines */
+.bg-drafting {
+  background-color: var(--steel-50);
+  background-image:
+    linear-gradient(var(--grid-line-major) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line-major) 1px, transparent 1px),
+    linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+}
+.bg-drafting-dark {
+  background-color: var(--steel-900);
+  background-image:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+}
+/* Spec labels: small mono caps used for sheet numbers, field labels and readouts */
+.spec-label { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.12em; text-transform: uppercase; }
+html[lang="ar"] .spec-label { font-family: var(--font-arabic); letter-spacing: 0; font-size: 0.75rem; }
+/* Stroke drawing: paths with pathLength="1" draw from 0 to 1 */
+@keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.draw path, .draw line, .draw circle, .draw rect, .draw polyline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.6s cubic-bezier(.6,0,.2,1) forwards; }
+.draw .nodraw { stroke-dashoffset: 0; animation: none; }   /* dash pattern set inline */
+.draw .d2 { animation-delay: .35s; } .draw .d3 { animation-delay: .7s; } .draw .d4 { animation-delay: 1.05s; }
+@media (prefers-reduced-motion: reduce) { .draw path, .draw line, .draw circle, .draw rect, .draw polyline { stroke-dashoffset: 0; animation: none; } }
+/* Category sheet: red outline traces the card on hover/focus */
+.sheet-outline rect { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .7s cubic-bezier(.6,0,.2,1); }
+.group:hover .sheet-outline rect, .group:focus-visible .sheet-outline rect { stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: reduce) { .sheet-outline rect { transition: none; } }
