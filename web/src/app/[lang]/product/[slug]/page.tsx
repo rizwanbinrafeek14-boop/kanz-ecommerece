@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { ChevronRight, FileText, Download, ShieldCheck } from "lucide-react";
+import { Lock, ChevronRight, FileText, Download, ShieldCheck } from "lucide-react";
 import { isLocale, loc } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getProductBySlug, getSlugRedirect } from "@/lib/queries/catalog";
@@ -160,9 +160,10 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
             <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-5 lg:sticky lg:top-32">
               <h2 id="docs-h" className="flex items-center gap-2 text-lg font-bold"><ShieldCheck className="size-5 text-primary" aria-hidden="true" />{dict.product.documents}</h2>
               <p className="mb-3 mt-1 text-sm text-muted-foreground">{dict.product.docsHint}</p>
+              <p className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground"><Lock className="size-3.5" aria-hidden="true" />{dict.account.signInToDownload}</p>
               <ul className="space-y-2">
                 {d.documents.map((doc) => (
-                  <li key={doc.id}><TrackedLink event="datasheet_download" product={p.id} href={publicUrl("product-docs", doc.storage_path) ?? "#"} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-lg border bg-background p-3 text-sm font-medium hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <li key={doc.id}><TrackedLink event="datasheet_download" product={p.id} href={`/api/document/${doc.id}?lang=${lang}`} target="_blank" rel="noopener noreferrer nofollow" className="flex min-h-12 items-center gap-3 rounded-lg border bg-background p-3 text-sm font-medium hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     <FileText className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="flex-1">{doc.title}</span><Download className="size-4 shrink-0" aria-hidden="true" />
                   </TrackedLink></li>
                 ))}

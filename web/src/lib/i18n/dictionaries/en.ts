@@ -89,7 +89,7 @@ const en = {
   },
   account: {
     login: "Sign in", register: "Create account", email: "Email", password: "Password", fullName: "Full name", company: "Company (optional)", phone: "Phone",
-    noAccount: "No account yet?", haveAccount: "Already have an account?", checkEmail: "Check your email to confirm your account, then sign in.",
+    noAccount: "No account yet?", datasheetGate: "Datasheets are free for registered customers. Sign in or create a free account, and you will return to the product to download it.", signInToDownload: "Free account required - sign in to download", haveAccount: "Already have an account?", checkEmail: "Check your email to confirm your account, then sign in.",
     orders: "Orders", quotations: "Quotations", status: "Status", date: "Date", details: "Details", invoice: "Invoice", noOrders: "You have no orders yet.", noQuotes: "You have no quotations yet.",
     forgot: "Forgot password?", saved: "Saved", cr: "Commercial registration (CR)", vatNo: "VAT number",
   },

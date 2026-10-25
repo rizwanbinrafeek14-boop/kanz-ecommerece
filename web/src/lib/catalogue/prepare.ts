@@ -59,6 +59,13 @@ export function describe(p: ExtractedProduct) {
   return { short_desc_en: (p.short_en || shortEn).slice(0, 500), description_en: p.description_en || en, short_desc_ar: p.short_ar || shortAr, description_ar: p.description_ar || ar };
 }
 
+/** Fittings sized by a pair of options (tee run x outlet, reducer large x small) still get a plain size for search filters, e.g. 4" x 2". */
+const PAIRS = [["run", "outlet"], ["large", "small"]] as const;
+function pairSize(p: ExtractedProduct, opts: Record<string, string>) {
+  const pr = PAIRS.find(([a, b]) => opts[a] && opts[b]);
+  return pr ? `${label(p, pr[0], opts[pr[0]])} x ${label(p, pr[1], opts[pr[1]])}` : null;
+}
+
 /** Build the variant rows for import (labels, standard columns, SKUs made unique against `taken`). */
 export function buildVariants(p: ExtractedProduct, taken: Set<string>) {
   return p.variants.map((v) => {
@@ -70,7 +77,7 @@ export function buildVariants(p: ExtractedProduct, taken: Set<string>) {
     const get = (...keys: string[]) => { const k = keys.find((x) => v.options[x]); return k ? label(p, k, v.options[k]) : null; };
     return {
       sku, options: v.options, label_en: lab.join(" · "), label_ar: labAr.join(" · "),
-      size: get("size"), pressure_class: get("class", "pressure_class"), schedule: get("schedule"), grade: get("grade"), material: get("material"),
+      size: get("size") ?? pairSize(p, v.options), pressure_class: get("class", "pressure_class"), schedule: get("schedule"), grade: get("grade"), material: get("material"),
       manufacturer_code: v.manufacturer_code ?? null, weight_kg: v.weight_kg ?? null, source_page: v.page ?? null,
     };
   });

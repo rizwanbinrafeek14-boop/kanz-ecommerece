@@ -28,6 +28,9 @@ A reusable workflow for turning a manufacturer's PDF catalogue into products wit
 ## 4. Claude extraction cost
 Claude Opus 5.5 is priced at US$4 per million input tokens and US$20 per million output tokens. One rendered page is about 1,600 image tokens plus the instructions. A dense dimension-table page produces several thousand output tokens. Expect **about US$0.10–0.25 per page**, i.e. US$10–25 for a 100-page catalogue. The admin shows the running cost and lets you stop after the current page. Re-extracting a page costs again, so review rather than re-run.
 
+## 4b. Datasheets
+Customers must be signed in to download datasheets (generated or uploaded). Visitors are asked to sign in or create a free account and are brought back to the product.
+
 ## 5. Export
 JSON (re-loadable), CSV and Excel (variants, dimensions and page status) for every catalogue, for checking in a spreadsheet or archiving.
 

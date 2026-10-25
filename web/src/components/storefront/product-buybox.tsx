@@ -90,8 +90,9 @@ export function BuyBox({ product, variants, options = [], datasheet, approvals, 
       </div>
       {justAdded === "quote" && <Link href={`/${lang}/rfq`} className="block text-center text-sm font-medium text-primary hover:underline">{dict.cart.sendRfq} →</Link>}
 
-      {datasheet && <a href={`${datasheet}${v ? `?variant=${v.id}` : ""}`} target="_blank" rel="noopener noreferrer" onClick={() => track("datasheet_download", { product: product.id })} className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-steel-300 text-sm font-semibold hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      {datasheet && <a href={`${datasheet}?lang=${lang}${v ? `&variant=${v.id}` : ""}`} rel="noopener noreferrer nofollow" target="_blank" onClick={() => track("datasheet_download", { product: product.id })} className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-steel-300 text-sm font-semibold hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <FileDown className="size-4" aria-hidden="true" />{lang === "ar" ? "تحميل ورقة البيانات (PDF)" : "Download datasheet (PDF)"}{v ? <span className="font-mono text-xs text-muted-foreground">{v.sku}</span> : null}</a>}
+      {datasheet && <p className="-mt-1 text-center text-xs text-muted-foreground">{dict.account.signInToDownload}</p>}
       <ApprovalBadgeRow approvals={approvals} lang={lang} labels={approvalLabels} className="pt-1" />
 
       {whatsapp && (

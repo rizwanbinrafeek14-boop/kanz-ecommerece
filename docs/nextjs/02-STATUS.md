@@ -75,6 +75,10 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
 - **Batch 1 (Bothwell, 6 pages):** extracted by hand into a review file (not in the repository): 15 products, 557 variants, 177 dimension rows, 6 drawings. 90° elbow, tee and full coupling have full ASME B16.11 dimension tables; the other 12 items carry weights only and are flagged. Reducing couplings were not created (ambiguous sizes). Verified end to end in the browser: upload → render → load → review → approve → import → publish → selectors/dimensions/datasheet, plus SQL tests T29–T30.
 - **Not yet done:** Mega, Thai Benkan, Benken and Delcorte batches; no live Claude extraction was run here (no API key in the test environment).
 
+## Added later: datasheets for signed-in customers only
+- The generated datasheet (`/api/datasheet/[slug]`) and every uploaded public product document (`/api/document/[id]`) are served only to signed-in users; anyone else is sent to sign-in / create account with an explanation and returned to the product page afterwards (the return address is checked so it cannot point to another site). The product page shows "Free account required" next to download links, and no longer exposes the storage URL of uploaded documents.
+- Limitation: files in the public `product-docs` bucket can still be opened by anyone who already has the exact file address (for example, one shared before this change). Their addresses are no longer published on the site.
+
 ## Known limitations (honest list)
 1. **No prices, SKUs, stock, certifications or availability were invented.** Every imported product is a *draft, quote-only family*. You must add real data.
 2. **Catalogue images are 150–475 px crops** and are flagged *low-res*. Replace them with originals before launch.
