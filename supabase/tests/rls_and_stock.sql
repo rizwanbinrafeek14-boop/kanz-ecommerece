@@ -282,3 +282,24 @@ select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authent
 select catalogue_import_product('41000000-0000-0000-0000-000000000001', '{"product":{"slug":"atomic-test","name_en":"Atomic"},"variants":[{"sku":"DUP-1"},{"sku":"DUP-1"}]}');
 reset role;
 select count(*) as atomic_rolled_back from products where slug = 'atomic-test';
+
+\echo '--- T31 product families: draft families hidden, slug namespace shared with products, suggestions staff-only, rename keeps old address'
+reset role;
+insert into product_families (id, slug, name_en, status) values
+  ('51000000-0000-0000-0000-000000000001','fam-published','Published family','published'),
+  ('51000000-0000-0000-0000-000000000002','fam-draft','Draft family','draft');
+set role anon; select pg_temp.as_user(null);
+select string_agg(slug, ',' order by slug) as anon_sees_families from product_families where slug like 'fam-%';
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+select count(*) as staff_sees_families from product_families where slug like 'fam-%';
+insert into products (slug, name_en, status) values ('fam-published', 'Clash', 'draft');
+reset role;
+insert into product_families (slug, name_en) values ('test-maker-90-elbow', 'Clash with product');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1'); set role authenticated;
+select count(*) as customer_sees_suggestions from family_link_suggestions;
+insert into family_link_suggestions (product_id, family_id, confidence) select id, '51000000-0000-0000-0000-000000000001', 'exact' from products limit 1;
+reset role;
+select family_link as default_family_link from products where slug = 'test-maker-90-elbow';
+update product_families set slug = 'fam-published-renamed' where id = '51000000-0000-0000-0000-000000000001';
+select new_slug as family_redirect from slug_redirects where entity = 'product' and old_slug = 'fam-published';

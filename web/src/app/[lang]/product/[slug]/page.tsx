@@ -4,7 +4,8 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { Lock, ChevronRight, FileText, Download, ShieldCheck } from "lucide-react";
 import { isLocale, loc } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getProductBySlug, getSlugRedirect } from "@/lib/queries/catalog";
+import { getProductBySlug, getSlugRedirect, getFamilyBySlug } from "@/lib/queries/catalog";
+import { FamilyPage, familyMetadata } from "./family";
 import { pageMetadata, abs } from "@/lib/seo";
 import { defaultProductDescription, defaultProductTitle, type SeoProductInput } from "@/lib/seo-defaults";
 import { breadcrumbLd, productLd } from "@/lib/jsonld";
@@ -28,8 +29,11 @@ export async function generateStaticParams() { return []; }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
   const { lang, slug } = await params;
+  if (!isLocale(lang)) return {};
+  const fam = await getFamilyBySlug(slug);
+  if (fam) return familyMetadata(fam, lang);
   const d = await getProductBySlug(slug);
-  if (!d || !isLocale(lang)) return {};
+  if (!d) return {};
   const p = d.product;
   const img = publicUrl("product-images", p.og_image_path ?? d.images[0]?.storage_path);
   const input = seoInput(d, lang);
@@ -52,8 +56,12 @@ function seoInput(d: NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>, 
 export default async function ProductPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params;
   if (!isLocale(lang)) notFound();
+  const fam = await getFamilyBySlug(slug);
+  if (fam) return <FamilyPage fd={fam} lang={lang} />;
   const d = await getProductBySlug(slug);
   if (!d) { const to = await getSlugRedirect("product", slug); if (to) permanentRedirect(`/${lang}/product/${to}`); notFound(); }
+  // a brand offering that has joined a published family page lives there now (d.family is only returned for published families)
+  if (d.product.family_link === "confirmed" && d.family) permanentRedirect(`/${lang}/product/${d.family.slug}?brand=${encodeURIComponent(d.brand?.slug ?? d.product.slug)}`);
   const dict = getDictionary(lang);
   const [settings, { widget }, certs] = await Promise.all([getSettings(), getContact(), getProductApprovals(d.product.id)]);
   const { product: p } = d;

@@ -22,7 +22,7 @@ export interface Variant {
 export interface Product {
   id: string; slug: string; sku: string | null; barcode: string | null; name_en: string; name_ar: string | null;
   short_desc_en: string | null; short_desc_ar: string | null; description_en: string | null; description_ar: string | null;
-  category_id: string | null; brand_id: string | null; status: ProductStatus; is_quote_only: boolean;
+  category_id: string | null; brand_id: string | null; family_id?: string | null; family_link?: "suggested" | "confirmed" | "rejected"; family_sort?: number; status: ProductStatus; is_quote_only: boolean;
   is_featured: boolean; is_new_arrival: boolean; is_special_offer: boolean; offer_label_en: string | null; offer_label_ar: string | null;
   base_price: number | null; compare_at_price: number | null; unit: string; min_order_qty: number; view_count: number;
   source_page: number | null; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null;

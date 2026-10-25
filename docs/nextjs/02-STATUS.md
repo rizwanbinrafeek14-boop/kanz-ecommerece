@@ -79,6 +79,14 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
 - The generated datasheet (`/api/datasheet/[slug]`) and every uploaded public product document (`/api/document/[id]`) are served only to signed-in users; anyone else is sent to sign-in / create account with an explanation and returned to the product page afterwards (the return address is checked so it cannot point to another site). The product page shows "Free account required" next to download links, and no longer exposes the storage URL of uploaded documents.
 - Limitation: files in the public `product-docs` bucket can still be opened by anyone who already has the exact file address (for example, one shared before this change). Their addresses are no longer published on the site.
 
+## Added later: multi-brand product families (migration 0015)
+- One product page per product type with a manufacturer selector (Bothwell / Mega / JD Delcorte / Benkan …). Each brand's offering keeps its own configurations, dimension tables, drawings, documents and manufacturer codes; switching brands keeps compatible choices and explains any change; Compare brands (up to 3) compares only matching configurations and says "Not offered" / "No data" otherwise. Quote and cart lines record the exact brand offering and SKU.
+- Admin → Product families: match suggestions (exact / likely / uncertain with reasons; nothing linked automatically), family page editor (EN/AR, own photo, SEO, publish), offering confirm / keep separate / reorder / link / unlink.
+- SEO: one canonical page per family, ProductGroup JSON-LD, brand pages 308-redirect to the family when confirmed, sitemap lists families instead of their offerings, family renames keep old addresses.
+- Delcorte is displayed as "JD Delcorte" (owner's decision).
+- Verified: 33 browser checks (suggestions, confirm, publish rules, slug clash, redirects, brand switching with carried selections, per-brand dimensions and drawings, compare, enquiry line, sitemap, Arabic mobile, unpublish) + SQL tests T31; SEO, catalogue-import and SQL suites re-run green.
+- Not done yet: category/search listings still show one card per brand offering (they link to the family page via the redirect).
+
 ## Known limitations (honest list)
 1. **No prices, SKUs, stock, certifications or availability were invented.** Every imported product is a *draft, quote-only family*. You must add real data.
 2. **Catalogue images are 150–475 px crops** and are flagged *low-res*. Replace them with originals before launch.

@@ -35,3 +35,17 @@ export function productLd(p: ProductLdInput) {
     offers,
   };
 }
+
+/** One family page, several manufacturers: a ProductGroup whose variants are the brand offerings (no invented prices, ratings or stock). */
+export function productGroupLd(g: { name: string; description?: string | null; url: string; id: string; images: string[]; category?: string;
+  offerings: { name: string; brand: string; url: string; sku?: string | null; mpn?: string | null; standards: string[] }[] }) {
+  return {
+    "@context": "https://schema.org", "@type": "ProductGroup", name: g.name, description: g.description || undefined, url: g.url, productGroupID: g.id,
+    image: g.images.length ? g.images : undefined, category: g.category || undefined,
+    hasVariant: g.offerings.map((o) => ({
+      "@type": "Product", name: o.name, url: o.url, brand: { "@type": "Brand", name: o.brand }, manufacturer: { "@type": "Organization", name: o.brand },
+      sku: o.sku || undefined, mpn: o.mpn || undefined,
+      additionalProperty: o.standards.length ? [{ "@type": "PropertyValue", name: "Standard", value: o.standards.join(", ") }] : undefined,
+    })),
+  };
+}
