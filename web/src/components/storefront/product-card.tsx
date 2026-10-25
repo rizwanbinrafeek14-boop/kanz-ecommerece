@@ -7,7 +7,35 @@ import { ProductImage } from "./product-image";
 import { QuickAddQuote } from "./quick-add";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
+/** One card for a whole product family: name, brand list and a link to the family page, where the customer chooses the manufacturer. */
+function FamilyCard({ p, lang, dict }: { p: PC; lang: Locale; dict: Dictionary }) {
+  const f = p.family!; const ar = lang === "ar";
+  const name = (ar && f.name_ar) || f.name_en;
+  const img = f.image_path ?? [...(p.product_images ?? [])].sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order)[0]?.storage_path;
+  const brands = f.brands.map((b) => (ar && b.name_ar) || b.name);
+  const href = `/${lang}/product/${f.slug}`;
+  const n = brands.length;
+  return (
+    <article data-family={f.slug} className="group flex flex-col overflow-hidden rounded-md border border-steel-200 bg-card transition duration-300 hover:-translate-y-0.5 hover:border-steel-700 hover:shadow-[6px_6px_0_0_var(--steel-200)] motion-reduce:transform-none">
+      <Link href={href} className="relative block" tabIndex={-1} aria-hidden="true">
+        <ProductImage path={img} alt="" className="aspect-square w-full bg-steel-50 p-3 transition duration-500 group-hover:scale-[1.06]" />
+        {n > 1 && <span className="absolute end-2 top-2 rounded bg-ink px-2 py-0.5 text-xs font-semibold text-white">{ar ? `${n} علامات` : `${n} brands`}</span>}
+      </Link>
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-snug"><Link href={href} className="hover:text-primary">{name}</Link></h3>
+        <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground">{ar ? (n === 1 ? "متوفر من علامة واحدة" : `متوفر من ${n} علامات`) : `Available in ${n} brand${n === 1 ? "" : "s"}`}</span>{n ? `: ${brands.join(", ")}` : ""}</p>
+        <div className="mt-auto pt-1">
+          {f.price != null ? <p className="text-base font-bold"><span className="me-1 text-xs font-normal text-muted-foreground">{ar ? "من" : "From"}</span>{formatSAR(f.price, lang)} <span className="text-xs font-normal text-muted-foreground">{dict.common.exVat}</span></p>
+            : <p className="text-sm font-medium text-muted-foreground">{dict.product.priceOnRequest}</p>}
+        </div>
+        <Link href={href} className="flex min-h-10 items-center justify-center rounded-md border border-steel-300 text-sm font-semibold hover:border-ink hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{ar ? "عرض المنتج" : "View product"}<span className="sr-only">: {name}</span></Link>
+      </div>
+    </article>
+  );
+}
+
 export function ProductCard({ p, lang, dict }: { p: PC; lang: Locale; dict: Dictionary }) {
+  if (p.family) return <FamilyCard p={p} lang={lang} dict={dict} />;
   const img = [...(p.product_images ?? [])].sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order)[0];
   const name = loc(p, "name", lang);
   const price = cardPrice(p);
@@ -41,7 +69,7 @@ export function ProductCard({ p, lang, dict }: { p: PC; lang: Locale; dict: Dict
 export function ProductGrid({ products, lang, dict }: { products: PC[]; lang: Locale; dict: Dictionary }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-      {products.map((p) => <ProductCard key={p.id} p={p} lang={lang} dict={dict} />)}
+      {products.map((p) => <ProductCard key={p.family?.slug ?? p.id} p={p} lang={lang} dict={dict} />)}
     </div>
   );
 }

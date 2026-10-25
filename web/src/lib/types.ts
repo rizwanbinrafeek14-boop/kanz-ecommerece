@@ -36,6 +36,8 @@ export interface ProductCard extends Product {
   product_images: Pick<ProductImage, "storage_path" | "is_primary" | "sort_order">[];
   brands: Pick<Brand, "name" | "name_ar"> | null;
   product_variants?: { price: number | null; is_active: boolean }[];
+  /** Set when this card stands for a whole product family (one card per family, several manufacturers inside). */
+  family?: { slug: string; name_en: string; name_ar: string | null; image_path: string | null; brands: { name: string; name_ar: string | null }[]; price: number | null };
 }
 
 /** Lowest sellable price (ex-VAT) for a card, or null when the product is quote-only. */

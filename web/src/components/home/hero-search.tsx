@@ -16,7 +16,7 @@ export interface HeroSearchProps {
   facets: Partial<Record<Exclude<Tab, "product">, FacetOption[]>>;
   t: { findBy: string; tabProduct: string; tabSize: string; tabStandard: string; tabMaterial: string; category: string; anyCategory: string; choose: string; go: string; unavailable: string; placeholder: string; suggestions: string; viewAll: string; categoryWord: string };
 }
-interface Sugg { kind: "product" | "category"; id: string; slug: string; name_en: string; name_ar: string | null; image_path: string | null }
+interface Sugg { kind: "product" | "family" | "category"; id: string; slug: string; name_en: string; name_ar: string | null; image_path: string | null }
 const FACET_KEY: Record<Exclude<Tab, "product">, string> = { size: "size", standard: "standard", material: "material" };
 
 /** Title-block styled advanced search: tabs for Product (with live suggestions), Size, Standard and Material, each optionally limited to a category. */
@@ -48,7 +48,7 @@ export function HeroSearch({ lang, categories, facets, t }: HeroSearchProps) {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (tab === "product") {
-      if (active >= 0 && list[active]) { const s = list[active]; router.push(s.kind === "product" ? `/${lang}/product/${s.slug}` : `/${lang}/category/${s.slug}`); return; }
+      if (active >= 0 && list[active]) { const s = list[active]; router.push(s.kind !== "category" ? `/${lang}/product/${s.slug}` : `/${lang}/category/${s.slug}`); return; }
       if (!q.trim() && !cat) return;
       if (q.trim()) track("search", { query: q.trim(), lang });
       router.push(q.trim() ? `${base}?q=${encodeURIComponent(q.trim())}` : base);
@@ -115,8 +115,8 @@ export function HeroSearch({ lang, categories, facets, t }: HeroSearchProps) {
       {tab === "product" && open && list.length > 0 && (
         <ul id={`${id}-list`} role="listbox" aria-label={t.suggestions} className="absolute inset-x-0 top-full z-30 border border-t-0 border-steel-700 bg-white shadow-xl">
           {list.map((s, i) => {
-            const name = lang === "ar" && s.name_ar ? s.name_ar : s.name_en; const href = s.kind === "product" ? `/${lang}/product/${s.slug}` : `/${lang}/category/${s.slug}`;
-            const img = publicUrl(s.kind === "product" ? "product-images" : "category-images", s.image_path);
+            const name = lang === "ar" && s.name_ar ? s.name_ar : s.name_en; const href = s.kind !== "category" ? `/${lang}/product/${s.slug}` : `/${lang}/category/${s.slug}`;
+            const img = publicUrl(s.kind !== "category" ? "product-images" : "category-images", s.image_path);
             return (
               <li key={s.kind + s.id} id={`${id}-opt-${i}`} role="option" aria-selected={i === active}>
                 <Link href={href} onClick={() => setOpen(false)} className={cn("flex min-h-11 items-center gap-3 px-3 py-2 text-sm hover:bg-steel-50", i === active && "bg-steel-100")}>

@@ -92,3 +92,41 @@ export async function unlinkProduct(productId: string): Promise<Result> {
   done(p?.family_id ?? undefined); return ok(true);
 }
 
+
+/**
+ * Automatic grouping (owner's rule): only EXACT matches are linked; likely/uncertain ones stay waiting for a decision.
+ * Families that then have two or more confirmed, published offerings are published, so the shop shows one card for them.
+ * With dryRun the same plan is returned without changing anything.
+ */
+export async function applyAutoGrouping(dryRun: boolean): Promise<Result<{ confirm: { product: string; family: string }[]; publish: string[] }>> {
+  const user = await requireStaff(); const sb = await createClient();
+  const { scanSuggestions } = await import("@/lib/families/scan");
+  await scanSuggestions(sb);
+  const [{ data: sugg }, { data: prods }, { data: fams }] = await Promise.all([
+    sb.from("family_link_suggestions").select("product_id, family_id").eq("status", "pending").eq("confidence", "exact"),
+    sb.from("products").select("id, name_en, family_id, family_link, status").not("family_id", "is", null),
+    sb.from("product_families").select("id, name_en, status"),
+  ]);
+  const P = new Map((prods ?? []).map((p) => [p.id, p])); const F = new Map((fams ?? []).map((f) => [f.id, f]));
+  const size = new Map<string, number>(); for (const p of prods ?? []) size.set(p.family_id!, (size.get(p.family_id!) ?? 0) + 1);
+  // a lone product's "exact" suggestion only means it is the first in its family: grouping needs at least two manufacturers
+  const cand = (sugg ?? []).filter((s) => (size.get(s.family_id) ?? 0) > 1 && P.get(s.product_id)?.family_link === "suggested");
+  // only link when at least two manufacturers end up together (already confirmed + exact matches)
+  const together = new Map<string, number>();
+  for (const p of prods ?? []) if (p.family_link === "confirmed") together.set(p.family_id!, (together.get(p.family_id!) ?? 0) + 1);
+  for (const c of cand) together.set(c.family_id, (together.get(c.family_id) ?? 0) + 1);
+  const confirm = cand.filter((c) => (together.get(c.family_id) ?? 0) >= 2);
+  const linked = new Map<string, number>();
+  for (const p of prods ?? []) if (p.status === "published" && (p.family_link === "confirmed" || confirm.some((c) => c.product_id === p.id))) linked.set(p.family_id!, (linked.get(p.family_id!) ?? 0) + 1);
+  const publish = [...linked].filter(([fid, n]) => n >= 2 && F.get(fid)?.status !== "published").map(([fid]) => fid);
+  const plan = { confirm: confirm.map((c) => ({ product: P.get(c.product_id)?.name_en ?? c.product_id, family: F.get(c.family_id)?.name_en ?? c.family_id })), publish: publish.map((id) => F.get(id)?.name_en ?? id) };
+  if (dryRun) return ok(plan);
+  const now = new Date().toISOString();
+  for (const c of confirm) {
+    await sb.from("products").update({ family_link: "confirmed" }).eq("id", c.product_id).eq("family_link", "suggested");
+    await sb.from("family_link_suggestions").update({ status: "approved", decided_by: user.id, decided_at: now }).eq("product_id", c.product_id).eq("family_id", c.family_id);
+  }
+  if (publish.length) await sb.from("product_families").update({ status: "published", published_at: now }).in("id", publish);
+  await audit(sb, user.id, "family.auto_group", "product_families", undefined, { confirmed: confirm.length, published: publish.length });
+  done(); return ok(plan);
+}

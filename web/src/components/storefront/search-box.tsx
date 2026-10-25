@@ -9,7 +9,7 @@ import { track } from "@/lib/track";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-interface Sugg { kind: "product" | "category"; id: string; slug: string; name_en: string; name_ar: string | null; image_path: string | null }
+interface Sugg { kind: "product" | "family" | "category"; id: string; slug: string; name_en: string; name_ar: string | null; image_path: string | null }
 
 export function SearchBox({ lang, dict, className }: { lang: Locale; dict: Dictionary; className?: string }) {
   const router = useRouter();
@@ -60,8 +60,8 @@ export function SearchBox({ lang, dict, className }: { lang: Locale; dict: Dicti
           <ul>
             {items.map((s) => {
               const name = lang === "ar" && s.name_ar ? s.name_ar : s.name_en;
-              const href = s.kind === "product" ? `/${lang}/product/${s.slug}` : `/${lang}/category/${s.slug}`;
-              const img = publicUrl(s.kind === "product" ? "product-images" : "category-images", s.image_path);
+              const href = s.kind !== "category" ? `/${lang}/product/${s.slug}` : `/${lang}/category/${s.slug}`;
+              const img = publicUrl(s.kind !== "category" ? "product-images" : "category-images", s.image_path);
               return (
                 <li key={s.kind + s.id}>
                   <Link href={href} onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 hover:bg-accent">

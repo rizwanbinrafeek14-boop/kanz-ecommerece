@@ -26,3 +26,17 @@ Run `supabase/migrations/0015_product_families.sql` (contents) in the SQL Editor
   * One indexed page per family (canonical without `?brand=`), with ProductGroup structured data listing each brand offering (brand, manufacturer part number, standard).
   * Redirected brand pages are left out of the sitemap.
   * Prices, ratings and stock are never invented.
+
+## One card per family in the shop (migration 0016)
+Run `supabase/migrations/0016_family_listings.sql` (contents) after 0015.
+* **What changes.** Shop, categories, search results, type-ahead suggestions, homepage product sections, related products and best sellers show **one card per published family**: "Forged 90° Elbow · Available in 3 brands: Bothwell, JD Delcorte, Mega · View product". Category counts, the product total, filter counts and pagination count families, not manufacturer records.
+* **Which products are grouped.** A product joins its family card only if it is a *confirmed* offering of a *published* family. Everything else keeps its own card.
+* **Automatic grouping.** Admin → Product families → **Preview grouping**, then **Apply**:
+  * only *exact* matches are linked (same real choices, shared connection types, no conflicting product standard, no conflicting name qualifier such as "Female-Female");
+  * linking happens only where at least two manufacturers end up together;
+  * families that then have two or more published brands are published.
+
+  *Likely* and *uncertain* matches stay in the list for your decision.
+* **Card photo.** Your family photo if uploaded, otherwise the first brand (in your order) that has a drawing.
+* **Search.** Searching by a brand name or a manufacturer code (e.g. "JD 825") finds the family card.
+* **Brand pages.** Brand-specific product pages redirect (308) to the family page with that brand selected, so old links and SEO keep working.
