@@ -92,7 +92,28 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
   const c = sb(); if (!c) return null;
   const { data: product } = await c.from("products").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
   if (!product) return null;
-  const pid = (product as Product).id;
+  return productDetail(c, product as Product, false);
+}
+
+export interface FamilyDetail {
+  family: { id: string; slug: string; name_en: string; name_ar: string | null; product_type: string | null; short_desc_en: string | null; short_desc_ar: string | null; description_en: string | null; description_ar: string | null;
+    image_path: string | null; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null; seo_noindex: boolean; updated_at: string };
+  category: Category | null; offerings: ProductDetail[];
+}
+/** A published product family with its confirmed, published manufacturer offerings (each with its own variants, tables, drawings and documents). */
+export async function getFamilyBySlug(slug: string): Promise<FamilyDetail | null> {
+  const c = sb(); if (!c) return null;
+  const { data: fam } = await c.from("product_families").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
+  if (!fam) return null;
+  const { data: prods } = await c.from("products").select("*").eq("family_id", fam.id).eq("status", "published").eq("family_link", "confirmed").order("family_sort").order("name_en");
+  if (!prods?.length) return null;
+  const offerings = await Promise.all((prods as Product[]).map((p) => productDetail(c, p, true)));
+  const category = fam.category_id ? await c.from("categories").select("*").eq("id", fam.category_id).maybeSingle().then((r) => r.data as Category | null) : offerings[0]?.category ?? null;
+  return { family: fam as FamilyDetail["family"], category, offerings };
+}
+
+async function productDetail(c: NonNullable<ReturnType<typeof sb>>, product: Product, lite: boolean): Promise<ProductDetail> {
+  const pid = product.id;
   const [images, variants, docs, attrs, defs, brand, category, rels, avail, opts, dims, family] = await Promise.all([
     safe(() => c.from("product_images").select("*").eq("product_id", pid).order("is_primary", { ascending: false }).order("sort_order"), [] as ProductImage[]),
     safe(() => c.from("product_variants").select("*").eq("product_id", pid).eq("is_active", true).order("sort_order").order("sku"), [] as Variant[]),
@@ -105,16 +126,16 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
     safe(() => c.from("variant_availability").select("variant_id, available").eq("product_id", pid), [] as { variant_id: string; available: number }[]),
     safe(() => c.from("product_options").select("key, name_en, name_ar, sort_order, product_option_values(value, label_en, label_ar, sort_order)").eq("product_id", pid).order("sort_order"), [] as { key: string; name_en: string; name_ar: string | null; sort_order: number; product_option_values: { value: string; label_en: string; label_ar: string | null; sort_order: number }[] }[]),
     safe(() => c.from("dimension_tables").select("id, title_en, title_ar, columns, applies, notes, drawing_path, source_page, sort_order, dimension_rows(match, values, sort_order)").eq("product_id", pid).order("sort_order"), [] as (Omit<DimensionTableRow, "rows"> & { sort_order: number; dimension_rows: { match: Record<string, string>; values: Record<string, string>; sort_order: number }[] })[]),
-    (product as Product & { family_id?: string | null }).family_id ? c.from("product_families").select("slug, name_en, name_ar").eq("id", (product as Product & { family_id: string }).family_id).maybeSingle().then((r) => r.data) : Promise.resolve(null),
+    (product as Product & { family_id?: string | null }).family_id ? c.from("product_families").select("slug, name_en, name_ar")   /* RLS: published families only */.eq("id", (product as Product & { family_id: string }).family_id).maybeSingle().then((r) => r.data) : Promise.resolve(null),
   ]);
   const availMap = new Map(avail.map((a) => [a.variant_id, Number(a.available)]));
   const attributes = defs
     .filter((d) => d.show_in_specs)
     .map((def) => ({ def, values: attrs.filter((a) => a.attribute_id === def.id).map((a) => ({ value_en: a.value_en, value_ar: a.value_ar })) }))
     .filter((a) => a.values.length);
-  let related = await getProductCardsByIds(rels.filter((r) => r.relation === "related").map((r) => r.related_id));
-  const alternatives = await getProductCardsByIds(rels.filter((r) => r.relation === "alternative").map((r) => r.related_id));
-  if (!related.length && (product as Product).category_id) {   // fall back to same-category products
+  let related = lite ? [] : await getProductCardsByIds(rels.filter((r) => r.relation === "related").map((r) => r.related_id));
+  const alternatives = lite ? [] : await getProductCardsByIds(rels.filter((r) => r.relation === "alternative").map((r) => r.related_id));
+  if (!lite && !related.length && (product as Product).category_id) {   // fall back to same-category products
     const res = await searchProducts({ category: (product as Product).category_id!, pageSize: 5 });
     related = res.products.filter((p) => p.id !== pid).slice(0, 4);
   }
@@ -148,13 +169,22 @@ export async function getCategoryProductCounts(): Promise<Map<string, number>> {
 }
 
 export async function getAllSlugsForSitemap() {
-  const c = sb(); if (!c) return { products: [], categories: [] };
-  const [products, categories, counts] = await Promise.all([
-    safe(() => c.from("products").select("slug, updated_at, name_ar, seo_noindex").eq("status", "published"), [] as { slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean }[]),
+  const c = sb(); if (!c) return { products: [], categories: [], families: [] };
+  const [products, categories, counts, fams] = await Promise.all([
+    safe(() => c.from("products").select("slug, updated_at, name_ar, seo_noindex, family_id, family_link").eq("status", "published"), [] as { slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean; family_id: string | null; family_link: string }[]),
     safe(() => c.from("categories").select("id, slug, updated_at, name_ar, seo_noindex").eq("is_active", true), [] as { id: string; slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean }[]),
     getCategoryProductCounts(),
+    safe(() => c.from("product_families").select("id, slug, updated_at, name_ar, seo_noindex").eq("status", "published"), [] as { id: string; slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean }[]),
   ]);
-  return { products: products.filter((p) => !p.seo_noindex), categories: categories.filter((x) => !x.seo_noindex && (counts.get(x.id) ?? 0) > 0) };
+  // a family page exists only when it has at least one confirmed, published offering; those offerings redirect to it and are not listed themselves
+  const live = new Set(products.filter((p) => p.family_link === "confirmed" && p.family_id).map((p) => p.family_id!));
+  const families = fams.filter((f) => live.has(f.id));
+  const famIds = new Set(families.map((f) => f.id));
+  return {
+    products: products.filter((p) => !p.seo_noindex && !(p.family_link === "confirmed" && p.family_id && famIds.has(p.family_id))),
+    categories: categories.filter((x) => !x.seo_noindex && (counts.get(x.id) ?? 0) > 0),
+    families: families.filter((f) => !f.seo_noindex),
+  };
 }
 
 // ── CMS ───────────────────────────────────────────────────────

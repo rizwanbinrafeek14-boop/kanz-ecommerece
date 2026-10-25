@@ -19,8 +19,13 @@ export async function signInAction(_: unknown, fd: FormData): Promise<ActionResu
   const sb = await createClient();
   const { error } = await sb.auth.signInWithPassword(parsed.data);
   if (error) return fail("Incorrect email or password.");
-  const next = String(fd.get("next") ?? "");
-  redirect(next.startsWith(`/${lang}/`) ? next : `/${lang}/account`);
+  redirect(safeNext(lang, fd.get("next")) ?? `/${lang}/account`);
+}
+
+/** Only same-site paths in the current language (no "//host" or "/\\host" tricks) may be used as a post-login destination. */
+function safeNext(lang: string, raw: FormDataEntryValue | null): string | null {
+  const next = String(raw ?? "");
+  return next.startsWith(`/${lang}/`) && !/[\\\s]/.test(next) && !next.includes("//") ? next.slice(0, 300) : null;
 }
 
 const signUpSchema = credSchema.extend({
@@ -28,16 +33,17 @@ const signUpSchema = credSchema.extend({
 });
 export async function signUpAction(_: unknown, fd: FormData): Promise<ActionResult<{ confirm: boolean }>> {
   const lang = langOf(String(fd.get("lang")));
+  const next = safeNext(lang, fd.get("next"));
   const parsed = signUpSchema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return fail("Please complete all required fields (password: 8+ characters).");
   const { email, password, full_name, phone, company_name } = parsed.data;
   const sb = await createClient();
   const { data, error } = await sb.auth.signUp({
     email, password,
-    options: { data: { full_name, phone, company_name }, emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/auth/callback?next=/${lang}/account` },
+    options: { data: { full_name, phone, company_name }, emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/auth/callback?next=${encodeURIComponent(next ?? `/${lang}/account`)}` },
   });
   if (error) return fail(error.message);
-  if (data.session) redirect(`/${lang}/account`);
+  if (data.session) redirect(next ?? `/${lang}/account`);
   return { ok: true, data: { confirm: true } };
 }
 

@@ -18,15 +18,19 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 export interface BuyVariant { id: string; sku: string; label: string; spec: string; price: number | null; available: number; options?: Record<string, string> }
 export interface BuyProps {
   product: { id: string; slug: string; name: string; unit: string; quoteOnly: boolean; basePrice: number | null; minQty: number; image: string | null };
-  variants: BuyVariant[]; options?: SelOption[]; datasheet?: string; approvals: Approval[]; approvalLabels: ApprovalLabels; vatRate: number; whatsapp: string; waGreeting: string; lang: Locale; dict: Dictionary; url: string;
+  variants: BuyVariant[]; options?: SelOption[]; datasheet?: string; approvals: Approval[];
+  /** Family pages: start from a carried-over selection and report every change (to keep compatible choices when the brand changes). */
+  initialSel?: Record<string, string>; onSelChange?: (sel: Record<string, string>, variantId: string | null) => void; brandName?: string; afterOptions?: React.ReactNode; approvalLabels: ApprovalLabels; vatRate: number; whatsapp: string; waGreeting: string; lang: Locale; dict: Dictionary; url: string;
 }
 
-export function BuyBox({ product, variants, options = [], datasheet, approvals, approvalLabels, vatRate, whatsapp, waGreeting, lang, dict, url }: BuyProps) {
+export function BuyBox({ product, variants, options = [], datasheet, approvals, approvalLabels, vatRate, whatsapp, waGreeting, lang, dict, url, initialSel, onSelChange, brandName, afterOptions }: BuyProps) {
   const { add } = useCart();
-  const [vid, setVid] = React.useState(variants[0]?.id ?? "");
   const optVariants = React.useMemo(() => variants.filter((x) => x.options && Object.keys(x.options).length).map((x) => ({ id: x.id, options: x.options! })), [variants]);
-  const [sel, setSel] = React.useState<Record<string, string>>(() => (options.length && optVariants[0] ? settle(options, optVariants, optVariants[0].options) : {}));
-  const pick = (next: Record<string, string>) => { setSel(next); const m = optVariants.find((x) => options.every((o) => x.options[o.key] === next[o.key])); if (m) setVid(m.id); };
+  const match = (next: Record<string, string>) => optVariants.find((x) => options.every((o) => x.options[o.key] === next[o.key]));
+  const [sel, setSel] = React.useState<Record<string, string>>(() => (options.length && optVariants[0] ? settle(options, optVariants, initialSel ?? optVariants[0].options) : {}));
+  const [vid, setVid] = React.useState(() => match(sel)?.id ?? variants[0]?.id ?? "");
+  const pick = (next: Record<string, string>) => { setSel(next); const m = match(next); if (m) setVid(m.id); };
+  React.useEffect(() => { onSelChange?.(sel, vid || null); }, [sel, vid]); // eslint-disable-line react-hooks/exhaustive-deps
   const [qty, setQty] = React.useState(Math.max(1, product.minQty));
   const [justAdded, setJustAdded] = React.useState<"cart" | "quote" | null>(null);
   const v = variants.find((x) => x.id === vid);
@@ -38,7 +42,7 @@ export function BuyBox({ product, variants, options = [], datasheet, approvals, 
 
   const flash = (k: "cart" | "quote") => { setJustAdded(k); setTimeout(() => setJustAdded(null), 1600); };
   const base = { productId: product.id, slug: product.slug, name: product.name, image: product.image, unit: product.unit, qty };
-  const waLines = [`${waGreeting}`.trim(), `${dict.product.waProduct}: ${product.name}`, v?.sku && `${dict.product.waSku}: ${v.sku}`, v?.spec && `${dict.product.waVariant}: ${v.spec}`, `${dict.product.waQty}: ${qty} ${product.unit}`, `${dict.product.waLink}: ${url}`].filter(Boolean);
+  const waLines = [`${waGreeting}`.trim(), `${dict.product.waProduct}: ${product.name}`, brandName && `${dict.common.brand}: ${brandName}`, v?.sku && `${dict.product.waSku}: ${v.sku}`, v?.spec && `${dict.product.waVariant}: ${v.spec}`, `${dict.product.waQty}: ${qty} ${product.unit}`, `${dict.product.waLink}: ${url}`].filter(Boolean);
   const wa = `https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(waLines.join("\n"))}`;
   const addQuote = () => { add({ ...base, kind: "quote", variantId: v?.id, sku: v?.sku, spec: v?.spec }); flash("quote"); toast.success(`${dict.product.added}: ${product.name}`); };
   const addCart = () => { add({ ...base, kind: "cart", variantId: v!.id, sku: v!.sku, spec: v!.spec, unitPrice: price }); flash("cart"); toast.success(`${dict.product.added}: ${product.name}`); };
@@ -56,6 +60,7 @@ export function BuyBox({ product, variants, options = [], datasheet, approvals, 
         </div>
       )}
 
+      {afterOptions}
       <div>
         {price != null ? (
           <>
@@ -90,8 +95,9 @@ export function BuyBox({ product, variants, options = [], datasheet, approvals, 
       </div>
       {justAdded === "quote" && <Link href={`/${lang}/rfq`} className="block text-center text-sm font-medium text-primary hover:underline">{dict.cart.sendRfq} →</Link>}
 
-      {datasheet && <a href={`${datasheet}${v ? `?variant=${v.id}` : ""}`} target="_blank" rel="noopener noreferrer" onClick={() => track("datasheet_download", { product: product.id })} className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-steel-300 text-sm font-semibold hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      {datasheet && <a href={`${datasheet}?lang=${lang}${v ? `&variant=${v.id}` : ""}`} rel="noopener noreferrer nofollow" target="_blank" onClick={() => track("datasheet_download", { product: product.id })} className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-steel-300 text-sm font-semibold hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <FileDown className="size-4" aria-hidden="true" />{lang === "ar" ? "تحميل ورقة البيانات (PDF)" : "Download datasheet (PDF)"}{v ? <span className="font-mono text-xs text-muted-foreground">{v.sku}</span> : null}</a>}
+      {datasheet && <p className="-mt-1 text-center text-xs text-muted-foreground">{dict.account.signInToDownload}</p>}
       <ApprovalBadgeRow approvals={approvals} lang={lang} labels={approvalLabels} className="pt-1" />
 
       {whatsapp && (

@@ -6,6 +6,7 @@ import { getSettings, s } from "@/lib/settings";
 import { publicUrl } from "@/lib/format";
 import { abs } from "@/lib/seo";
 import { DatasheetPdf } from "@/lib/pdf/datasheet";
+import { requireSignedIn } from "@/lib/customer-gate";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +23,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   if (!/^[a-z0-9-]{1,200}$/.test(slug)) return new NextResponse("Not found", { status: 404 });
   const d = await getProductBySlug(slug);   // published products only
   if (!d) return new NextResponse("Not found", { status: 404 });
+  const gate = await requireSignedIn(req, slug);
+  if (gate) return gate;
   const vid = new URL(req.url).searchParams.get("variant");
   const v = vid ? d.variants.find((x) => x.id === vid) ?? null : null;
   const st = await getSettings(); const p = d.product;
@@ -41,5 +44,5 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     standards: p.specs?.standards ?? [], materials: p.specs?.materials ?? [], notes: p.specs?.notes ?? [],
     image: await png(publicUrl("product-images", d.images[0]?.storage_path)), tables,
   }} />);
-  return new NextResponse(new Uint8Array(buf), { headers: { "content-type": "application/pdf", "content-disposition": `inline; filename="${p.slug}${v ? `-${v.sku}` : ""}-datasheet.pdf"`, "cache-control": "public, max-age=300" } });
+  return new NextResponse(new Uint8Array(buf), { headers: { "content-type": "application/pdf", "content-disposition": `inline; filename="${p.slug}${v ? `-${v.sku}` : ""}-datasheet.pdf"`, "cache-control": "private, no-store" } });
 }

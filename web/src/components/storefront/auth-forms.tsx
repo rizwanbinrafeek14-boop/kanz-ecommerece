@@ -20,17 +20,17 @@ export function LoginForm({ lang, dict, next }: { lang: Locale; dict: Dictionary
       <Field id="password" label={dict.account.password} type="password" required minLength={8} autoComplete="current-password" />
       {state && !state.ok && <p role="alert" className="text-sm text-destructive">{state.error}</p>}
       <Button className="w-full" disabled={pending}>{pending ? dict.common.loading : dict.account.login}</Button>
-      <p className="text-center text-sm text-muted-foreground">{dict.account.noAccount} <Link className="font-semibold text-primary" href={`/${lang}/account/register`}>{dict.account.register}</Link></p>
+      <p className="text-center text-sm text-muted-foreground">{dict.account.noAccount} <Link className="font-semibold text-primary" href={`/${lang}/account/register${next ? `?next=${encodeURIComponent(next)}` : ""}`}>{dict.account.register}</Link></p>
     </form>
   );
 }
 
-export function RegisterForm({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+export function RegisterForm({ lang, dict, next }: { lang: Locale; dict: Dictionary; next?: string }) {
   const [state, action, pending] = React.useActionState(signUpAction, null);
   if (state?.ok) return <p className="rounded-lg bg-green-50 p-4 text-sm text-green-800">{dict.account.checkEmail}</p>;
   return (
     <form action={action} className="space-y-4">
-      <input type="hidden" name="lang" value={lang} />
+      <input type="hidden" name="lang" value={lang} /><input type="hidden" name="next" value={next ?? ""} />
       <Field id="full_name" label={dict.account.fullName} required autoComplete="name" />
       <Field id="company_name" label={dict.account.company} autoComplete="organization" />
       <Field id="phone" label={dict.account.phone} type="tel" autoComplete="tel" />
@@ -38,7 +38,7 @@ export function RegisterForm({ lang, dict }: { lang: Locale; dict: Dictionary })
       <Field id="password" label={dict.account.password} type="password" required minLength={8} autoComplete="new-password" />
       {state && !state.ok && <p role="alert" className="text-sm text-destructive">{state.error}</p>}
       <Button className="w-full" disabled={pending}>{pending ? dict.common.loading : dict.account.register}</Button>
-      <p className="text-center text-sm text-muted-foreground">{dict.account.haveAccount} <Link className="font-semibold text-primary" href={`/${lang}/account/login`}>{dict.account.login}</Link></p>
+      <p className="text-center text-sm text-muted-foreground">{dict.account.haveAccount} <Link className="font-semibold text-primary" href={`/${lang}/account/login${next ? `?next=${encodeURIComponent(next)}` : ""}`}>{dict.account.login}</Link></p>
     </form>
   );
 }

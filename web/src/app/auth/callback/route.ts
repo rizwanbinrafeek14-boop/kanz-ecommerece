@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   if (code) {
     const sb = await createClient();
     const { error } = await sb.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${next.startsWith("/") && !next.startsWith("//") ? next : "/en/account"}`);
+    if (!error) return NextResponse.redirect(`${origin}${/^\/(en|ar)\//.test(next) && !next.includes("//") && !/[\\\s]/.test(next) ? next : "/en/account"}`);
   }
   return NextResponse.redirect(`${origin}/en/account/login?error=link`);
 }
