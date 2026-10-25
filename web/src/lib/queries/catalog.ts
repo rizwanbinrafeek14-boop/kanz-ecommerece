@@ -83,14 +83,17 @@ export interface ProductDetail {
   product: Product; images: ProductImage[]; variants: (Variant & { available: number })[]; documents: ProductDocument[];
   attributes: { def: AttributeDef; values: { value_en: string; value_ar: string | null }[] }[];
   brand: Brand | null; category: Category | null; related: ProductCard[]; alternatives: ProductCard[];
+  options: ProductOptionRow[]; dimensionTables: DimensionTableRow[]; family: { slug: string; name_en: string; name_ar: string | null } | null;
 }
+export interface ProductOptionRow { key: string; name_en: string; name_ar: string | null; values: { value: string; label_en: string; label_ar: string | null }[] }
+export interface DimensionTableRow { id: string; title_en: string; title_ar: string | null; columns: { key: string; symbol?: string | null; label_en: string; label_ar?: string | null; unit?: string | null }[]; applies: Record<string, string>; notes: string[]; drawing_path: string | null; source_page: number | null; rows: { match: Record<string, string>; values: Record<string, string> }[] }
 
 export async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
   const c = sb(); if (!c) return null;
   const { data: product } = await c.from("products").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
   if (!product) return null;
   const pid = (product as Product).id;
-  const [images, variants, docs, attrs, defs, brand, category, rels, avail] = await Promise.all([
+  const [images, variants, docs, attrs, defs, brand, category, rels, avail, opts, dims, family] = await Promise.all([
     safe(() => c.from("product_images").select("*").eq("product_id", pid).order("is_primary", { ascending: false }).order("sort_order"), [] as ProductImage[]),
     safe(() => c.from("product_variants").select("*").eq("product_id", pid).eq("is_active", true).order("sort_order").order("sku"), [] as Variant[]),
     safe(() => c.from("product_documents").select("*").eq("product_id", pid), [] as ProductDocument[]),
@@ -100,6 +103,9 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
     (product as Product).category_id ? c.from("categories").select("*").eq("id", (product as Product).category_id!).maybeSingle().then((r) => r.data as Category | null) : Promise.resolve(null),
     safe(() => c.from("product_relations").select("related_id, relation").eq("product_id", pid).order("sort_order"), [] as { related_id: string; relation: string }[]),
     safe(() => c.from("variant_availability").select("variant_id, available").eq("product_id", pid), [] as { variant_id: string; available: number }[]),
+    safe(() => c.from("product_options").select("key, name_en, name_ar, sort_order, product_option_values(value, label_en, label_ar, sort_order)").eq("product_id", pid).order("sort_order"), [] as { key: string; name_en: string; name_ar: string | null; sort_order: number; product_option_values: { value: string; label_en: string; label_ar: string | null; sort_order: number }[] }[]),
+    safe(() => c.from("dimension_tables").select("id, title_en, title_ar, columns, applies, notes, drawing_path, source_page, sort_order, dimension_rows(match, values, sort_order)").eq("product_id", pid).order("sort_order"), [] as (Omit<DimensionTableRow, "rows"> & { sort_order: number; dimension_rows: { match: Record<string, string>; values: Record<string, string>; sort_order: number }[] })[]),
+    (product as Product & { family_id?: string | null }).family_id ? c.from("product_families").select("slug, name_en, name_ar").eq("id", (product as Product & { family_id: string }).family_id).maybeSingle().then((r) => r.data) : Promise.resolve(null),
   ]);
   const availMap = new Map(avail.map((a) => [a.variant_id, Number(a.available)]));
   const attributes = defs
@@ -115,6 +121,9 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
   return {
     product: product as Product, images, variants: variants.map((v) => ({ ...v, available: availMap.get(v.id) ?? 0 })),
     documents: docs.filter((d) => d.is_public), attributes, brand, category, related, alternatives,
+    options: opts.map((o) => ({ key: o.key, name_en: o.name_en, name_ar: o.name_ar, values: [...(o.product_option_values ?? [])].sort((a, b) => a.sort_order - b.sort_order).map(({ value, label_en, label_ar }) => ({ value, label_en, label_ar })) })),
+    dimensionTables: dims.map(({ dimension_rows, ...t }) => ({ ...t, notes: (t.notes ?? []) as string[], rows: [...(dimension_rows ?? [])].sort((a, b) => a.sort_order - b.sort_order).map(({ match, values }) => ({ match, values })) })),
+    family: family ?? null,
   };
 }
 

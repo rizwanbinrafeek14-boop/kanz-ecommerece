@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { MessageCircle, ShoppingCart, ClipboardPlus, Check } from "lucide-react";
+import { MessageCircle, ShoppingCart, ClipboardPlus, Check, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "./cart-provider";
 import { Button } from "@/components/ui/button";
@@ -10,19 +10,23 @@ import { formatSAR, withVat } from "@/lib/format";
 import { track } from "@/lib/track";
 import { setSelectedVariant } from "@/lib/variant-store";
 import { ApprovalBadgeRow, type ApprovalLabels } from "./approvals";
+import { OptionSelector, settle, type SelOption } from "./option-selector";
 import type { Approval } from "@/lib/queries/certs";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-export interface BuyVariant { id: string; sku: string; label: string; spec: string; price: number | null; available: number }
+export interface BuyVariant { id: string; sku: string; label: string; spec: string; price: number | null; available: number; options?: Record<string, string> }
 export interface BuyProps {
   product: { id: string; slug: string; name: string; unit: string; quoteOnly: boolean; basePrice: number | null; minQty: number; image: string | null };
-  variants: BuyVariant[]; approvals: Approval[]; approvalLabels: ApprovalLabels; vatRate: number; whatsapp: string; waGreeting: string; lang: Locale; dict: Dictionary; url: string;
+  variants: BuyVariant[]; options?: SelOption[]; datasheet?: string; approvals: Approval[]; approvalLabels: ApprovalLabels; vatRate: number; whatsapp: string; waGreeting: string; lang: Locale; dict: Dictionary; url: string;
 }
 
-export function BuyBox({ product, variants, approvals, approvalLabels, vatRate, whatsapp, waGreeting, lang, dict, url }: BuyProps) {
+export function BuyBox({ product, variants, options = [], datasheet, approvals, approvalLabels, vatRate, whatsapp, waGreeting, lang, dict, url }: BuyProps) {
   const { add } = useCart();
   const [vid, setVid] = React.useState(variants[0]?.id ?? "");
+  const optVariants = React.useMemo(() => variants.filter((x) => x.options && Object.keys(x.options).length).map((x) => ({ id: x.id, options: x.options! })), [variants]);
+  const [sel, setSel] = React.useState<Record<string, string>>(() => (options.length && optVariants[0] ? settle(options, optVariants, optVariants[0].options) : {}));
+  const pick = (next: Record<string, string>) => { setSel(next); const m = optVariants.find((x) => options.every((o) => x.options[o.key] === next[o.key])); if (m) setVid(m.id); };
   const [qty, setQty] = React.useState(Math.max(1, product.minQty));
   const [justAdded, setJustAdded] = React.useState<"cart" | "quote" | null>(null);
   const v = variants.find((x) => x.id === vid);
@@ -41,7 +45,9 @@ export function BuyBox({ product, variants, approvals, approvalLabels, vatRate, 
 
   return (
     <div className="space-y-5 rounded-xl border bg-card p-5">
-      {variants.length > 0 && (
+      {options.length > 0 && optVariants.length > 0 ? (
+        <OptionSelector options={options} variants={optVariants} value={sel} onChange={pick} unavailableLabel={lang === "ar" ? "غير متوفر بهذه التركيبة" : "Not offered in this combination"} />
+      ) : variants.length > 0 && (
         <div className="space-y-1.5">
           <Label htmlFor="variant">{dict.product.variants}</Label>
           <NativeSelect id="variant" value={vid} onChange={(e) => setVid(e.target.value)}>
@@ -84,6 +90,8 @@ export function BuyBox({ product, variants, approvals, approvalLabels, vatRate, 
       </div>
       {justAdded === "quote" && <Link href={`/${lang}/rfq`} className="block text-center text-sm font-medium text-primary hover:underline">{dict.cart.sendRfq} →</Link>}
 
+      {datasheet && <a href={`${datasheet}${v ? `?variant=${v.id}` : ""}`} target="_blank" rel="noopener noreferrer" onClick={() => track("datasheet_download", { product: product.id })} className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-steel-300 text-sm font-semibold hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <FileDown className="size-4" aria-hidden="true" />{lang === "ar" ? "تحميل ورقة البيانات (PDF)" : "Download datasheet (PDF)"}{v ? <span className="font-mono text-xs text-muted-foreground">{v.sku}</span> : null}</a>}
       <ApprovalBadgeRow approvals={approvals} lang={lang} labels={approvalLabels} className="pt-1" />
 
       {whatsapp && (

@@ -17,10 +17,12 @@ const csp = [
   `connect-src 'self' ${supabaseOrigin} ${supabaseOrigin.replace(/^http/, "ws")}`,
   "frame-ancestors 'self'", "base-uri 'self'", "form-action 'self'", "object-src 'none'",
 ].join("; ");
+// The admin catalogue importer renders PDFs in the browser with PDF.js, whose image decoders are WebAssembly.
+const adminCsp = csp.replace("script-src 'self' 'unsafe-inline'", "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'");
 
 const nextConfig: NextConfig = {
   // Small hosts (e.g. Hostinger Node.js apps) limit processes/memory during build: keep the build single-worker.
-  experimental: { cpus: 1, serverActions: { bodySizeLimit: "2mb" } },
+  experimental: { cpus: 1, serverActions: { bodySizeLimit: "4mb" } },
   // Tailwind CSS v4 is compiled through this Turbopack rule (kept from the create-next-app scaffold).
   turbopack: { rules: { "*.css": { loaders: ["@tailwindcss/turbopack"], as: "*.css" } } },
   images: {
@@ -47,6 +49,7 @@ const nextConfig: NextConfig = {
           ...(isProd ? [{ key: "Content-Security-Policy", value: csp }] : []),
         ],
       },
+      ...(isProd ? [{ source: "/admin/:path*", headers: [{ key: "Content-Security-Policy", value: adminCsp }] }] : []),
     ];
   },
 };
