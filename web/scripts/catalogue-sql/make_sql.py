@@ -13,7 +13,7 @@ n_var = sum(len(p["variants"]) for p in P)
 head = f"""-- KANZ: {BN} catalogue products, generated from the reviewed extraction file.
 -- Run ONCE in Supabase -> SQL Editor (paste everything, press Run). Requires migration 0014.
 -- Creates {len(P)} DRAFT, quote-only products ({n_var} variants). Nothing goes public until you press Publish in Admin -> Products.
--- Never overwrites: a product whose slug already exists is skipped. One transaction: if anything fails, nothing is saved.
+-- Never overwrites: an existing product is skipped, except a reference-only draft with no sizes yet, which is filled in. One transaction: if anything fails, nothing is saved.
 begin;
 do $$ begin
   if to_regclass('public.dimension_tables') is null then raise exception 'Run supabase/migrations/0014_catalogue_extraction.sql first.'; end if;
@@ -21,9 +21,17 @@ end $$;
 insert into brands (slug, name, is_active) values ({lit(BS)}, {lit(BN)}, false) on conflict (slug) do nothing;
 
 create or replace function pg_temp.kanz_load(p jsonb) returns text language plpgsql as $f$
-declare v_product uuid; v_family uuid; v_opt uuid; v_cat uuid; v_brand uuid; o jsonb; t jsonb; v_table uuid; n int; dup text;
+declare v_product uuid; v_family uuid; v_opt uuid; v_cat uuid; v_brand uuid; o jsonb; t jsonb; v_table uuid; n int; dup text; filled boolean := false;
 begin
-  if exists (select 1 from products where slug = p->'product'->>'slug') then return 'skipped (already exists): ' || (p->'product'->>'slug'); end if;
+  select id into v_product from products where slug = p->'product'->>'slug';
+  if v_product is not null then
+    -- only a reference-only draft (created from a reference sheet, no options/variants yet) may be filled in; anything else is left untouched
+    if coalesce((select source_ref->>'reference_only' from products where id = v_product), '') <> 'true'
+       or exists (select 1 from product_variants where product_id = v_product) or exists (select 1 from product_options where product_id = v_product)
+       or jsonb_array_length(p->'variants') = 0 then
+      return 'skipped (already exists): ' || (p->'product'->>'slug');
+    end if;
+  end if;
   select string_agg(sku, ', ') into dup from product_variants where lower(sku) in (select lower(x->>'sku') from jsonb_array_elements(p->'variants') x);
   if dup is not null then raise exception 'SKU already used by another product: % (nothing was saved)', left(dup, 200); end if;
   select id into v_cat from categories where slug = p->'product'->>'category_slug';
@@ -31,12 +39,20 @@ begin
   insert into product_families (slug, name_en, name_ar, product_type, category_id)
   values (p->'family'->>'slug', p->'family'->>'name_en', p->'family'->>'name_ar', p->'family'->>'product_type', v_cat)
   on conflict (slug) do update set name_en = product_families.name_en returning id into v_family;
+  if v_product is not null then
+    update products set short_desc_en = p->'product'->>'short_desc_en', short_desc_ar = p->'product'->>'short_desc_ar', description_en = p->'product'->>'description_en',
+           description_ar = p->'product'->>'description_ar', specs = p->'product'->'specs', source_ref = p->'product'->'source_ref', updated_at = now()
+     where id = v_product and status = 'draft';
+    if not found then return 'skipped (not a draft): ' || (p->'product'->>'slug'); end if;
+    filled := true;
+  else
   insert into products (slug, name_en, name_ar, short_desc_en, short_desc_ar, description_en, description_ar, category_id, brand_id, status, is_quote_only,
                         unit, family_id, manufacturer_ref, country_of_origin, applications_en, specs, source_ref)
   values (p->'product'->>'slug', p->'product'->>'name_en', p->'product'->>'name_ar', p->'product'->>'short_desc_en', p->'product'->>'short_desc_ar',
           p->'product'->>'description_en', p->'product'->>'description_ar', v_cat, v_brand, 'draft', true, 'pcs', v_family,
           p->'product'->>'manufacturer_ref', p->'product'->>'country_of_origin', p->'product'->>'applications_en', p->'product'->'specs', p->'product'->'source_ref')
   returning id into v_product;
+  end if;
   n := 0;
   for o in select * from jsonb_array_elements(p->'options') loop
     insert into product_options (product_id, key, name_en, name_ar, sort_order) values (v_product, o->>'key', o->>'name_en', o->>'name_ar', n) returning id into v_opt;
@@ -57,7 +73,7 @@ begin
       select v_table, x->'match', x->'values', ord - 1 from jsonb_array_elements(t->'rows') with ordinality as e(x, ord);
     n := n + 1;
   end loop;
-  return 'created: ' || (p->'product'->>'slug') || ' (' || jsonb_array_length(p->'variants') || ' variants)';
+  return (case when filled then 'filled in: ' else 'created: ' end) || (p->'product'->>'slug') || ' (' || jsonb_array_length(p->'variants') || ' variants)';
 end $f$;
 
 """
