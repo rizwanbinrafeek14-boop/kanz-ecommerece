@@ -1,5 +1,6 @@
 import "server-only";
 import { createPublicClient } from "@/lib/supabase/public";
+import { cardPrice } from "@/lib/types";
 import type { Banner, Brand, Category, HomepageSection, MenuLink, Announcement, Product, ProductCard, Variant, AttributeDef, ProductDocument, ProductImage } from "@/lib/types";
 
 /** All public reads degrade to empty data if Supabase is not configured, so the site still renders during setup. */
@@ -38,7 +39,37 @@ export async function getProductCardsByIds(ids: string[]): Promise<ProductCard[]
   const c = sb(); if (!c || !ids.length) return [];
   const rows = await safe(() => c.from("products").select(CARD_SELECT).in("id", ids), [] as ProductCard[]);
   const order = new Map(ids.map((id, i) => [id, i]));
-  return rows.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+  return groupFamilies(rows.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)));
+}
+
+/**
+ * One card per product family: confirmed offerings of a published family collapse into the first of them, which then carries the
+ * family's name, photo, brand list and lowest price. Products outside a published family stay as they are.
+ */
+async function groupFamilies(cards: ProductCard[]): Promise<ProductCard[]> {
+  const c = sb(); if (!c) return cards;
+  const famIds = [...new Set(cards.filter((p) => p.family_id && p.family_link === "confirmed").map((p) => p.family_id!))];
+  if (!famIds.length) return cards;
+  const [fams, members] = await Promise.all([
+    safe(() => c.from("product_families").select("id, slug, name_en, name_ar, image_path").in("id", famIds), [] as { id: string; slug: string; name_en: string; name_ar: string | null; image_path: string | null }[]),   // RLS: published only
+    safe(() => c.from("products").select("id, family_id, family_sort, base_price, is_quote_only, brands(name,name_ar), product_variants(price,is_active), product_images(storage_path,is_primary,sort_order)").in("family_id", famIds).eq("family_link", "confirmed").eq("status", "published").order("family_sort").order("name_en"),
+      [] as { id: string; family_id: string; family_sort: number; base_price: number | null; is_quote_only: boolean; brands: { name: string; name_ar: string | null }[]; product_variants: { price: number | null; is_active: boolean }[]; product_images: { storage_path: string; is_primary: boolean; sort_order: number }[] }[]),
+  ]);
+  const famMap = new Map(fams.map((f) => [f.id, f]));
+  const seen = new Set<string>(); const out: ProductCard[] = [];
+  for (const p of cards) {
+    const f = p.family_id && p.family_link === "confirmed" ? famMap.get(p.family_id) : undefined;
+    if (!f) { out.push(p); continue; }
+    if (seen.has(f.id)) continue;
+    seen.add(f.id);
+    const ms = members.filter((m) => m.family_id === f.id);
+    const prices = ms.map((m) => cardPrice(m as unknown as ProductCard)).filter((x): x is number => x != null);
+    // family photo first; otherwise the first manufacturer (in admin order) that has a picture
+    const firstImg = ms.map((m) => [...(m.product_images ?? [])].sort((x, y) => Number(y.is_primary) - Number(x.is_primary) || x.sort_order - y.sort_order)[0]?.storage_path).find(Boolean) ?? null;
+    out.push({ ...p, family: { slug: f.slug, name_en: f.name_en, name_ar: f.name_ar, image_path: f.image_path ?? firstImg, price: prices.length ? Math.min(...prices) : null,
+      brands: ms.map((m) => (Array.isArray(m.brands) ? m.brands[0] : m.brands)).filter((b): b is { name: string; name_ar: string | null } => !!b) } });
+  }
+  return out;
 }
 
 export interface SearchParams {
@@ -158,13 +189,9 @@ export async function getSlugRedirect(entity: "product" | "category", slug: stri
 /** Published-product counts per category, including sub-categories. Empty categories are kept out of the sitemap and set to noindex until they have products. */
 export async function getCategoryProductCounts(): Promise<Map<string, number>> {
   const c = sb(); const out = new Map<string, number>(); if (!c) return out;
-  const cats = await safe(() => c.from("categories").select("id, parent_id").eq("is_active", true), [] as { id: string; parent_id: string | null }[]);
-  const parent = new Map(cats.map((x) => [x.id, x.parent_id]));
-  for (let from = 0; from < 50000; from += 1000) {
-    const rows = await safe(() => c.from("products").select("category_id").eq("status", "published").not("category_id", "is", null).range(from, from + 999), [] as { category_id: string }[]);
-    for (const r of rows) { let id: string | null = r.category_id; let guard = 0; while (id && guard++ < 5) { out.set(id, (out.get(id) ?? 0) + 1); id = parent.get(id) ?? null; } }
-    if (rows.length < 1000) break;
-  }
+  // listing entries (a product family counts once) per category including sub-categories
+  const rows = await safe(() => c.rpc("category_listing_counts"), [] as { category_id: string; n: number }[]);
+  for (const r of rows) out.set(r.category_id, Number(r.n));
   return out;
 }
 
@@ -213,6 +240,6 @@ export async function getHomepageBrands(): Promise<Brand[]> {
 }
 export async function countPublishedProducts(): Promise<number> {
   const c = sb(); if (!c) return 0;
-  const { count } = await c.from("products").select("id", { count: "exact", head: true }).eq("status", "published");
-  return count ?? 0;
+  const n = await safe(() => c.rpc("listing_count"), 0 as number);   // product families count once
+  return Number(n) || 0;
 }

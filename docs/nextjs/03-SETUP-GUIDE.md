@@ -104,7 +104,7 @@ Anything without a price stays “Request a quote”.
 Run `supabase/migrations/0014_catalogue_extraction.sql` (contents, not the file name) and redeploy. Optional: add `ANTHROPIC_API_KEY` to the server environment to enable automatic extraction (about US$0.10–0.25 per page). Then follow `docs/nextjs/04-CATALOGUE-IMPORT.md`: upload the PDF, render pages, load the checked extraction file (or extract with Claude), review, approve, import as drafts, then publish. **Make the GitHub repository private first** (Settings → General → Danger Zone → Change visibility). Never commit catalogues or extraction files.
 
 ## Step 8e — Multi-brand product families
-Run `supabase/migrations/0015_product_families.sql` (contents) and redeploy. Then follow `docs/nextjs/05-PRODUCT-FAMILIES.md`: approve the match suggestions in Admin → Product families, upload a family photo, and publish the family page.
+Run `supabase/migrations/0015_product_families.sql` and then `0016_family_listings.sql` (contents) and redeploy. Then follow `docs/nextjs/05-PRODUCT-FAMILIES.md`: approve the match suggestions in Admin → Product families, upload a family photo, and publish the family page.
 
 ## Step 8c — New homepage
 Run `supabase/migrations/0013_homepage_sections.sql` (contents, not the file name) and redeploy. The new homepage blocks appear in Admin → Content & settings → Homepage sections, where you can reorder or disable them. Blocks without real data (featured products, brands, certificates, material/standard chips) stay hidden automatically.

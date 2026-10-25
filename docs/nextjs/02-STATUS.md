@@ -85,7 +85,7 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
 - SEO: one canonical page per family, ProductGroup JSON-LD, brand pages 308-redirect to the family when confirmed, sitemap lists families instead of their offerings, family renames keep old addresses.
 - Delcorte is displayed as "JD Delcorte" (owner's decision).
 - Verified: 33 browser checks (suggestions, confirm, publish rules, slug clash, redirects, brand switching with carried selections, per-brand dimensions and drawings, compare, enquiry line, sitemap, Arabic mobile, unpublish) + SQL tests T31; SEO, catalogue-import and SQL suites re-run green.
-- Not done yet: category/search listings still show one card per brand offering (they link to the family page via the redirect).
+- One card per family everywhere (migration 0016): shop, categories, search, suggestions, homepage sections, related products; counts/filters/pagination count families; admin Preview/Apply automatic grouping (exact matches only, two or more brands). Verified on all five catalogues loaded together: 110 published manufacturer products -> 87 shop entries (13 families published automatically); SQL test T32.
 
 ## Known limitations (honest list)
 1. **No prices, SKUs, stock, certifications or availability were invented.** Every imported product is a *draft, quote-only family*. You must add real data.

@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input, Textarea, NativeSelect, Checkbox } from "@/components/ui/input";
 import { Field, Panel } from "./ui";
 import { run, uploadToBucket } from "@/lib/admin/client";
-import { deleteFamily, linkProduct, moveOffering, saveFamily, setOfferingLink, unlinkProduct } from "@/lib/admin/family-actions";
+import { applyAutoGrouping, deleteFamily, linkProduct, moveOffering, saveFamily, setOfferingLink, unlinkProduct } from "@/lib/admin/family-actions";
 import { ProductImage } from "@/components/storefront/product-image";
 
 export interface FamilyForm {
@@ -23,6 +23,26 @@ export function SuggestionActions({ productId }: { productId: string }) {
   const router = useRouter(); const [busy, setBusy] = React.useState(false);
   const act = async (l: "confirmed" | "rejected") => { setBusy(true); if (await run(setOfferingLink(productId, l), l === "confirmed" ? "Confirmed - shown on the family page once both are published" : "Kept separate")) router.refresh(); setBusy(false); };
   return <div className="flex gap-2"><Button size="sm" disabled={busy} onClick={() => act("confirmed")}><Check className="size-4" />Approve</Button><Button size="sm" variant="outline" disabled={busy} onClick={() => act("rejected")}><X className="size-4" />Keep separate</Button></div>;
+}
+
+/** Preview, then apply: link exact matches and publish families that have two or more manufacturers. */
+export function AutoGroupButton() {
+  const router = useRouter(); const [plan, setPlan] = React.useState<{ confirm: { product: string; family: string }[]; publish: string[] } | null>(null); const [busy, setBusy] = React.useState(false);
+  const preview = async () => { setBusy(true); const r = await run(applyAutoGrouping(true)); setBusy(false); if (r) setPlan(r as typeof plan); };
+  const apply = async () => { setBusy(true); const r = await run(applyAutoGrouping(false), (d) => `${d.confirm.length} offerings linked, ${d.publish.length} family pages published`); setBusy(false); if (r) { setPlan(null); router.refresh(); } };
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="flex-1 text-sm"><strong>Automatic grouping.</strong> Links only <em>exact</em> matches and publishes families that then have two or more published manufacturers, so the shop shows one card for them. Likely and uncertain matches stay below for your decision.</p>
+        <Button variant="outline" disabled={busy} onClick={preview}>Preview grouping</Button>
+        {plan && <Button disabled={busy || (!plan.confirm.length && !plan.publish.length)} onClick={apply}>Apply</Button>}
+      </div>
+      {plan && <div className="mt-3 grid gap-4 text-sm md:grid-cols-2">
+        <div><p className="font-semibold">Will be linked ({plan.confirm.length})</p><ul className="mt-1 max-h-60 list-disc overflow-auto ps-5 text-muted-foreground">{plan.confirm.map((c, i) => <li key={i}>{c.product} → {c.family}</li>)}</ul></div>
+        <div><p className="font-semibold">Family pages that will be published ({plan.publish.length})</p><ul className="mt-1 max-h-60 list-disc overflow-auto ps-5 text-muted-foreground">{plan.publish.map((f, i) => <li key={i}>{f}</li>)}</ul></div>
+      </div>}
+    </div>
+  );
 }
 
 export function FamilyEditor({ form, offerings, categories, candidates, isAdmin }: { form: FamilyForm; offerings: OfferingRow[]; categories: { id: string; name: string }[]; candidates: { id: string; label: string }[]; isAdmin: boolean }) {

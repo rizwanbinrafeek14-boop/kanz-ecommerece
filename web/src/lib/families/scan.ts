@@ -19,7 +19,9 @@ export async function scanSuggestions(sb: SupabaseClient): Promise<number> {
   const rows = [];
   for (const [fid, list] of byFamily) {
     // reference = first confirmed offering, otherwise the earliest product in the family
-    const ref = [...list].sort((a, b) => (a.family_link === "confirmed" ? 0 : 1) - (b.family_link === "confirmed" ? 0 : 1) || a.family_sort - b.family_sort || a.created_at.localeCompare(b.created_at))[0];
+    // reference = a confirmed offering if there is one, otherwise the product with the most comparable data (product standard, real choices)
+    const weight = (r: Row) => { const m = toInput(r); return (m.standards.length ? 10 : 0) + m.optionKeys.filter((k) => (m.optionValues[k]?.length ?? 0) > 1).length; };
+    const ref = [...list].sort((a, b) => (a.family_link === "confirmed" ? 0 : 1) - (b.family_link === "confirmed" ? 0 : 1) || weight(b) - weight(a) || a.family_sort - b.family_sort || a.created_at.localeCompare(b.created_at))[0];
     for (const r of list.filter((x) => x.family_link === "suggested")) {
       const m = matchOffering(toInput(r), toInput(ref));
       rows.push({ product_id: r.id, family_id: fid, confidence: m.confidence, reasons: m.reasons, status: "pending" });

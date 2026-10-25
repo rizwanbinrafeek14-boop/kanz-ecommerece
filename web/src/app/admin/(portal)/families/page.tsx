@@ -5,7 +5,7 @@ import { PageHeader, Panel, Empty } from "@/components/admin/ui";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { scanSuggestions } from "@/lib/families/scan";
-import { SuggestionActions } from "@/components/admin/family-manager";
+import { SuggestionActions, AutoGroupButton } from "@/components/admin/family-manager";
 
 export const metadata = { title: "Product families" };
 export const dynamic = "force-dynamic";
@@ -40,6 +40,7 @@ export default async function FamiliesPage() {
       <PageHeader title="Product families" description="One product page per product type, with a manufacturer selector. Each brand keeps its own sizes, tables, drawings and documents; an offering appears on the family page only after you confirm it."
         actions={<Link href="/admin/families/new" className={buttonVariants()}>New family</Link>} />
       <div className="space-y-6">
+        <AutoGroupButton />
         <Panel title={`Match suggestions waiting for a decision (${pending.length})`}>
           {!pending.length ? <Empty>No pending suggestions.</Empty> : (
             <ul className="divide-y">{pending.map((s) => { const p = (Array.isArray(s.products) ? s.products[0] : s.products) as { name_en: string; slug: string; status: string; brands: { name: string } | { name: string }[] | null } | null;

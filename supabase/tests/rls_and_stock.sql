@@ -303,3 +303,18 @@ reset role;
 select family_link as default_family_link from products where slug = 'test-maker-90-elbow';
 update product_families set slug = 'fam-published-renamed' where id = '51000000-0000-0000-0000-000000000001';
 select new_slug as family_redirect from slug_redirects where entity = 'product' and old_slug = 'fam-published';
+
+\echo '--- T32 listings: confirmed offerings of a published family count once; draft family or unconfirmed offering = separate entries'
+reset role;
+insert into product_families (id, slug, name_en, status) values ('52000000-0000-0000-0000-000000000001','fam-list','Listing family','published');
+insert into products (id, slug, name_en, status, published_at, family_id, family_link) values
+  ('52000000-0000-0000-0000-0000000000a1','fam-list-a','ZZList A','published',now(),'52000000-0000-0000-0000-000000000001','confirmed'),
+  ('52000000-0000-0000-0000-0000000000a2','fam-list-b','ZZList B','published',now(),'52000000-0000-0000-0000-000000000001','confirmed'),
+  ('52000000-0000-0000-0000-0000000000a3','fam-list-c','ZZList C','published',now(),'52000000-0000-0000-0000-000000000001','suggested');
+set role anon; select pg_temp.as_user(null);
+select count(*) as entries, max(total) as total, count(family_id) as family_rows from search_products('ZZList');
+reset role;
+update product_families set status = 'draft' where id = '52000000-0000-0000-0000-000000000001';
+set role anon; select pg_temp.as_user(null);
+select count(*) as entries_when_family_draft from search_products('ZZList');
+reset role;
