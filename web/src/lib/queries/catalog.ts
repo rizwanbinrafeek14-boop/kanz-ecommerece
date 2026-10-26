@@ -54,14 +54,15 @@ export async function getMaterialTypes(): Promise<MaterialType[]> {
   return safe(() => c.from("material_types").select("code, name_en, name_ar, sort_order").order("sort_order"), [] as MaterialType[]);
 }
 /** Public materials per product: verified / auto offering materials (RLS hides the rest) plus materials set on active variants. */
-export async function getPublicMaterials(ids: string[]): Promise<Map<string, { code: string; grades: string[] }[]>> {
-  const out = new Map<string, { code: string; grades: string[] }[]>(); const c = sb(); if (!c || !ids.length) return out;
+export type MaterialComponent = { role: string; grades?: string[]; note?: string };
+export async function getPublicMaterials(ids: string[]): Promise<Map<string, { code: string; grades: string[]; components: MaterialComponent[] }[]>> {
+  const out = new Map<string, { code: string; grades: string[]; components: MaterialComponent[] }[]>(); const c = sb(); if (!c || !ids.length) return out;
   const [pm, vm] = await Promise.all([
-    safe(() => c.from("product_materials").select("product_id, material_code, grades").in("product_id", ids).in("status", ["auto", "verified"]), [] as { product_id: string; material_code: string; grades: string[] }[]),
+    safe(() => c.from("product_materials").select("product_id, material_code, grades, components").in("product_id", ids).in("status", ["auto", "verified"]), [] as { product_id: string; material_code: string; grades: string[]; components: MaterialComponent[] | null }[]),
     safe(() => c.from("product_variants").select("product_id, material_code").in("product_id", ids).eq("is_active", true).not("material_code", "is", null).limit(5000), [] as { product_id: string; material_code: string }[]),
   ]);
-  const add = (pid: string, code: string, grades: string[] = []) => { const l = out.get(pid) ?? []; const cur = l.find((x) => x.code === code); if (cur) cur.grades = [...new Set([...cur.grades, ...grades])]; else l.push({ code, grades }); out.set(pid, l); };
-  for (const r of pm) add(r.product_id, r.material_code, r.grades ?? []);
+  const add = (pid: string, code: string, grades: string[] = [], components: MaterialComponent[] = []) => { const l = out.get(pid) ?? []; const cur = l.find((x) => x.code === code); if (cur) { cur.grades = [...new Set([...cur.grades, ...grades])]; cur.components.push(...components); } else l.push({ code, grades, components: [...components] }); out.set(pid, l); };
+  for (const r of pm) add(r.product_id, r.material_code, r.grades ?? [], Array.isArray(r.components) ? r.components : []);
   for (const r of vm) add(r.product_id, r.material_code);
   return out;
 }
@@ -155,7 +156,7 @@ export interface ProductDetail {
   brand: Brand | null; category: Category | null; related: ProductCard[]; alternatives: ProductCard[];
   options: ProductOptionRow[]; dimensionTables: DimensionTableRow[]; family: { slug: string; name_en: string; name_ar: string | null } | null;
   /** Shown materials (verified / auto-detected, plus variant materials) with the manufacturer's exact grades. */
-  materials: { code: string; name_en: string; name_ar: string | null; grades: string[] }[];
+  materials: { code: string; name_en: string; name_ar: string | null; grades: string[]; components: MaterialComponent[] }[];
 }
 export interface ProductOptionRow { key: string; name_en: string; name_ar: string | null; values: { value: string; label_en: string; label_ar: string | null }[] }
 export interface DimensionTableRow { id: string; title_en: string; title_ar: string | null; columns: { key: string; symbol?: string | null; label_en: string; label_ar?: string | null; unit?: string | null }[]; applies: Record<string, string>; notes: string[]; drawing_path: string | null; source_page: number | null; rows: { match: Record<string, string>; values: Record<string, string> }[] }
@@ -203,7 +204,7 @@ async function productDetail(c: NonNullable<ReturnType<typeof sb>>, product: Pro
   const availMap = new Map(avail.map((a) => [a.variant_id, Number(a.available)]));
   const [mtypes, pmats] = await Promise.all([getMaterialTypes(), getPublicMaterials([pid])]);
   const materials = (pmats.get(pid) ?? []).map((m) => ({ m, t: mtypes.find((t) => t.code === m.code) })).filter((x) => x.t).sort((a, b) => a.t!.sort_order - b.t!.sort_order)
-    .map(({ m, t }) => ({ code: m.code, name_en: t!.name_en, name_ar: t!.name_ar, grades: m.grades }));
+    .map(({ m, t }) => ({ code: m.code, name_en: t!.name_en, name_ar: t!.name_ar, grades: m.grades, components: m.components }));
   const attributes = defs
     .filter((d) => d.show_in_specs)
     .map((def) => ({ def, values: attrs.filter((a) => a.attribute_id === def.id).map((a) => ({ value_en: a.value_en, value_ar: a.value_ar })) }))

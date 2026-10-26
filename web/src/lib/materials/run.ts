@@ -26,7 +26,7 @@ export async function runDetection(sb: SupabaseClient, opts: { dryRun: boolean; 
     all<any>((a, b) => { let q = sb.from("products").select("id, name_en, short_desc_en, description_en, specs, status, brands(name)").order("id").range(a, b); if (ids) q = q.in("id", ids); return q; }),
     all<any>((a, b) => { let q = sb.from("product_attribute_values").select("product_id, value_en, attribute_defs!inner(key)").in("attribute_defs.key", ["material", "grade"]).order("product_id").range(a, b); if (ids) q = q.in("product_id", ids); return q; }),
     all<any>((a, b) => { let q = sb.from("product_variants").select("id, product_id, material, grade, material_code").order("id").range(a, b); if (ids) q = q.in("product_id", ids); return q; }),
-    all<any>((a, b) => { let q = sb.from("product_materials").select("id, product_id, material_code, status, grades, edited_by_admin").order("id").range(a, b); if (ids) q = q.in("product_id", ids); return q; }),
+    all<any>((a, b) => { let q = sb.from("product_materials").select("id, product_id, material_code, status, grades, edited_by_admin, origin").order("id").range(a, b); if (ids) q = q.in("product_id", ids); return q; }),
   ]);
   const by = <T extends { product_id: string }>(rows: T[]) => { const m = new Map<string, T[]>(); for (const r of rows) m.set(r.product_id, [...(m.get(r.product_id) ?? []), r]); return m; };
   const A = by(attrs), V = by(vars), E = by(existing);
@@ -42,14 +42,16 @@ export async function runDetection(sb: SupabaseClient, opts: { dryRun: boolean; 
     });
     const have = new Map((E.get(p.id) ?? []).map((r: any) => [r.material_code, r]));
     const final = new Map<string, { status: string; grades: number }>();
-    for (const r of have.values()) if (r.edited_by_admin || r.status === "verified" || r.status === "rejected") { final.set(r.material_code, { status: r.status, grades: r.grades?.length ?? 0 }); rep.keptByAdmin++; }
+    // rows an admin decided, or written by a catalogue import (origin 'import'), are never changed by detection
+    const locked = (r: any) => r.edited_by_admin || r.status === "verified" || r.status === "rejected" || (r.origin && r.origin !== "detection");
+    for (const r of have.values()) if (locked(r)) { final.set(r.material_code, { status: r.status, grades: r.grades?.length ?? 0 }); rep.keptByAdmin++; }
     for (const f of det.materials) {
       const cur = have.get(f.code);
-      if (cur && (cur.edited_by_admin || cur.status === "verified" || cur.status === "rejected")) continue;
+      if (cur && locked(cur)) continue;
       upserts.push({ product_id: p.id, material_code: f.code, grades: f.grades, status: f.status, source: f.source, note: f.note ?? null, updated_at: new Date().toISOString() });
       final.set(f.code, { status: f.status, grades: f.grades.length });
     }
-    for (const r of have.values()) if (!r.edited_by_admin && (r.status === "auto" || r.status === "unverified") && !det.materials.some((f) => f.code === r.material_code)) deletes.push(r.id);
+    for (const r of have.values()) if (!locked(r) && !det.materials.some((f) => f.code === r.material_code)) deletes.push(r.id);
     const vmap = new Map((V.get(p.id) ?? []).map((v: any) => [v.id, v]));
     for (const v of det.variants) if (!vmap.get(v.variantId)?.material_code) variantSets.push({ id: v.variantId, code: v.code });
 
@@ -64,7 +66,7 @@ export async function runDetection(sb: SupabaseClient, opts: { dryRun: boolean; 
   }
   if (!opts.dryRun) {
     for (let i = 0; i < upserts.length; i += 500) { const { error } = await sb.from("product_materials").upsert(upserts.slice(i, i + 500), { onConflict: "product_id,material_code" }); if (error) throw new Error(error.message); }
-    for (let i = 0; i < deletes.length; i += 200) await sb.from("product_materials").delete().in("id", deletes.slice(i, i + 200)).eq("edited_by_admin", false).in("status", ["auto", "unverified"]);
+    for (let i = 0; i < deletes.length; i += 200) await sb.from("product_materials").delete().in("id", deletes.slice(i, i + 200)).eq("edited_by_admin", false).eq("origin", "detection").in("status", ["auto", "unverified"]);
     const byCode = new Map<string, string[]>(); for (const v of variantSets) byCode.set(v.code, [...(byCode.get(v.code) ?? []), v.id]);
     for (const [code, vids] of byCode) for (let i = 0; i < vids.length; i += 200) await sb.from("product_variants").update({ material_code: code }).in("id", vids.slice(i, i + 200)).is("material_code", null);
   }

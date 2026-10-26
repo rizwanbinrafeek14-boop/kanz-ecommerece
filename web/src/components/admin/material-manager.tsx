@@ -11,7 +11,7 @@ import { runMaterialDetection, setProductMaterial, removeProductMaterial, approv
 import type { MaterialReport, ReportRow } from "@/lib/materials/run";
 
 export interface MaterialType { code: string; name_en: string; name_ar: string | null; sort_order: number; is_custom: boolean }
-export interface MaterialRow { material_code: string; grades: string[]; status: "auto" | "unverified" | "verified" | "rejected"; source: string | null; note: string | null; edited_by_admin: boolean }
+export interface MaterialRow { material_code: string; grades: string[]; status: "auto" | "unverified" | "verified" | "rejected"; source: string | null; note: string | null; edited_by_admin: boolean; components?: { role: string; grades?: string[]; note?: string }[]; origin?: string }
 export const STATUS: Record<MaterialRow["status"], [label: string, variant: "success" | "info" | "warning" | "secondary"]> = {
   verified: ["Verified", "success"], auto: ["Auto-detected (shown)", "info"], unverified: ["Not verified (hidden)", "warning"], rejected: ["Rejected", "secondary"],
 };
@@ -105,7 +105,8 @@ export function ProductMaterials({ productId, rows, types, variants }: { product
             <li key={m.material_code} className="rounded-lg border p-3" data-material={m.material_code}>
               <div className="flex flex-wrap items-center gap-2"><span className="font-semibold">{m.material_code} · {types.find((t) => t.code === m.material_code)?.name_en}</span><Badge variant={STATUS[m.status][1]}>{STATUS[m.status][0]}</Badge>
                 {m.edited_by_admin && <Badge variant="outline">admin decision</Badge>}</div>
-              <p className="mt-1 text-xs text-muted-foreground">Detected from: {m.source ?? "-"}{m.note ? ` · ${m.note}` : ""}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{m.origin === "import" ? "From catalogue import" : "Detected from"}: {m.source ?? "-"}{m.note ? ` · ${m.note}` : ""}</p>
+              {!!m.components?.length && <p className="mt-1 text-xs"><span className="font-medium">Used for:</span> {m.components.map((c) => `${c.role}${c.grades?.length ? ` (${c.grades.join(", ")})` : c.note ? ` (${c.note})` : ""}`).join("; ")}</p>}
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <Input aria-label={`Grades for ${m.material_code}`} value={g} onChange={(e) => setEdit((x) => ({ ...x, [m.material_code]: e.target.value }))} placeholder="Exact grades, comma separated" className="h-9 min-w-72 flex-1" />
                 <Button size="sm" disabled={busy} onClick={() => act(setProductMaterial(productId, { code: m.material_code, grades: g, status: "verified", note: m.note }), "Material verified")}>{m.status === "verified" ? "Save grades" : "Approve"}</Button>

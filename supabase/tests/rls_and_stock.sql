@@ -339,3 +339,17 @@ select count(*) as material_facet from product_facets('ZZMat') where attr_key = 
 \echo '--- T33b anon cannot write materials (expect error)'
 insert into product_materials (product_id, material_code, status) values ('53000000-0000-0000-0000-0000000000a1','BRASS','verified');
 reset role;
+
+\echo '--- T34 flange standard filter (same variant as class), "na" values never listed (expect 1 / 0 / 0 / 2)'
+reset role;
+insert into products (id, slug, name_en, status, published_at) values ('54000000-0000-0000-0000-0000000000a1','gsk-t','ZZGsk T','published',now());
+insert into product_variants (product_id, sku, options) values
+  ('54000000-0000-0000-0000-0000000000a1','ZZG-1','{"standard":"ASME B16.5","size":"4","class":"2500"}'),
+  ('54000000-0000-0000-0000-0000000000a1','ZZG-2','{"standard":"ASME B16.47 Series A","size":"26","class":"150"}'),
+  ('54000000-0000-0000-0000-0000000000a1','ZZG-3','{"standard":"na","size":"na","class":"na"}');
+set role anon; select pg_temp.as_user(null);
+select count(*) as b165_2500 from search_products('ZZGsk', p_filters => '{"standard":["ASME B16.5"],"pressure_class":["2500"]}');
+select count(*) as b1647a_2500_cross_variant from search_products('ZZGsk', p_filters => '{"standard":["ASME B16.47 Series A"],"pressure_class":["2500"]}');
+select count(*) as na_facets from product_facets('ZZGsk') where lower(value_en) = 'na';
+select count(*) as standard_facets from product_facets('ZZGsk') where attr_key = 'standard';
+reset role;

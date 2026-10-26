@@ -57,7 +57,7 @@ function toOffer(d: ProductDetail, lang: Locale, approvals: Awaited<ReturnType<t
     variants: d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "),
       spec: [brandName, ...opts.map((o) => optionLabels[o.key]?.[v.options?.[o.key] ?? ""])].filter(Boolean).join(" · "), price: v.price, available: v.available,
       weight: v.weight_kg == null ? null : Number(v.weight_kg), code: v.manufacturer_code ?? null, material: v.material_code ?? null })),
-    shownMaterials: d.materials.map((m) => ({ code: m.code, name: (ar && m.name_ar) || m.name_en, grades: m.grades })),
+    shownMaterials: d.materials.map((m) => ({ code: m.code, name: (ar && m.name_ar) || m.name_en, grades: m.grades })), choices: p.specs?.choices ?? [],
     optionLabels, tables: d.dimensionTables, tableDrawings, drawings, specRows,
     standards: p.specs?.standards ?? [], materials: p.specs?.materials ?? [], notes: p.specs?.notes ?? [],
     documents: d.documents.map((x) => ({ id: x.id, title: x.title })),

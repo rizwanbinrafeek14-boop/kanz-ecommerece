@@ -19,6 +19,7 @@ import { ProductCerts, type CertOption, type VariantOption } from "./product-cer
 import type { Assignment } from "@/lib/admin/cert-actions";
 import { ProductRelations, type RelRow } from "./product-relations";
 import { ProductMaterials, type MaterialRow, type MaterialType } from "./material-manager";
+import { ImportReview, TechDataEditor, type TechSpecs, type TechTable } from "./techdata-editor";
 
 export interface ProductFull {
   id: string; slug: string; sku: string | null; barcode: string | null; name_en: string; name_ar: string | null; short_desc_en: string | null; short_desc_ar: string | null; description_en: string | null; description_ar: string | null;
@@ -30,6 +31,7 @@ interface Opt { id: string; name: string; parent_id?: string | null }
 export function ProductEditor(props: {
   product: ProductFull | null; categories: Opt[]; brands: Opt[]; variants: VariantRow[]; attrDefs: AttrDef[]; attrValues: AttrValue[]; images: ImageRow[]; docs: DocRow[]; related: RelRow[]; alternatives: RelRow[]; isAdmin: boolean; certOptions: CertOption[]; assignments: Assignment[]; variantOptions: VariantOption[];
   materials?: MaterialRow[]; materialTypes?: MaterialType[]; variantMaterials?: { id: string; label: string; material_code: string | null }[]; initialTab?: string;
+  techSpecs?: TechSpecs; techTables?: TechTable[]; review?: { items: string[]; matches: string | null; supplierNote?: string | null };
 }) {
   const { product: p } = props;
   const router = useRouter();
@@ -78,9 +80,10 @@ export function ProductEditor(props: {
           </div>
         </div>
       )}
+      {props.review && <ImportReview review={props.review.items} matches={props.review.matches} supplierNote={props.review.supplierNote} />}
       <Tabs defaultValue={p && props.initialTab ? props.initialTab : "general"}>
         <TabsList className="h-auto flex-wrap">
-          {["general", "pricing", "variants", "attributes", "materials", "images", "documents", "certifications", "related", "seo"].map((t) => <TabsTrigger key={t} value={t} disabled={needsSave && t !== "general" && t !== "seo"} className="capitalize">{t}</TabsTrigger>)}
+          {["general", "pricing", "variants", "attributes", "materials", "technical", "images", "documents", "certifications", "related", "seo"].map((t) => <TabsTrigger key={t} value={t} disabled={needsSave && t !== "general" && t !== "seo"} className="capitalize">{t}</TabsTrigger>)}
         </TabsList>
 
         <TabsContent value="general"><Panel>
@@ -123,6 +126,7 @@ export function ProductEditor(props: {
         {p && <>
           <TabsContent value="variants"><ProductVariants productId={p.id} rows={props.variants} /></TabsContent>
           <TabsContent value="attributes"><ProductAttributes productId={p.id} defs={props.attrDefs} values={props.attrValues} /></TabsContent>
+          <TabsContent value="technical">{props.techSpecs && <TechDataEditor productId={p.id} specs={props.techSpecs} tables={props.techTables ?? []} />}</TabsContent>
           <TabsContent value="materials"><ProductMaterials productId={p.id} rows={props.materials ?? []} types={props.materialTypes ?? []} variants={props.variantMaterials ?? []} /></TabsContent>
           <TabsContent value="images"><ProductImages productId={p.id} rows={props.images} /></TabsContent>
           <TabsContent value="documents"><ProductDocs productId={p.id} rows={props.docs} /></TabsContent>

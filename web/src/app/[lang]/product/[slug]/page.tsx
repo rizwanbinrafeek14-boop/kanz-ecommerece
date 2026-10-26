@@ -12,9 +12,9 @@ import { breadcrumbLd, productLd } from "@/lib/jsonld";
 import { TrackedLink } from "@/components/storefront/tracked-link";
 import { getSettings, s, vatRateOf } from "@/lib/settings";
 import { publicUrl } from "@/lib/format";
-import { Gallery } from "@/components/storefront/gallery";
 import { BuyBox } from "@/components/storefront/product-buybox";
 import { ProductGrid } from "@/components/storefront/product-card";
+import { VariantGallery } from "@/components/storefront/variant-gallery";
 import { ProductViewTracker } from "@/components/storefront/page-tracker";
 import { Badge } from "@/components/ui/badge";
 import { getContact, whatsappNumber } from "@/lib/queries/contact";
@@ -68,7 +68,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
   const approvalLabels: ApprovalLabels = { heading: dict.product.approvals, none: dict.product.approvalsNone, view: dict.product.viewCert, opensNew: dict.product.opensNew, number: dict.product.certNumber, scope: dict.product.certScope, validUntil: dict.product.certValid, issuer: dict.product.certIssuer };
   const name = loc(p, "name", lang);
   const url = abs(`/${lang}/product/${slug}`);
-  const images = d.images.map((i, n) => ({ url: publicUrl("product-images", i.storage_path)!, needsHires: i.needs_hires, alt: (lang === "ar" ? i.alt_ar || i.alt_en : i.alt_en) || `${name}${d.images.length > 1 ? ` — ${lang === "ar" ? "صورة" : "image"} ${n + 1}` : ""}` }));
+  const images = d.images.map((i, n) => ({ url: publicUrl("product-images", i.storage_path)!, needsHires: i.needs_hires, match: i.option_match ?? null, alt: (lang === "ar" ? i.alt_ar || i.alt_en : i.alt_en) || `${name}${d.images.length > 1 ? ` — ${lang === "ar" ? "صورة" : "image"} ${n + 1}` : ""}` }));
 
   const input = seoInput(d, lang);
   const prices = p.is_quote_only ? [] : [p.base_price, ...d.variants.map((v) => v.price)].filter((x): x is number => x != null && x > 0);
@@ -81,20 +81,31 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
 
   const ar = lang === "ar";
   const optLabel = Object.fromEntries(d.options.map((o) => [o.key, Object.fromEntries(o.values.map((v) => [v.value, (ar && v.label_ar) || v.label_en]))]));
-  const vLabel = (opts?: Record<string, string>) => d.options.map((o) => optLabel[o.key]?.[opts?.[o.key] ?? ""] ?? "").filter(Boolean).join(" · ");
+  const vLabel = (opts?: Record<string, string>) => d.options.map((o) => (opts?.[o.key] === "na" ? "" : optLabel[o.key]?.[opts?.[o.key] ?? ""] ?? "")).filter(Boolean).join(" · ");
+  // material row: each material with the parts made of it (composite gaskets: winding, filler, rings …)
+  const role = (r: string) => (ar ? ({ winding: "اللف", filler: "الحشو", "inner ring": "الحلقة الداخلية", "outer ring": "الحلقة الخارجية", core: "القلب", facing: "الكسوة", sheet: "اللوح", insert: "التقوية" } as Record<string, string>)[r] ?? r : r);
+  const matText = (m: (typeof d.materials)[number]) => `${(ar && m.name_ar) || m.name_en} (${m.code})` + (m.components.length
+    ? `: ${m.components.map((c) => `${role(c.role)}${c.grades?.length ? ` ${c.grades.join(", ")}` : c.note ? ` (${c.note})` : ""}`).join("; ")}`
+    : m.grades.length ? `: ${m.grades.join(", ")}` : "");
   const prodStd = (p.specs?.standards ?? []).filter((x) => x.scope === "product");
   const specRows: [string, React.ReactNode][] = [
     ...(d.brand ? [[dict.common.brand, ar && d.brand.name_ar ? d.brand.name_ar : d.brand.name] as [string, React.ReactNode]] : []),
     ...(p.manufacturer_ref ? [[ar ? "مرجع الشركة المصنعة" : "Manufacturer reference", <span key="r" dir="ltr" className="font-mono">{p.manufacturer_ref}</span>] as [string, React.ReactNode]] : []),
     ...(d.family ? [[ar ? "عائلة المنتج" : "Product family", (ar && d.family.name_ar) || d.family.name_en] as [string, React.ReactNode]] : []),
-    [ar ? "المادة" : "Material", d.materials.length ? d.materials.map((m) => `${(ar && m.name_ar) || m.name_en} (${m.code})${m.grades.length ? `: ${m.grades.join(", ")}` : ""}`).join(" · ") : (ar ? "المادة غير مؤكدة - تُحدد في طلب عرض السعر" : "Material not verified - specify it in your request for quotation")] as [string, React.ReactNode],
+    ...(d.brand ? [] : p.source_ref?.supplier_note ? [[ar ? "الشركة المصنعة" : "Manufacturer", ar ? "غير مذكورة في الكتالوج — تُؤكد في عرض السعر (كنز كورنر مورّد)" : "Not named in the catalogue — confirmed in the quotation (Kanz Corner is the supplier)"] as [string, React.ReactNode]] : []),
+    [ar ? "المادة" : "Material", d.materials.length ? <ul key="m" className="space-y-1">{d.materials.map((m) => <li key={m.code}>{matText(m)}</li>)}</ul> : (ar ? "المادة غير مؤكدة - تُحدد في طلب عرض السعر" : "Material not verified - specify it in your request for quotation")] as [string, React.ReactNode],
     ...d.options.map((o) => [(ar && o.name_ar) || o.name_en, o.values.map((v) => (ar && v.label_ar) || v.label_en).join(" · ")] as [string, React.ReactNode]),
     ...(prodStd.length ? [[ar ? "المواصفات القياسية" : "Standards", prodStd.map((x) => x.code).join(", ")] as [string, React.ReactNode]] : []),
     ...(p.country_of_origin ? [[ar ? "بلد الصنع" : "Country of manufacture", p.country_of_origin] as [string, React.ReactNode]] : []),
+    ...(p.specs?.properties ?? []).map((x) => [(ar && x.label_ar) || x.label_en, (ar && x.value_ar) || x.value_en] as [string, React.ReactNode]),
     ...d.attributes.filter((a) => a.def.key !== "material" || !d.materials.length).map((a) => [(ar && a.def.name_ar) || a.def.name_en, a.values.map((v) => (ar && v.value_ar) || v.value_en).join(" · ")] as [string, React.ReactNode]),
   ];
   const showWeights = d.variants.some((v) => v.weight_kg != null); const showCodes = d.variants.some((v) => v.manufacturer_code);
-  const sourceNote = p.source_ref?.pages?.length ? (ar ? `البيانات كما نشرتها الشركة المصنعة (${d.brand?.name ?? ""})، صفحة ${p.source_ref.pages.join("، ")}. يرجى تأكيد المواصفة في طلب عرض السعر.` : `Data as published by the manufacturer (${d.brand?.name ?? ""}), catalogue page ${p.source_ref.pages.join(", ")}. Please confirm the specification in your request for quotation.`) : null;
+  // supplier catalogue (e.g. the Kanz gasket catalogue: the manufacturer is not named) vs. a manufacturer's own catalogue
+  const supplierCat = !!p.source_ref?.supplier_note;
+  const sourceNote = p.source_ref?.pages?.length ? (supplierCat
+    ? (ar ? `البيانات من كتالوج كنز كورنر للجوانات، صفحة ${p.source_ref.pages.join("، ")}، وفق المواصفات المذكورة. يرجى تأكيد المواصفة في طلب عرض السعر.` : `Data from the Kanz Corner Trading gasket catalogue, page ${p.source_ref.pages.join(", ")}, following the standards named. Please confirm the specification in your request for quotation.`)
+    : (ar ? `البيانات كما نشرتها الشركة المصنعة (${d.brand?.name ?? ""})، صفحة ${p.source_ref.pages.join("، ")}. يرجى تأكيد المواصفة في طلب عرض السعر.` : `Data as published by the manufacturer (${d.brand?.name ?? ""}), catalogue page ${p.source_ref.pages.join(", ")}. Please confirm the specification in your request for quotation.`)) : null;
   const tabs = [
     { id: "specs", label: dict.product.specs, content: (
       <div className="space-y-8">
@@ -111,8 +122,8 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
     ...(d.dimensionTables.length ? [{ id: "dims", label: ar ? "الأبعاد" : "Dimensions", content: <DimensionsPanel tables={d.dimensionTables} optionLabels={optLabel}
         variants={d.variants.filter((v) => v.options && Object.keys(v.options).length).map((v) => ({ id: v.id, options: v.options!, label: vLabel(v.options) }))}
         drawings={Object.fromEntries(d.dimensionTables.map((t) => [t.id, publicUrl("product-images", t.drawing_path)]))}
-        labels={ar ? { selected: "المحدد", none: "لا توجد أبعاد منشورة لهذا الاختيار.", showAll: "عرض جميع المقاسات ({n})", showFewer: "عرض المقاس المحدد فقط", source: "المصدر: كتالوج الشركة المصنعة", drawing: "رسم الأبعاد", asPublished: "رسم الأبعاد كما نشرته الشركة المصنعة (ليس رسماً هندسياً معتمداً)." }
-          : { selected: "Selected", none: "No dimensions are published for this selection.", showAll: "Show all sizes ({n})", showFewer: "Show the selected size only", source: "Source: manufacturer catalogue", drawing: "Dimensional drawing", asPublished: "Dimensional drawing as published by the manufacturer (not a certified engineering drawing)." }} /> }] : []),
+        labels={ar ? { selected: "المحدد", none: "لا توجد أبعاد منشورة لهذا الاختيار.", showAll: "عرض جميع المقاسات ({n})", showFewer: "عرض المقاس المحدد فقط", source: supplierCat ? "المصدر: كتالوج كنز كورنر للجوانات" : "المصدر: كتالوج الشركة المصنعة", drawing: "رسم الأبعاد", asPublished: supplierCat ? "رسم توضيحي من الكتالوج (ليس رسماً هندسياً معتمداً)." : "رسم الأبعاد كما نشرته الشركة المصنعة (ليس رسماً هندسياً معتمداً)." }
+          : { selected: "Selected", none: "No dimensions are published for this selection.", showAll: "Show all sizes ({n})", showFewer: "Show the selected size only", source: supplierCat ? "Source: Kanz Corner Trading gasket catalogue" : "Source: manufacturer catalogue", drawing: "Dimensional drawing", asPublished: supplierCat ? "Reference drawing from the catalogue (not a certified engineering drawing)." : "Dimensional drawing as published by the manufacturer (not a certified engineering drawing)." }} /> }] : []),
     ...((p.specs?.materials?.length || p.specs?.standards?.length || p.specs?.notes?.length) ? [{ id: "materials", label: ar ? "المواد والمواصفات" : "Materials & standards", content: (
       <div className="space-y-6 text-sm">
         {!!p.specs?.materials?.length && <div><h3 className="mb-2 font-semibold">{ar ? "المواد" : "Materials"}</h3><ul className="space-y-1">{p.specs.materials.map((m, i) => <li key={i}><span className="font-medium">{m.type}</span>{m.grades.length ? <span className="font-mono text-steel-700"> — {m.grades.join(", ")}</span> : <span className="text-steel-500"> — {ar ? "الدرجات غير مذكورة في الكتالوج" : "grades not listed in the catalogue"}</span>}</li>)}</ul></div>}
@@ -131,7 +142,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_440px]">
-        <Gallery images={images} alt={name} labels={{ enlarge: dict.product.enlarge, zoomIn: dict.product.zoom, zoomOut: dict.product.zoomOut, close: dict.common.close, prev: dict.product.prevImg, next: dict.product.nextImg, image: lang === "ar" ? "صورة" : "Image" }} />
+        <VariantGallery images={images} variants={d.variants.map((v) => ({ id: v.id, options: v.options }))} alt={name} labels={{ enlarge: dict.product.enlarge, zoomIn: dict.product.zoom, zoomOut: dict.product.zoomOut, close: dict.common.close, prev: dict.product.prevImg, next: dict.product.nextImg, image: lang === "ar" ? "صورة" : "Image" }} />
         <div>
           <div className="mb-2 flex flex-wrap gap-2">
             {p.is_special_offer && <Badge>{loc(p, "offer_label", lang) || dict.product.offer}</Badge>}
@@ -148,14 +159,15 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
             <BuyBox approvals={certs} approvalLabels={approvalLabels} lang={lang} dict={dict} url={url} vatRate={vatRateOf(settings)} whatsapp={whatsappNumber(widget, s(settings, "company_whatsapp"))} waGreeting={lang === "ar" ? (widget?.default_message_ar ?? dict.product.shareWhatsapp) : (widget?.default_message_en ?? dict.product.shareWhatsapp)}
               product={{ id: p.id, slug: p.slug, name, unit: p.unit, quoteOnly: p.is_quote_only, basePrice: p.base_price, minQty: Number(p.min_order_qty), image: d.images[0]?.storage_path ?? null }}
               datasheet={`/api/datasheet/${p.slug}`} options={d.options.map((o) => ({ key: o.key, name: (lang === "ar" && o.name_ar) || o.name_en, values: o.values.map((v) => ({ value: v.value, label: (lang === "ar" && v.label_ar) || v.label_en })) }))}
-              variants={d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), spec: [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), price: v.price, available: v.available, material: v.material_code ?? null }))}
+              variants={d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), spec: d.options.length && v.options ? vLabel(v.options) || (loc(v, "label", lang) ?? "") : [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), price: v.price, available: v.available, material: v.material_code ?? null }))}
+              choices={p.specs?.choices ?? []}
               materials={d.materials.map((m) => ({ code: m.code, name: (lang === "ar" && m.name_ar) || m.name_en, grades: m.grades }))} />
           </div>
         </div>
       </div>
 
       <div className="mt-12 grid gap-8 lg:grid-cols-3">
-        <div className="space-y-10 lg:col-span-2 lg:row-start-1">
+        <div className="min-w-0 space-y-10 lg:col-span-2 lg:row-start-1">
           <ProductTabs tabs={tabs} />
           {loc(p, "description", lang) && (
             <section>

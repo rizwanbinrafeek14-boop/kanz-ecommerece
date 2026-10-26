@@ -9,14 +9,18 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 /** "Materials: CS | SS" - the active Material filter is highlighted. */
 function Materials({ p, lang, active }: { p: PC; lang: Locale; active?: string[] }) {
-  const ms = p.materials ?? []; const ar = lang === "ar";
-  if (!ms.length) return null;
+  const all = p.materials ?? []; const ar = lang === "ar";
+  if (!all.length) return null;
+  // composite products can list many materials: active filter first, then up to 6 badges and "+n"
+  const sorted = [...all.filter((m) => active?.includes(m.code)), ...all.filter((m) => !active?.includes(m.code))];
+  const ms = sorted.slice(0, 6); const more = sorted.slice(6);
   return (
-    <p className="flex flex-wrap items-center gap-1 text-xs" data-materials={ms.map((m) => m.code).join(" ")}>
+    <p className="flex flex-wrap items-center gap-1 text-xs" data-materials={all.map((m) => m.code).join(" ")}>
       <span className="text-muted-foreground">{ar ? "المواد:" : "Materials:"}</span>
       {ms.map((m) => { const on = active?.includes(m.code);
         return <abbr key={m.code} title={(ar && m.name_ar) || m.name_en} data-active={on ? "true" : undefined}
           className={`rounded border px-1.5 py-0.5 font-mono text-[11px] font-semibold no-underline ${on ? "border-primary bg-primary text-white" : "border-steel-300 text-steel-700"}`}>{m.code}</abbr>; })}
+      {more.length > 0 && <abbr title={more.map((m) => (ar && m.name_ar) || m.name_en).join(", ")} className="font-mono text-[11px] text-steel-600 no-underline">+{more.length}</abbr>}
     </p>);
 }
 /** Link to the product page, carrying the material the shopper filtered on (first one this card has). */
@@ -78,7 +82,10 @@ export function ProductCard({ p, lang, dict, activeMaterials }: { p: PC; lang: L
             <p className="text-sm font-medium text-muted-foreground">{dict.product.priceOnRequest}</p>
           )}
         </div>
-        <QuickAddQuote product={{ id: p.id, slug: p.slug, name, image: img?.storage_path ?? null, unit: p.unit }} label={dict.product.addToQuote} addedLabel={dict.product.added} />
+        {/* products that need configuration choices (material, thickness …) are configured on their page so the enquiry is complete */}
+        {p.specs?.choices?.some((c) => c.required)
+          ? <Link href={href} className="flex min-h-10 items-center justify-center rounded-md border border-steel-300 text-sm font-semibold hover:border-ink hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{lang === "ar" ? "اختر المواصفات" : "Choose options"}<span className="sr-only">: {name}</span></Link>
+          : <QuickAddQuote product={{ id: p.id, slug: p.slug, name, image: img?.storage_path ?? null, unit: p.unit }} label={dict.product.addToQuote} addedLabel={dict.product.added} />}
       </div>
     </article>
   );

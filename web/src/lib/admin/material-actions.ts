@@ -28,7 +28,7 @@ export async function setProductMaterial(productId: string, input: { code: strin
   const p = setSchema.safeParse({ ...input, grades: grades(input.grades) }); if (!p.success) return fail(p.error.issues[0]?.message ?? "Check the material");
   const { data: prev } = await sb.from("product_materials").select("source").eq("product_id", productId).eq("material_code", p.data.code).maybeSingle();
   const { error } = await sb.from("product_materials").upsert({ product_id: productId, material_code: p.data.code, grades: p.data.grades, status: p.data.status, note: p.data.note ?? null,
-    source: prev?.source ? (prev.source.startsWith("set by admin") ? prev.source : `${prev.source} → ${p.data.status} by admin`) : "set by admin", edited_by_admin: true, updated_by: user.id, updated_at: new Date().toISOString() }, { onConflict: "product_id,material_code" });
+    source: prev?.source ? (prev.source.startsWith("set by admin") ? prev.source : `${prev.source} → ${p.data.status} by admin`) : "set by admin", edited_by_admin: true, origin: "admin", updated_by: user.id, updated_at: new Date().toISOString() }, { onConflict: "product_id,material_code" });
   if (error) return fail(error.message);
   await audit(sb, user.id, `materials.${p.data.status}`, "products", productId, { code: p.data.code, grades: p.data.grades });
   done(productId); return ok(true);
@@ -37,7 +37,7 @@ export async function setProductMaterial(productId: string, input: { code: strin
 export async function removeProductMaterial(productId: string, code: string): Promise<Result> {
   const user = await requireStaff(); const sb = await createClient();
   // keep a rejected marker so the automatic detection does not add it again
-  const { error } = await sb.from("product_materials").update({ status: "rejected", edited_by_admin: true, updated_by: user.id, updated_at: new Date().toISOString() }).eq("product_id", productId).eq("material_code", code);
+  const { error } = await sb.from("product_materials").update({ status: "rejected", edited_by_admin: true, origin: "admin", updated_by: user.id, updated_at: new Date().toISOString() }).eq("product_id", productId).eq("material_code", code);
   if (error) return fail(error.message);
   await audit(sb, user.id, "materials.reject", "products", productId, { code }); done(productId); return ok(true);
 }
@@ -46,7 +46,7 @@ export async function removeProductMaterial(productId: string, code: string): Pr
 export async function approveDetected(productIds: string[], codes?: string[]): Promise<Result<{ n: number }>> {
   const user = await requireStaff(); const sb = await createClient();
   if (!productIds.length) return fail("Select at least one product.");
-  let q = sb.from("product_materials").update({ status: "verified", edited_by_admin: true, updated_by: user.id, updated_at: new Date().toISOString() }).in("product_id", productIds).in("status", ["auto", "unverified"]);
+  let q = sb.from("product_materials").update({ status: "verified", edited_by_admin: true, origin: "admin", updated_by: user.id, updated_at: new Date().toISOString() }).in("product_id", productIds).in("status", ["auto", "unverified"]);
   if (codes?.length) q = q.in("material_code", codes);
   const { data, error } = await q.select("id"); if (error) return fail(error.message);
   await audit(sb, user.id, "materials.approve", "product_materials", undefined, { products: productIds.length, rows: data?.length ?? 0 }); done(); return ok({ n: data?.length ?? 0 });
@@ -60,7 +60,7 @@ export async function bulkSetMaterial(productIds: string[], code: string, gradeT
   const g = grades(gradeText);
   const { data: prev } = await sb.from("product_materials").select("product_id, grades, source").eq("material_code", code).in("product_id", productIds);
   const P = new Map((prev ?? []).map((r) => [r.product_id, r]));
-  const rows = productIds.map((id) => ({ product_id: id, material_code: code, grades: [...new Set([...(P.get(id)?.grades ?? []), ...g])], status: "verified", edited_by_admin: true, updated_by: user.id, updated_at: new Date().toISOString(),
+  const rows = productIds.map((id) => ({ product_id: id, material_code: code, grades: [...new Set([...(P.get(id)?.grades ?? []), ...g])], status: "verified", edited_by_admin: true, origin: "admin", updated_by: user.id, updated_at: new Date().toISOString(),
     source: P.get(id)?.source ? `${P.get(id)!.source} → verified by admin (bulk)` : "set by admin (bulk)" }));
   const { error } = await sb.from("product_materials").upsert(rows, { onConflict: "product_id,material_code" }); if (error) return fail(error.message);
   await audit(sb, user.id, "materials.bulk_set", "product_materials", undefined, { code, products: productIds.length, grades: g }); done(); return ok({ n: rows.length });
