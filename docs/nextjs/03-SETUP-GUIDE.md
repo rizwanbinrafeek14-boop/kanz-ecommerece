@@ -112,6 +112,9 @@ Run `supabase/migrations/0017_materials.sql` (contents) and redeploy. Then Admin
 ## Step 8g — Gaskets & sealing products
 Run `supabase/migrations/0018_gaskets.sql` (contents) and redeploy. Then run the gasket package: `1-gaskets-products.sql` in the SQL Editor, upload its `catalogue` folder into Storage → `product-images`, run `2-gaskets-drawings.sql`. Review each product (yellow box on the product page in Admin), then Publish. Details: `docs/nextjs/07-GASKETS.md`.
 
+## Step 8h — Better search and the new product page
+Run `supabase/migrations/0019_search.sql` (contents) and redeploy. It builds the search index for all products; nothing in the products changes. Optional, for the spiral wound gasket page: run `3-gaskets-product-page-update.sql` from the gasket package, or fill Admin → product → Technical → "Product page overview and visual". Searches that find nothing appear in Admin → Reports.
+
 ## Step 8c — New homepage
 Run `supabase/migrations/0013_homepage_sections.sql` (contents, not the file name) and redeploy. The new homepage blocks appear in Admin → Content & settings → Homepage sections, where you can reorder or disable them. Blocks without real data (featured products, brands, certificates, material/standard chips) stay hidden automatically.
 

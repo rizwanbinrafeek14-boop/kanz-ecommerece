@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Lock, ChevronRight, FileText, Download, ShieldCheck } from "lucide-react";
+import { Lock, ChevronRight, FileText, Download, ShieldCheck, Link2, Factory, ClipboardCheck } from "lucide-react";
 import { isLocale, loc } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getProductBySlug, getSlugRedirect, getFamilyBySlug } from "@/lib/queries/catalog";
@@ -15,6 +15,8 @@ import { publicUrl } from "@/lib/format";
 import { BuyBox } from "@/components/storefront/product-buybox";
 import { ProductGrid } from "@/components/storefront/product-card";
 import { VariantGallery } from "@/components/storefront/variant-gallery";
+import { SelectionPanel } from "@/components/storefront/selection-panel";
+import { GasketExplorer } from "@/components/storefront/visual/gasket-explorer";
 import { ProductViewTracker } from "@/components/storefront/page-tracker";
 import { Badge } from "@/components/ui/badge";
 import { getContact, whatsappNumber } from "@/lib/queries/contact";
@@ -23,6 +25,7 @@ import { ApprovalsSection, type ApprovalLabels } from "@/components/storefront/a
 import { ProductTabs } from "@/components/storefront/product-tabs";
 import { DimensionsPanel } from "@/components/storefront/dimensions-panel";
 
+const VARIANT_ROWS = 100;   // the full list stays selectable in the buy box; the page does not ship hundreds of table rows
 export const revalidate = 60;
 // No pages are pre-rendered at build time; each product is generated on first visit, then cached and refreshed every 60s (and instantly when an admin saves).
 export async function generateStaticParams() { return []; }
@@ -106,17 +109,35 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
   const sourceNote = p.source_ref?.pages?.length ? (supplierCat
     ? (ar ? `البيانات من كتالوج كنز كورنر للجوانات، صفحة ${p.source_ref.pages.join("، ")}، وفق المواصفات المذكورة. يرجى تأكيد المواصفة في طلب عرض السعر.` : `Data from the Kanz Corner Trading gasket catalogue, page ${p.source_ref.pages.join(", ")}, following the standards named. Please confirm the specification in your request for quotation.`)
     : (ar ? `البيانات كما نشرتها الشركة المصنعة (${d.brand?.name ?? ""})، صفحة ${p.source_ref.pages.join("، ")}. يرجى تأكيد المواصفة في طلب عرض السعر.` : `Data as published by the manufacturer (${d.brand?.name ?? ""}), catalogue page ${p.source_ref.pages.join(", ")}. Please confirm the specification in your request for quotation.`)) : null;
+  const sourceShort = supplierCat ? (ar ? "المصدر: كتالوج كنز كورنر للجوانات" : "Source: Kanz Corner Trading gasket catalogue") : (ar ? "المصدر: كتالوج الشركة المصنعة" : "Source: manufacturer catalogue");
+  // key facts: ranges taken from the real option values (never typed in by hand)
+  const optVals = (key: string) => (d.options.find((o) => o.key === key)?.values ?? []).filter((v) => v.value !== "na").map((v) => (ar && v.label_ar) || v.label_en);
+  const range = (xs: string[]) => (xs.length > 1 ? `${xs[0]} – ${xs[xs.length - 1]}` : xs[0]);
+  const facts: [string, string][] = [];
+  const sizes = optVals("size"); if (sizes.length) facts.push([ar ? "المقاسات" : "Sizes (NPS)", range(sizes)]);
+  const classes = optVals("class"); if (classes.length) facts.push([ar ? "فئات الضغط" : "Pressure classes", range(classes)]);
+  const stds = (p.specs?.standards ?? []).filter((x) => x.scope === "product").map((x) => x.code); if (stds.length) facts.push([ar ? "المواصفات" : "Standards", stds.slice(0, 4).join(" · ")]);
+  const styles = optVals("style"); if (styles.length) facts.push([ar ? "الأنواع" : "Styles", styles.map((x) => x.split(" ")[0]).join(" · ")]);
+  const ov = p.specs?.overview;
+  const seals = (ar && ov?.seals_ar) || ov?.seals_en;
+  const confirm = (ar && ov?.confirm_ar?.length ? ov.confirm_ar : ov?.confirm_en) ?? [];
+  const apps = ((ar ? p.applications_ar || p.applications_en : p.applications_en) ?? "").split("\n").filter(Boolean);
+  const overviewCards: { title: string; icon: typeof ShieldCheck; body: React.ReactNode }[] = [
+    ...(seals ? [{ title: ar ? "يُحكم / يتصل بـ" : "Seals / connects to", icon: Link2, body: <p className="whitespace-pre-line text-sm text-muted-foreground">{seals}</p> }] : []),
+    ...(apps.length ? [{ title: ar ? "الاستخدامات النموذجية" : "Typical applications", icon: Factory, body: <ul className="list-disc space-y-1 ps-5 text-sm text-muted-foreground">{apps.map((x, i) => <li key={i}>{x}</li>)}</ul> }] : []),
+    ...(confirm.length ? [{ title: ar ? "أكّد قبل الطلب" : "Confirm before ordering", icon: ClipboardCheck, body: <ul className="space-y-1.5 text-sm" data-confirm>{confirm.map((x, i) => <li key={i} className="flex gap-2"><span aria-hidden="true" className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />{x}</li>)}</ul> }] : []),
+  ];
   const tabs = [
     { id: "specs", label: dict.product.specs, content: (
       <div className="space-y-8">
         {specRows.length > 0 && <div className="overflow-hidden rounded-md border border-steel-200"><table className="w-full text-sm"><tbody>{specRows.map(([k, v], i) => <tr key={i} className="border-b border-steel-100 last:border-0 odd:bg-steel-50/60"><th scope="row" className="w-1/3 p-3 text-start align-top font-semibold">{k}</th><td className="p-3">{v}</td></tr>)}</tbody></table></div>}
-        {d.variants.length > 0 && <div>
-          <h3 className="mb-3 font-semibold">{dict.product.variants}</h3>
-          <div className="overflow-x-auto rounded-md border border-steel-200"><table className="w-full text-sm">
+        {d.variants.length > 0 && <details className="rounded-md border border-steel-200" data-all-configs>
+          <summary className="cursor-pointer p-3 text-sm font-semibold">{dict.product.variants} ({d.variants.length})</summary>
+          <div className="overflow-x-auto rounded-md border border-steel-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" tabIndex={0} role="region" aria-label={dict.product.variants}><table className="w-full text-sm">
             <thead className="bg-steel-50 text-xs text-steel-700"><tr><th scope="col" className="p-2.5 text-start">{dict.common.sku}</th>{d.options.length ? d.options.map((o) => <th key={o.key} scope="col" className="p-2.5 text-start">{(ar && o.name_ar) || o.name_en}</th>) : ["size", "grade", "schedule", "pressure_class"].map((h) => <th key={h} scope="col" className="p-2.5 text-start">{dict.filters[h as "size"]}</th>)}{showCodes && <th scope="col" className="p-2.5 text-start">{ar ? "رمز المصنع" : "Mfr code"}</th>}{showWeights && <th scope="col" className="p-2.5 text-end">{ar ? "الوزن (كجم)" : "Weight (kg)"}</th>}</tr></thead>
-            <tbody>{d.variants.map((v) => <tr key={v.id} className="border-t border-steel-100"><td className="p-2.5 font-mono" dir="ltr">{v.sku}</td>{d.options.length ? d.options.map((o) => <td key={o.key} className="p-2.5 font-mono">{optLabel[o.key]?.[v.options?.[o.key] ?? ""] ?? "—"}</td>) : [v.size, v.grade, v.schedule, v.pressure_class].map((x, i) => <td key={i} className="p-2.5">{x ?? "—"}</td>)}{showCodes && <td className="p-2.5 font-mono" dir="ltr">{v.manufacturer_code ?? "—"}</td>}{showWeights && <td className="p-2.5 text-end font-mono tabular-nums">{v.weight_kg != null ? Number(v.weight_kg).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 4 }) : "—"}</td>}</tr>)}</tbody>
+            <tbody>{d.variants.slice(0, VARIANT_ROWS).map((v) => <tr key={v.id} className="border-t border-steel-100"><td className="p-2.5 font-mono" dir="ltr">{v.sku}</td>{d.options.length ? d.options.map((o) => <td key={o.key} className="p-2.5 font-mono">{optLabel[o.key]?.[v.options?.[o.key] ?? ""] ?? "—"}</td>) : [v.size, v.grade, v.schedule, v.pressure_class].map((x, i) => <td key={i} className="p-2.5">{x ?? "—"}</td>)}{showCodes && <td className="p-2.5 font-mono" dir="ltr">{v.manufacturer_code ?? "—"}</td>}{showWeights && <td className="p-2.5 text-end font-mono tabular-nums">{v.weight_kg != null ? Number(v.weight_kg).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 4 }) : "—"}</td>}</tr>)}</tbody>
           </table></div>
-        </div>}
+        {d.variants.length > VARIANT_ROWS && <p className="p-3 text-xs text-muted-foreground">{ar ? `يُعرض ${VARIANT_ROWS} من ${d.variants.length} تكويناً؛ جميع التكوينات قابلة للاختيار أعلاه.` : `Showing ${VARIANT_ROWS} of ${d.variants.length} configurations; every configuration can be selected above.`}</p>}</details>}
         {sourceNote && <p className="text-xs text-steel-500">{sourceNote}</p>}
       </div>) },
     ...(d.dimensionTables.length ? [{ id: "dims", label: ar ? "الأبعاد" : "Dimensions", content: <DimensionsPanel tables={d.dimensionTables} optionLabels={optLabel}
@@ -142,7 +163,11 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_440px]">
-        <VariantGallery images={images} variants={d.variants.map((v) => ({ id: v.id, options: v.options }))} alt={name} labels={{ enlarge: dict.product.enlarge, zoomIn: dict.product.zoom, zoomOut: dict.product.zoomOut, close: dict.common.close, prev: dict.product.prevImg, next: dict.product.nextImg, image: lang === "ar" ? "صورة" : "Image" }} />
+        <div className="min-w-0 space-y-4 lg:sticky lg:top-32 lg:self-start">
+          <VariantGallery images={images} variants={d.variants.map((v) => ({ id: v.id, options: v.options }))} alt={name} labels={{ enlarge: dict.product.enlarge, zoomIn: dict.product.zoom, zoomOut: dict.product.zoomOut, close: dict.common.close, prev: dict.product.prevImg, next: dict.product.nextImg, image: lang === "ar" ? "صورة" : "Image" }} />
+          {d.dimensionTables.length > 0 && <SelectionPanel tables={d.dimensionTables} lang={lang} source={sourceShort}
+            variants={d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: (v.options && vLabel(v.options)) || loc(v, "label", lang) || v.sku }))} />}
+        </div>
         <div>
           <div className="mb-2 flex flex-wrap gap-2">
             {p.is_special_offer && <Badge>{loc(p, "offer_label", lang) || dict.product.offer}</Badge>}
@@ -155,6 +180,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
             {p.sku && <>{dict.common.sku}: <span dir="ltr" className="font-mono text-foreground">{p.sku}</span></>}
           </p>
           {loc(p, "short_desc", lang) && <p className="mt-4 text-muted-foreground">{loc(p, "short_desc", lang)}</p>}
+          {facts.length > 0 && <dl className="mt-4 grid grid-cols-2 gap-2 text-sm" data-key-facts>{facts.map(([k, v]) => <div key={k} className="rounded-md border border-steel-200 bg-steel-50/60 px-3 py-2"><dt className="text-[11px] uppercase tracking-wide text-steel-600">{k}</dt><dd className="font-medium" dir="auto">{v}</dd></div>)}</dl>}
           <div className="mt-5">
             <BuyBox approvals={certs} approvalLabels={approvalLabels} lang={lang} dict={dict} url={url} vatRate={vatRateOf(settings)} whatsapp={whatsappNumber(widget, s(settings, "company_whatsapp"))} waGreeting={lang === "ar" ? (widget?.default_message_ar ?? dict.product.shareWhatsapp) : (widget?.default_message_en ?? dict.product.shareWhatsapp)}
               product={{ id: p.id, slug: p.slug, name, unit: p.unit, quoteOnly: p.is_quote_only, basePrice: p.base_price, minQty: Number(p.min_order_qty), image: d.images[0]?.storage_path ?? null }}
@@ -166,6 +192,16 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
         </div>
       </div>
 
+      {overviewCards.length > 0 && (
+        <section aria-label={ar ? "نظرة عامة" : "Overview"} className="mt-12 grid gap-4 md:grid-cols-3" data-overview>
+          {overviewCards.map((c) => (
+            <div key={c.title} className="rounded-xl border bg-card p-5">
+              <h2 className="mb-2 flex items-center gap-2 font-semibold"><c.icon className="size-5 text-primary" aria-hidden="true" />{c.title}</h2>
+              {c.body}
+            </div>))}
+        </section>)}
+      {p.specs?.visual?.type === "spiral-wound-gasket" && <div className="mt-8"><GasketExplorer tables={d.dimensionTables} lang={lang} enable3d={!!p.specs.visual.enable_3d}
+        variants={d.variants.map((v) => ({ id: v.id, options: v.options, label: (v.options && vLabel(v.options)) || v.sku }))} /></div>}
       <div className="mt-12 grid gap-8 lg:grid-cols-3">
         <div className="min-w-0 space-y-10 lg:col-span-2 lg:row-start-1">
           <ProductTabs tabs={tabs} />
@@ -175,7 +211,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
               <div className="whitespace-pre-line leading-relaxed text-muted-foreground">{loc(p, "description", lang)}</div>
             </section>
           )}
-          <ApprovalsSection approvals={certs} lang={lang} labels={approvalLabels} />
+          {certs.length > 0 && <ApprovalsSection approvals={certs} lang={lang} labels={approvalLabels} />}
         </div>
         {d.documents.length > 0 && (
           <aside className="order-first lg:order-none lg:col-start-3 lg:row-start-1" aria-labelledby="docs-h">

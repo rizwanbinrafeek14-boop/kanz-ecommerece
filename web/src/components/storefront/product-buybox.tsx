@@ -9,6 +9,7 @@ import { Input, NativeSelect, Label } from "@/components/ui/input";
 import { formatSAR, withVat } from "@/lib/format";
 import { track } from "@/lib/track";
 import { setSelectedVariant } from "@/lib/variant-store";
+import { setSelectedChoices } from "@/lib/config-store";
 import { ApprovalBadgeRow, type ApprovalLabels } from "./approvals";
 import { OptionSelector, settle, type SelOption } from "./option-selector";
 import type { Approval } from "@/lib/queries/certs";
@@ -77,6 +78,11 @@ export function BuyBox({ product, variants: allVariants, options = [], datasheet
   const shown = choices.filter((c) => fits(c.requires) && (!c.requires_choice || Object.entries(c.requires_choice).every(([k, vs]) => vs.includes(picked[k] ?? ""))));
   const valueOf = (c: ConfigChoice) => { const x = picked[c.key] ?? ""; if (c.type === "select") return c.values?.some((o) => o.value === x && fits(o.requires)) ? x : ""; if (c.type === "number") { const n = Number(x); return x !== "" && Number.isFinite(n) && (c.min == null || n >= c.min) && (c.max == null || n <= c.max) ? x : ""; } return x.trim(); };
   const missing = shown.filter((c) => c.required && !valueOf(c));
+  // labels of the chosen values, for the product visuals (cleared when the buy box goes away)
+  const chosenLabels = Object.fromEntries(shown.filter((c) => valueOf(c)).map((c) => { const x = valueOf(c); const o = c.values?.find((y) => y.value === x); return [c.key, o ? (ar && o.label_ar) || o.label_en : `${x}${c.unit ? ` ${c.unit}` : ""}`]; }));
+  const chosenKey = JSON.stringify(chosenLabels);
+  React.useEffect(() => { setSelectedChoices(JSON.parse(chosenKey)); }, [chosenKey]);
+  React.useEffect(() => () => setSelectedChoices({}), []);
   const choiceSpec = shown.filter((c) => valueOf(c)).map((c) => { const x = valueOf(c); const o = c.values?.find((y) => y.value === x); return `${(ar && c.name_ar) || c.name_en}: ${o ? (ar && o.label_ar) || o.label_en : x}${c.unit && !o ? ` ${c.unit}` : ""}`; }).join(" · ");
   const matSpec = !choiceMaterials && mat ? [`${mat.name} (${mat.code})`, grade && `${ar ? "الدرجة" : "Grade"} ${grade}`].filter(Boolean).join(" · ") : "";
   const fullSpec = [v?.spec, matSpec, choiceSpec].filter(Boolean).join(" · ") || undefined;

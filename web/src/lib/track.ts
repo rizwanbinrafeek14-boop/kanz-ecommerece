@@ -10,13 +10,13 @@ export function getSessionId(): string {
   } catch { return "unknown"; }
 }
 
-export interface TrackArgs { path?: string; product?: string; banner?: string; query?: string; lang?: string }
+export interface TrackArgs { path?: string; product?: string; banner?: string; query?: string; lang?: string; results?: number }
 export function track(event: "page_view" | "product_view" | "search" | "banner_impression" | "banner_click" | "add_to_cart" | "whatsapp_click" | "phone_click" | "datasheet_download", a: TrackArgs = {}) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return;
   try {
     void createClient().rpc("track_event", {
       p_event: event, p_session: getSessionId(), p_path: a.path ?? window.location.pathname,
-      p_product: a.product ?? null, p_banner: a.banner ?? null, p_query: a.query ?? null, p_lang: a.lang ?? document.documentElement.lang,
+      p_product: a.product ?? null, p_banner: a.banner ?? null, p_query: a.query ?? null, p_lang: a.lang ?? document.documentElement.lang, p_results: a.results ?? null,
     }).then(() => {}, () => {});
   } catch { /* analytics must never break the page */ }
 }

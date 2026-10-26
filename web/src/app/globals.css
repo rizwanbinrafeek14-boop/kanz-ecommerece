@@ -110,7 +110,8 @@
 /* Motion: subtle, and fully disabled for people who ask for reduced motion */
 @keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 /* Lift the floating contact button above the mobile enquiry bar on product pages */
-body:has([data-sticky-bar]) .contact-float { bottom: 5.5rem; }
+/* product pages on phones: the sticky enquiry bar already offers WhatsApp and the quote, so the floating button would only cover the options */
+@media (max-width: 1023px) { body:has([data-sticky-bar]) .contact-float { display: none; } }
 @media (min-width: 1024px) { body:has([data-sticky-bar]) .contact-float { bottom: 1rem; } }
 
 /* ───────── Engineering-drawing utilities (homepage) ───────── */

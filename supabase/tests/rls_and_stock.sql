@@ -353,3 +353,20 @@ select count(*) as b1647a_2500_cross_variant from search_products('ZZGsk', p_fil
 select count(*) as na_facets from product_facets('ZZGsk') where lower(value_en) = 'na';
 select count(*) as standard_facets from product_facets('ZZGsk') where attr_key = 'standard';
 reset role;
+
+\echo '--- T35 search: words in any order, synonyms, ½ / inch normalisation, option values; zero-result logging; search report staff-only (expect 1 / 1 / 1 / 1 / 0 / 1 / 0 rows)'
+reset role;
+insert into products (id, slug, name_en, status, published_at) values ('55000000-0000-0000-0000-0000000000a1','srch-t','ZZSrch Socket Weld Elbow 90°','published',now());
+insert into product_variants (product_id, sku, options) values ('55000000-0000-0000-0000-0000000000a1','ZZS-1','{"size":"1-1/2","class":"3000"}');
+set role anon; select pg_temp.as_user(null);
+select count(*) as any_order from search_products('elbow zzsrch 90');
+select count(*) as synonym_sw from search_products('zzsrch sw elbow');
+select count(*) as half_inch from search_products('zzsrch 1 1/2"');
+select count(*) as half_glyph from search_products('zzsrch 1½ inch');
+select count(*) as wrong_size from search_products('zzsrch 2');
+select track_event('search', 'zz-srch-session', '/en/search', null, null, 'zzsrch nothing', 'en', 0);
+reset role;
+select count(*) as logged_zero from analytics_events where query = 'zzsrch nothing' and results = 0;
+set role anon; select pg_temp.as_user(null);
+select * from admin_search_terms(30, true, 5);
+reset role;

@@ -6,7 +6,7 @@ import { requireStaff } from "@/lib/auth";
 import { publicUrl } from "@/lib/format";
 import { PageHeader } from "@/components/admin/ui";
 import { ProductEditor, type ProductFull } from "@/components/admin/product-editor";
-import type { TechTable } from "@/components/admin/techdata-editor";
+import type { TechSpecs, TechTable } from "@/components/admin/techdata-editor";
 
 export const metadata = { title: "Edit product" };
 
@@ -28,7 +28,7 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
     sb.from("product_materials").select("material_code, grades, status, source, note, edited_by_admin, components, origin").eq("product_id", id), sb.from("material_types").select("code, name_en, name_ar, sort_order, is_custom").order("sort_order"),
     sb.from("dimension_tables").select("id, title_en, title_ar, notes, applies, columns, sort_order, dimension_rows(match, values, sort_order)").eq("product_id", id).order("sort_order"),
   ]);
-  const specs = (p.specs ?? {}) as { choices?: never[]; properties?: never[]; notes?: string[]; standards?: { code: string; note?: string | null }[] };
+  const specs = (p.specs ?? {}) as { choices?: never[]; properties?: never[]; notes?: string[]; standards?: { code: string; note?: string | null }[]; overview?: TechSpecs["overview"]; visual?: TechSpecs["visual"] };
   const src = (p.source_ref ?? {}) as { review?: string[]; possible_matches?: string | null; supplier_note?: string };
   const vc = new Map((vcosts.data ?? []).map((c) => [c.variant_id, c.purchase_cost])); const av = new Map((avail.data ?? []).map((a) => [a.variant_id, Number(a.available)]));
   const mtc = (docs.data ?? []).filter((d) => !d.is_public).map((d) => d.storage_path);
@@ -49,7 +49,7 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
         certOptions={(allCerts.data ?? []).map((c) => ({ id: c.id, name: c.name_en, note: !c.is_active ? "Unpublished — hidden" : c.valid_until && c.valid_until < new Date().toISOString().slice(0, 10) ? "Expired — hidden" : c.issued_at && c.issued_at > new Date().toISOString().slice(0, 10) ? "Not valid yet — hidden" : null }))}
         assignments={(pcerts.data ?? []).map((a) => ({ certification_id: a.certification_id, status: a.status, reference_number: a.reference_number, document_path: a.document_path, verification_url: a.verification_url, scope_note: a.scope_note, variant_ids: a.variant_ids ?? [] }))}
         variantOptions={(vars.data ?? []).map((v) => ({ id: v.id, label: [v.label_en || v.size, v.sku].filter(Boolean).join(" · ") }))} materials={(mats.data ?? []) as never}
-        techSpecs={{ choices: specs.choices ?? [], properties: specs.properties ?? [], notes: specs.notes ?? [], standards: specs.standards ?? [] }}
+        techSpecs={{ choices: specs.choices ?? [], properties: specs.properties ?? [], notes: specs.notes ?? [], standards: specs.standards ?? [], overview: specs.overview ?? {}, visual: specs.visual ?? {} }}
         techTables={(dtabs.data ?? []).map((t) => ({ id: t.id, title_en: t.title_en, title_ar: t.title_ar, notes: (t.notes ?? []) as string[], applies: (t.applies ?? {}) as Record<string, string>, columns: t.columns as TechTable["columns"],
           rows: [...((t.dimension_rows ?? []) as { match: Record<string, string>; values: Record<string, string>; sort_order: number }[])].sort((a, b) => a.sort_order - b.sort_order) }))}
         review={src.review?.length || src.possible_matches ? { items: src.review ?? [], matches: src.possible_matches ?? null, supplierNote: src.supplier_note ?? null } : undefined} materialTypes={mtypes.data ?? []} initialTab={tab}

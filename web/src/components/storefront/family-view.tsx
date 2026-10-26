@@ -212,7 +212,7 @@ function SpecsPanel({ offer, t, lang }: { offer: Offer; t: (typeof T)["en"]; lan
         {offer.notes.length > 0 && <div className="md:col-span-2"><h3 className="mb-2 font-semibold">{t.notes}</h3><ul className="list-disc space-y-1 ps-5 text-steel-700">{offer.notes.map((n, i) => <li key={i}>{n}</li>)}</ul></div>}
       </div>}
       {offer.variants.length > 0 && <details className="rounded-md border border-steel-200"><summary className="cursor-pointer p-3 text-sm font-semibold">{t.variants} ({offer.variants.length})</summary>
-        <div className="max-h-[28rem] overflow-auto border-t"><table className="w-full text-sm">
+        <div className="max-h-[28rem] overflow-auto border-t focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" tabIndex={0} role="region" aria-label={t.variants}><table className="w-full text-sm">
           <thead className="sticky top-0 bg-steel-50 text-xs text-steel-700"><tr><th scope="col" className="p-2.5 text-start">{t.sku}</th>{offer.options.map((o) => <th key={o.key} scope="col" className="p-2.5 text-start">{o.name}</th>)}{showC && <th scope="col" className="p-2.5 text-start">{t.code}</th>}{showW && <th scope="col" className="p-2.5 text-end">{t.weight} (kg)</th>}</tr></thead>
           <tbody>{offer.variants.map((x) => <tr key={x.id} className="border-t border-steel-100"><td className="p-2.5 font-mono" dir="ltr">{x.sku}</td>{offer.options.map((o) => <td key={o.key} className="p-2.5 font-mono">{offer.optionLabels[o.key]?.[x.options?.[o.key] ?? ""] ?? "-"}</td>)}{showC && <td className="p-2.5 font-mono" dir="ltr">{x.code ?? "-"}</td>}{showW && <td className="p-2.5 text-end font-mono tabular-nums">{x.weight != null ? Number(x.weight).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 4 }) : "-"}</td>}</tr>)}</tbody>
         </table></div></details>}
@@ -247,7 +247,7 @@ function Compare({ offers, chosen, setChosen, sel, t }: { offers: Offer[]; chose
       <div className="flex flex-wrap gap-2">{offers.map((o) => { const on = chosen.includes(o.brand.slug); const full = !on && chosen.length >= 3;
         return <label key={o.brand.slug} className={cn("inline-flex min-h-10 items-center gap-2 rounded-md border px-3 text-sm", on ? "border-ink" : "border-steel-300", full && "opacity-50")}>
           <input type="checkbox" checked={on} disabled={full} onChange={(e) => setChosen(e.target.checked ? [...chosen, o.brand.slug] : chosen.filter((x) => x !== o.brand.slug))} />{o.brand.name}</label>; })}</div>
-      {cols.length > 0 && <div className="overflow-x-auto rounded-md border border-steel-200"><table className="w-full min-w-[36rem] text-sm">
+      {cols.length > 0 && <div className="overflow-x-auto rounded-md border border-steel-200" tabIndex={0} role="region" aria-label={t.compare}><table className="w-full min-w-[36rem] text-sm">
         <thead className="bg-steel-50"><tr><th scope="col" className="w-48 p-3 text-start text-xs text-steel-700">{t.manufacturer}</th>{cols.map((o) => <th key={o.brand.slug} scope="col" className="p-3 text-start font-semibold">{o.brand.name}</th>)}</tr></thead>
         <tbody>{rows.map(([k, f]) => <tr key={k} className="border-t border-steel-100 align-top"><th scope="row" className="p-3 text-start text-xs font-semibold text-steel-700">{k}</th>{cols.map((o) => <td key={o.brand.slug} className="p-3">{f(o)}</td>)}</tr>)}</tbody>
       </table></div>}
