@@ -9,7 +9,7 @@ export interface Category {
   seo_noindex: boolean; buying_guide_en: string | null; buying_guide_ar: string | null;
 }
 export interface Brand { id: string; slug: string; name: string; name_ar: string | null; logo_path: string | null; website: string | null; sort_order: number; is_active: boolean; show_on_homepage: boolean }
-export interface ProductImage { id: string; product_id: string; storage_path: string; alt_en: string | null; alt_ar: string | null; sort_order: number; is_primary: boolean; needs_hires: boolean }
+export interface ProductImage { id: string; product_id: string; storage_path: string; alt_en: string | null; alt_ar: string | null; sort_order: number; is_primary: boolean; needs_hires: boolean; option_match?: Record<string, string> | null }
 export interface ProductDocument { id: string; product_id: string; kind: "datasheet" | "mtc" | "certificate" | "other"; title: string; storage_path: string; is_public: boolean }
 export interface AttributeDef { id: string; key: string; name_en: string; name_ar: string | null; is_filterable: boolean; show_in_specs: boolean; sort_order: number }
 export interface AttributeValue { product_id: string; attribute_id: string; value_en: string; value_ar: string | null; sort_order: number }
@@ -29,8 +29,18 @@ export interface Product {
   og_title_en: string | null; og_title_ar: string | null; og_desc_en: string | null; og_desc_ar: string | null; og_image_path: string | null; seo_noindex: boolean;
   published_at: string | null; created_at: string; updated_at: string;
   manufacturer_ref?: string | null; country_of_origin?: string | null; applications_en?: string | null; applications_ar?: string | null;
-  specs?: { standards?: { code: string; scope: "product" | "general" }[]; materials?: { type: string; grades: string[] }[]; notes?: string[] } | null;
-  source_ref?: { title?: string; pages?: number[] } | null;
+  specs?: { standards?: { code: string; scope: "product" | "general"; note?: string | null }[]; materials?: { type: string; grades: string[] }[]; notes?: string[]; choices?: ConfigChoice[]; properties?: { label_en: string; label_ar?: string | null; value_en: string; value_ar?: string | null }[] } | null;
+  source_ref?: { title?: string; pages?: number[]; import?: string; review?: string[]; possible_matches?: string | null; supplier_note?: string } | null;
+}
+/**
+ * A configuration choice that does not change the catalogue variant (winding metal, filler, sheet material, thickness …).
+ * It is asked on the product page and written into the enquiry. `requires` limits it to some variant options (e.g. inner ring
+ * material only for styles with an inner ring); a value's `requires` does the same for that value; `material` links a value to a material code.
+ */
+export interface ConfigChoice {
+  key: string; name_en: string; name_ar?: string | null; type: "select" | "number" | "text"; required?: boolean;
+  values?: { value: string; label_en: string; label_ar?: string | null; material?: string; requires?: Record<string, string[]>; hint_en?: string }[];
+  requires?: Record<string, string[]>; requires_choice?: Record<string, string[]>; hint_en?: string; hint_ar?: string; min?: number; max?: number; step?: number; unit?: string; maxlength?: number;
 }
 export interface ProductCard extends Product {
   product_images: Pick<ProductImage, "storage_path" | "is_primary" | "sort_order">[];

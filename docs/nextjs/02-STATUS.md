@@ -95,6 +95,12 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
 - Verified: 43 browser checks (detection, report, bulk edit, approve / reject, re-detection keeps decisions, custom type, filters incl. no cross-variant matching, card badges, family / product selectors, quote line, brand page, mobile, Arabic) + SQL test T33; families, listing, grouping, gate and SEO suites re-run green.
 - **Caveat:** the catalogues give materials per product, not per size, so availability is offering-level unless you set a material on individual variants. Bothwell and Mega list no materials (Material Not Verified); JD Delcorte's and Benkan KIKOH's lists are general and wait for your approval.
 
+## Added later: gaskets & sealing products (migration 0018)
+- Gasket catalogue (HTML) imported with a repeatable tool (`web/scripts/gasket-import`): 8 product families, 1,714 configurations, 16 dimension tables (1,598 rows), 29 drawings (all 37 catalogue SVGs) from the catalogue SVGs; category "Gaskets & Sealing Products".
+- New: configuration choices on product pages (winding / filler / ring materials, sheet, thickness …) written into enquiries; materials per component; drawings per option; flange-standard filter matched on the same configuration as size and class; "not applicable" options hidden; Technical tab in admin (tables, choices, specifications); import review box.
+- Verified: 57 browser checks (filters, option rules, dimensions per standard, drawings, enquiry with specification and quantity, RFQ, WhatsApp, datasheets, mobile, Arabic, admin edits) + SQL test T34; materials, listing, families, gate and SEO suites re-run green.
+- Not live until the migration and package are run on Supabase and the products are published.
+
 ## Known limitations (honest list)
 1. **No prices, SKUs, stock, certifications or availability were invented.** Every imported product is a *draft, quote-only family*. You must add real data.
 2. **Catalogue images are 150–475 px crops** and are flagged *low-res*. Replace them with originals before launch.

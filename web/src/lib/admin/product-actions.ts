@@ -218,7 +218,7 @@ export async function setPrimaryImage(productId: string, imageId: string): Promi
   refreshStorefront(); revalidatePath(`/admin/products/${productId}`);
   return ok(null);
 }
-export async function updateImageMeta(productId: string, imageId: string, patch: { needs_hires?: boolean; alt_en?: string | null; alt_ar?: string | null; sort_order?: number }): Promise<Result> {
+export async function updateImageMeta(productId: string, imageId: string, patch: { needs_hires?: boolean; alt_en?: string | null; alt_ar?: string | null; sort_order?: number; option_match?: Record<string, string> | null }): Promise<Result> {
   await requireStaff();
   const sb = await createClient();
   const { error } = await sb.from("product_images").update(patch).eq("id", imageId);

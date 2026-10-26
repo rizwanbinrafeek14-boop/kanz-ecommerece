@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 
 export interface SelOption { key: string; name: string; values: { value: string; label: string }[] }
 export interface SelVariant { id: string; options: Record<string, string> }
+/** Option value meaning "not applicable" for this configuration (e.g. no flange class for a ring-number-only RX ring). Never shown as a choice. */
+export const NA = "na";
 
 /** Values of option `idx` that exist in at least one variant matching the choices made for the options before it. */
 export function availableValues(options: SelOption[], variants: SelVariant[], sel: Record<string, string>, idx: number) {
@@ -26,11 +28,13 @@ export function OptionSelector({ options, variants, value, onChange, unavailable
     <div className="space-y-4">
       {options.map((o, idx) => {
         const ok = availableValues(options, variants, value, idx);
+        if (value[o.key] === NA && ok.size === 1) return null;   // nothing to choose here for this configuration
         return (
           <fieldset key={o.key}>
-            <legend className="mb-2 flex w-full items-baseline justify-between text-sm font-medium"><span>{o.name}</span><span className="font-mono text-xs text-muted-foreground">{o.values.find((v) => v.value === value[o.key])?.label}</span></legend>
+            <legend className="mb-2 flex w-full items-baseline justify-between gap-2 text-sm font-medium"><span>{o.name}</span><span className="text-end font-mono text-xs text-muted-foreground">{o.values.find((v) => v.value === value[o.key])?.label}</span></legend>
             <div role="radiogroup" aria-label={o.name} className="flex flex-wrap gap-1.5">
-              {o.values.map((v) => {
+              {/* long lists (ring numbers, large size ranges) show only the values that fit the choices above */}
+              {o.values.filter((v) => (v.value !== NA || ok.has(NA)) && (o.values.length <= 30 || ok.has(v.value))).map((v) => {
                 const on = value[o.key] === v.value; const can = ok.has(v.value);
                 return (
                   <button key={v.value} type="button" role="radio" aria-checked={on} aria-disabled={!can} disabled={!can} title={can ? undefined : unavailableLabel}

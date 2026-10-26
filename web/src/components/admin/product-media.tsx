@@ -11,7 +11,7 @@ import { addProductDocument, addProductImages, deleteImage, deleteProductDocumen
 import { run, uploadToBucket } from "@/lib/admin/client";
 import { publicUrl } from "@/lib/format";
 
-export interface ImageRow { id: string; storage_path: string; is_primary: boolean; needs_hires: boolean; sort_order: number; alt_en: string | null; alt_ar: string | null }
+export interface ImageRow { id: string; storage_path: string; is_primary: boolean; needs_hires: boolean; sort_order: number; alt_en: string | null; alt_ar: string | null; option_match?: Record<string, string> | null }
 export interface DocRow { id: string; kind: string; title: string; storage_path: string; is_public: boolean; url: string | null }
 
 export function ProductImages({ productId, rows }: { productId: string; rows: ImageRow[] }) {
@@ -37,6 +37,9 @@ export function ProductImages({ productId, rows }: { productId: string; rows: Im
                 {r.is_primary && <Badge className="absolute start-2 top-2">Main</Badge>}{r.needs_hires && <Badge variant="warning" className="absolute end-2 top-2">low-res</Badge>}</div>
               <div className="mt-2 grid gap-1.5">
                 <label className="text-xs font-medium">Alt text (English)<Input defaultValue={r.alt_en ?? ""} maxLength={200} placeholder="Describe what the image shows" onBlur={async (e) => { const v = e.target.value.trim(); if (v !== (r.alt_en ?? "") && (await run(updateImageMeta(productId, r.id, { alt_en: v || null }), "Alt text saved"))) router.refresh(); }} /></label>
+                <label className="text-xs font-medium">Shown for options (e.g. style=SW-IR/CR; empty = always)<Input defaultValue={Object.entries(r.option_match ?? {}).map(([k, v]) => `${k}=${v}`).join("; ")} maxLength={200} onBlur={async (e) => {
+                  const m = Object.fromEntries(e.target.value.split(";").map((x) => x.trim()).filter((x) => x.includes("=")).map((x) => [x.slice(0, x.indexOf("=")).trim(), x.slice(x.indexOf("=") + 1).trim()]));
+                  const next = Object.keys(m).length ? m : null; if (JSON.stringify(next) !== JSON.stringify(r.option_match ?? null) && (await run(updateImageMeta(productId, r.id, { option_match: next }), "Saved"))) router.refresh(); }} /></label>
                 <label className="text-xs font-medium">Alt text (Arabic)<Input dir="rtl" defaultValue={r.alt_ar ?? ""} maxLength={200} onBlur={async (e) => { const v = e.target.value.trim(); if (v !== (r.alt_ar ?? "") && (await run(updateImageMeta(productId, r.id, { alt_ar: v || null }), "Alt text saved"))) router.refresh(); }} /></label>
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-1.5">

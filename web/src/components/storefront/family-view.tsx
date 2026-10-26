@@ -11,6 +11,7 @@ import { track } from "@/lib/track";
 import { cn } from "@/lib/utils";
 import type { DimensionTableRow } from "@/lib/queries/catalog";
 import type { Approval } from "@/lib/queries/certs";
+import type { ConfigChoice } from "@/lib/types";
 
 /** One manufacturer's offering on a family page. Everything here comes from that manufacturer's own product record; nothing is shared between brands. */
 export interface Offer {
@@ -22,6 +23,7 @@ export interface Offer {
   documents: { id: string; title: string }[]; sourceNote: string | null; approvals: Approval[];
   /** Verified / auto-detected materials of this manufacturer's offering (with its exact grades). */
   shownMaterials: MatOpt[];
+  choices?: ConfigChoice[];
 }
 type Common = Pick<BuyProps, "vatRate" | "whatsapp" | "waGreeting" | "lang" | "dict" | "url" | "approvalLabels">;
 
@@ -177,7 +179,7 @@ export function FamilyView({ name, shortDesc, familyImage, offers, common, galle
             <BuyBox key={offer.brand.slug} {...common} approvalLabels={approvalLabels} approvals={offer.approvals} brandName={offer.brand.name}
               product={{ id: offer.id, slug: offer.slug, name: offer.name, unit: offer.unit, quoteOnly: offer.quoteOnly, basePrice: offer.basePrice, minQty: offer.minQty, image: offer.cartImage }}
               options={offer.options} variants={offer.variants} datasheet={`/api/datasheet/${offer.slug}`} initialSel={initial} onSelChange={onSel} afterOptions={summary}
-              materials={offer.shownMaterials} material={material} materialControlled />
+              materials={offer.shownMaterials} material={material} materialControlled choices={offer.choices} />
           </div>
         </div>
       </div>

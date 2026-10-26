@@ -109,6 +109,9 @@ Run `supabase/migrations/0015_product_families.sql` and then `0016_family_listin
 ## Step 8f — Materials and the Material filter
 Run `supabase/migrations/0017_materials.sql` (contents) and redeploy. Then Admin → **Materials** → *Preview report* → *Run detection*, and work through "Needs verification" and "Material Not Verified" (approve, correct, or set materials in bulk). Run detection again whenever you load catalogue SQL packages; products imported from Admin → Catalogue import are classified automatically. Details: `docs/nextjs/06-MATERIALS.md`.
 
+## Step 8g — Gaskets & sealing products
+Run `supabase/migrations/0018_gaskets.sql` (contents) and redeploy. Then run the gasket package: `1-gaskets-products.sql` in the SQL Editor, upload its `catalogue` folder into Storage → `product-images`, run `2-gaskets-drawings.sql`. Review each product (yellow box on the product page in Admin), then Publish. Details: `docs/nextjs/07-GASKETS.md`.
+
 ## Step 8c — New homepage
 Run `supabase/migrations/0013_homepage_sections.sql` (contents, not the file name) and redeploy. The new homepage blocks appear in Admin → Content & settings → Homepage sections, where you can reorder or disable them. Blocks without real data (featured products, brands, certificates, material/standard chips) stay hidden automatically.
 
