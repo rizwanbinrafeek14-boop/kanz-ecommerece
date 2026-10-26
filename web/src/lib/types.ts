@@ -17,7 +17,7 @@ export interface Variant {
   id: string; product_id: string; sku: string; barcode: string | null; label_en: string | null; label_ar: string | null;
   size: string | null; grade: string | null; schedule: string | null; pressure_class: string | null; material: string | null;
   price: number | null; is_active: boolean; sort_order: number;
-  options?: Record<string, string>; manufacturer_code?: string | null; weight_kg?: number | null;
+  options?: Record<string, string>; manufacturer_code?: string | null; weight_kg?: number | null; material_code?: string | null;
 }
 export interface Product {
   id: string; slug: string; sku: string | null; barcode: string | null; name_en: string; name_ar: string | null;
@@ -37,7 +37,9 @@ export interface ProductCard extends Product {
   brands: Pick<Brand, "name" | "name_ar"> | null;
   product_variants?: { price: number | null; is_active: boolean }[];
   /** Set when this card stands for a whole product family (one card per family, several manufacturers inside). */
-  family?: { slug: string; name_en: string; name_ar: string | null; image_path: string | null; brands: { name: string; name_ar: string | null }[]; price: number | null };
+  family?: { slug: string; name_en: string; name_ar: string | null; image_path: string | null; brands: { name: string; name_ar: string | null }[]; price: number | null; memberIds?: string[] };
+  /** Shown materials (codes, in material order) of this product, or of all manufacturers of a family card. */
+  materials?: { code: string; name_en: string; name_ar: string | null }[];
 }
 
 /** Lowest sellable price (ex-VAT) for a card, or null when the product is quote-only. */

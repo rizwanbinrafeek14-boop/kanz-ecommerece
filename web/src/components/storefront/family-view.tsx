@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { FileDown, FileText, Download, Lock, Info, Columns3, X } from "lucide-react";
-import { BuyBox, type BuyProps, type BuyVariant } from "./product-buybox";
+import { BuyBox, MaterialChips, type BuyProps, type BuyVariant, type MatOpt } from "./product-buybox";
 import { settle, type SelOption } from "./option-selector";
 import { DimensionsPanel } from "./dimensions-panel";
 import { ProductTabs } from "./product-tabs";
@@ -20,6 +20,8 @@ export interface Offer {
   tables: DimensionTableRow[]; tableDrawings: Record<string, string | null>; drawings: { url: string; alt: string }[];
   specRows: [string, string][]; standards: { code: string; scope: string }[]; materials: { type: string; grades: string[] }[]; notes: string[];
   documents: { id: string; title: string }[]; sourceNote: string | null; approvals: Approval[];
+  /** Verified / auto-detected materials of this manufacturer's offering (with its exact grades). */
+  shownMaterials: MatOpt[];
 }
 type Common = Pick<BuyProps, "vatRate" | "whatsapp" | "waGreeting" | "lang" | "dict" | "url" | "approvalLabels">;
 
@@ -32,7 +34,8 @@ const T = {
     manufacturer: "Manufacturer", availSizes: "Available sizes", grades: "Material grades", classes: "Pressure class / schedule", connections: "Connection types", standards: "Applicable standards",
     cfgWeight: "Weight (selected configuration)", cfgDims: "Dimensions (selected configuration)", sheet: "Datasheet", yes: "Yes (sign-in required)", noData: "No data", notOffered: "Not offered in this configuration",
     noneListed: "Not listed in the catalogue", forProduct: "for this product", general: "mentioned generally in the catalogue", gradesNotListed: "grades not listed in the catalogue", notes: "Catalogue notes", close: "Close comparison",
-    asPublished: "Drawing as published by the manufacturer (not a certified engineering drawing). Source: manufacturer catalogue." },
+    asPublished: "Drawing as published by the manufacturer (not a certified engineering drawing). Source: manufacturer catalogue.",
+    noMaterial: (b: string) => `${b} does not list the chosen material`, notInMaterial: "Not listed in this material", matNotVerified: "Material not verified" },
   ar: { brand: "اختر الشركة المصنعة / العلامة", sizes: "مقاس", summary: "التكوين المحدد", code: "رمز المصنع", weight: "الوزن", sku: "رمز الصنف", notListed: "غير مذكور",
     changed: (b: string, items: string[]) => `لا يذكر ${b} نفس الاختيار: ${items.join("؛ ")}.`, cleared: (o: string, v: string, n: string) => `${o} ${v} ← ${n}`, dropped: (o: string) => `${o} ليس خياراً لهذه العلامة`,
     specs: "المواصفات الفنية", drawings: "الرسومات الهندسية", dims: "جداول الأبعاد", downloads: "التحميلات", materials: "المواد والمواصفات", variants: "جميع التكوينات",
@@ -41,7 +44,8 @@ const T = {
     manufacturer: "الشركة المصنعة", availSizes: "المقاسات المتاحة", grades: "درجات المواد", classes: "فئة الضغط / السماكة", connections: "أنواع التوصيل", standards: "المواصفات القياسية",
     cfgWeight: "الوزن (التكوين المحدد)", cfgDims: "الأبعاد (التكوين المحدد)", sheet: "ورقة البيانات", yes: "نعم (يتطلب تسجيل الدخول)", noData: "لا توجد بيانات", notOffered: "غير متوفر بهذا التكوين",
     noneListed: "غير مذكور في الكتالوج", forProduct: "لهذا المنتج", general: "مذكورة بشكل عام في الكتالوج", gradesNotListed: "الدرجات غير مذكورة في الكتالوج", notes: "ملاحظات الكتالوج", close: "إغلاق المقارنة",
-    asPublished: "الرسم كما نشرته الشركة المصنعة (ليس رسماً هندسياً معتمداً). المصدر: كتالوج الشركة المصنعة." },
+    asPublished: "الرسم كما نشرته الشركة المصنعة (ليس رسماً هندسياً معتمداً). المصدر: كتالوج الشركة المصنعة.",
+    noMaterial: (b: string) => `لا يذكر ${b} المادة المختارة`, notInMaterial: "غير متوفر بهذه المادة", matNotVerified: "المادة غير مؤكدة" },
 };
 const SIZE_KEYS = ["size", "run", "outlet", "large", "small"];
 const CLASS_KEYS = ["class", "pressure_class", "rating", "schedule"];
@@ -75,6 +79,10 @@ export function FamilyView({ name, shortDesc, familyImage, offers, common, galle
   const [compareOpen, setCompareOpen] = React.useState(false);
   const [compareSet, setCompareSet] = React.useState<string[]>(offers.slice(0, 3).map((o) => o.brand.slug));
   const offer = offers.find((o) => o.brand.slug === brand) ?? offers[0];
+  // Material comes first: the union of what the manufacturers list; a brand without the chosen material cannot be selected
+  const allMats = React.useMemo(() => { const m = new Map<string, MatOpt>(); for (const o of offers) for (const x of o.shownMaterials) if (!m.has(x.code)) m.set(x.code, x); return [...m.values()]; }, [offers]);
+  const [material, setMaterialState] = React.useState<string | null>(null);
+  const has = (o: Offer, code: string | null) => !code || o.shownMaterials.some((m) => m.code === code);
 
   const choose = React.useCallback((slug: string, quiet = false) => {
     const to = offers.find((o) => o.brand.slug === slug || o.slug === slug); if (!to || to.brand.slug === brand) return;
@@ -83,15 +91,30 @@ export function FamilyView({ name, shortDesc, familyImage, offers, common, galle
     setInitial(c.sel); setNotice(quiet ? null : c.notice); setBrand(to.brand.slug);
     const u = new URL(window.location.href); u.searchParams.set("brand", to.brand.slug); window.history.replaceState(null, "", u);
   }, [offers, brand, lang]);
-  // ?brand=… (shared links, redirected brand pages) selects the manufacturer after the first paint
-  React.useEffect(() => { const b = new URLSearchParams(window.location.search).get("brand"); if (b) choose(b, true); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const setMaterial = React.useCallback((code: string | null, quiet = false) => {
+    setMaterialState(code);
+    const u = new URL(window.location.href); if (code) u.searchParams.set("material", code); else u.searchParams.delete("material"); window.history.replaceState(null, "", u);
+    // the current brand does not list it: move to the first one that does (selection carried over as usual)
+    const cur = offers.find((o) => o.brand.slug === brand);
+    if (code && cur && !has(cur, code)) { const to = offers.find((o) => has(o, code)); if (to) choose(to.brand.slug, quiet); }
+  }, [offers, brand, choose]);
+  // ?brand=… and ?material=… (shared links, filtered listings, redirected brand pages) are applied after the first paint
+  const fromUrl = React.useCallback(() => {
+    const q = new URLSearchParams(window.location.search); const b = q.get("brand"); const m = q.get("material")?.toUpperCase() ?? null;
+    const okM = m && allMats.some((x) => x.code === m) ? m : null;
+    const target = b ? offers.find((o) => o.brand.slug === b || o.slug === b) : undefined;
+    if (okM) setMaterialState(okM);
+    if (target && has(target, okM)) choose(target.brand.slug, true);
+    else if (okM && !has(offers.find((o) => o.brand.slug === brand)!, okM)) { const to = offers.find((o) => has(o, okM)); if (to) choose(to.brand.slug, true); }
+  }, [offers, allMats, brand, choose]);
+  React.useEffect(() => { const t = setTimeout(fromUrl, 0); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSel = React.useCallback((sel: Record<string, string>, vid: string | null) => { cur.current = { sel, vid }; setState({ sel, vid }); }, []);
   const v = offer.variants.find((x) => x.id === state.vid);
   const summary = (
     <div className="rounded-lg border-2 border-primary/25 bg-primary/5 p-4" aria-live="polite">
       <p className="spec-label mb-1 text-steel-600">{t.summary}</p>
-      <p className="font-semibold">{[offer.brand.name, ...offer.options.map((o) => offer.optionLabels[o.key]?.[state.sel[o.key]]).filter(Boolean)].join(" · ")}</p>
+      <p className="font-semibold">{[offer.brand.name, material && allMats.find((m) => m.code === material)?.name, ...offer.options.map((o) => offer.optionLabels[o.key]?.[state.sel[o.key]]).filter(Boolean)].filter(Boolean).join(" · ")}</p>
       {v && <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
         <div><dt className="text-steel-600">{t.sku}</dt><dd dir="ltr" className="font-mono">{v.sku}</dd></div>
         <div><dt className="text-steel-600">{t.code}</dt><dd dir="ltr" className="font-mono">{v.code ?? t.notListed}</dd></div>
@@ -130,16 +153,20 @@ export function FamilyView({ name, shortDesc, familyImage, offers, common, galle
           <p className="mt-2 text-sm text-muted-foreground">{offers.map((o) => o.brand.name).join(" · ")}</p>
           {shortDesc && <p className="mt-4 text-muted-foreground">{shortDesc}</p>}
 
+          {allMats.length > 0 && <div className="mt-5 rounded-xl border bg-card p-5">
+            <MaterialChips materials={allMats} value={material} onChange={(c) => setMaterial(c)} lang={common.lang} />
+          </div>}
           <fieldset className="mt-5 rounded-xl border bg-card p-5">
             <legend className="px-1 text-sm font-semibold">{t.brand}</legend>
             <div role="radiogroup" aria-label={t.brand} className="grid gap-2 sm:grid-cols-2">
               {offers.map((o) => {
                 const on = o.brand.slug === offer.brand.slug; const n = new Set(o.variants.map((x) => SIZE_KEYS.map((k) => x.options?.[k]).filter(Boolean).join("x"))).size;
+                const off = !has(o, material);
                 return (
-                  <button key={o.brand.slug} type="button" role="radio" aria-checked={on} onClick={() => choose(o.brand.slug)}
-                    className={cn("flex min-h-14 items-center gap-3 rounded-lg border p-3 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", on ? "border-ink bg-ink text-white" : "border-steel-300 bg-white hover:border-primary")}>
+                  <button key={o.brand.slug} type="button" role="radio" aria-checked={on} disabled={off} onClick={() => choose(o.brand.slug)} title={off ? t.noMaterial(o.brand.name) : undefined}
+                    className={cn("flex min-h-14 items-center gap-3 rounded-lg border p-3 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-45", on ? "border-ink bg-ink text-white" : "border-steel-300 bg-white hover:border-primary")}>
                     {o.brand.logo ? <img src={o.brand.logo} alt="" className="size-9 shrink-0 rounded bg-white object-contain p-0.5" /> : <span aria-hidden="true" className={cn("flex size-9 shrink-0 items-center justify-center rounded font-mono text-xs font-bold", on ? "bg-white/15" : "bg-steel-100 text-steel-700")}>{o.brand.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase()}</span>}
-                    <span className="min-w-0"><span className="block truncate font-semibold">{o.brand.name}</span><span className={cn("block text-xs", on ? "text-white/70" : "text-muted-foreground")}>{n > 0 ? `${n} ${t.sizes}` : ""}</span></span>
+                    <span className="min-w-0"><span className="block truncate font-semibold">{o.brand.name}</span><span className={cn("block text-xs", on ? "text-white/70" : "text-muted-foreground")}>{off ? t.notInMaterial : [n > 0 ? `${n} ${t.sizes}` : "", o.shownMaterials.map((m) => m.code).join(" | ") || t.matNotVerified].filter(Boolean).join(" · ")}</span></span>
                   </button>);
               })}
             </div>
@@ -149,7 +176,8 @@ export function FamilyView({ name, shortDesc, familyImage, offers, common, galle
           <div className="mt-4">
             <BuyBox key={offer.brand.slug} {...common} approvalLabels={approvalLabels} approvals={offer.approvals} brandName={offer.brand.name}
               product={{ id: offer.id, slug: offer.slug, name: offer.name, unit: offer.unit, quoteOnly: offer.quoteOnly, basePrice: offer.basePrice, minQty: offer.minQty, image: offer.cartImage }}
-              options={offer.options} variants={offer.variants} datasheet={`/api/datasheet/${offer.slug}`} initialSel={initial} onSelChange={onSel} afterOptions={summary} />
+              options={offer.options} variants={offer.variants} datasheet={`/api/datasheet/${offer.slug}`} initialSel={initial} onSelChange={onSel} afterOptions={summary}
+              materials={offer.shownMaterials} material={material} materialControlled />
           </div>
         </div>
       </div>

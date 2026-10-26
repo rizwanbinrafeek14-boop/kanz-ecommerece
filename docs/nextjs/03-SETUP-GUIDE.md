@@ -106,6 +106,9 @@ Run `supabase/migrations/0014_catalogue_extraction.sql` (contents, not the file 
 ## Step 8e — Multi-brand product families
 Run `supabase/migrations/0015_product_families.sql` and then `0016_family_listings.sql` (contents) and redeploy. Then follow `docs/nextjs/05-PRODUCT-FAMILIES.md`: approve the match suggestions in Admin → Product families, upload a family photo, and publish the family page.
 
+## Step 8f — Materials and the Material filter
+Run `supabase/migrations/0017_materials.sql` (contents) and redeploy. Then Admin → **Materials** → *Preview report* → *Run detection*, and work through "Needs verification" and "Material Not Verified" (approve, correct, or set materials in bulk). Run detection again whenever you load catalogue SQL packages; products imported from Admin → Catalogue import are classified automatically. Details: `docs/nextjs/06-MATERIALS.md`.
+
 ## Step 8c — New homepage
 Run `supabase/migrations/0013_homepage_sections.sql` (contents, not the file name) and redeploy. The new homepage blocks appear in Admin → Content & settings → Homepage sections, where you can reorder or disable them. Blocks without real data (featured products, brands, certificates, material/standard chips) stay hidden automatically.
 

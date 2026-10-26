@@ -33,12 +33,15 @@ function qs(s: State): string {
   return str ? `?${str}` : "";
 }
 
-export async function Listing({ lang, dict, category, sp, basePath }: { lang: Locale; dict: Dictionary; category?: Category | null; sp: RawParams; basePath: string }) {
+export async function Listing({ lang, dict, category, brand, sp, basePath }: { lang: Locale; dict: Dictionary; category?: Category | null; brand?: { id: string; name: string; name_ar: string | null; description?: string | null } | null; sp: RawParams; basePath: string }) {
   const st = parse(sp);
-  const [{ products, total }, facets, cats, banners] = await Promise.all([
-    searchProducts({ q: st.q, category: category?.id, filters: st.f, availability: st.avail, flag: st.flag, sort: st.sort, page: st.page, pageSize: PAGE_SIZE }),
-    getFacets(st.q, category?.id), getCategories(), category ? getBanners("category_top", category.id) : Promise.resolve([]),
+  if (brand) delete st.f.brand;   // a brand page is already limited to its brand
+  const [{ products, total }, allFacets, cats, banners] = await Promise.all([
+    searchProducts({ q: st.q, category: category?.id, filters: brand ? { ...st.f, brand: [brand.name] } : st.f, availability: st.avail, flag: st.flag, sort: st.sort, page: st.page, pageSize: PAGE_SIZE }),
+    getFacets(st.q, category?.id, brand?.id), getCategories(), category ? getBanners("category_top", category.id) : Promise.resolve([]),
   ]);
+  const facets = brand ? allFacets.filter((f) => f.key !== "brand") : allFacets;
+  const label = (v: { label_en: string; value_ar: string | null }) => (lang === "ar" && v.value_ar ? v.value_ar : v.label_en);
   const tree = buildTree(cats);
   const children = category ? cats.filter((c) => c.parent_id === category.id) : [];
   const parent = category?.parent_id ? cats.find((c) => c.id === category.parent_id) : null;
@@ -58,11 +61,11 @@ export async function Listing({ lang, dict, category, sp, basePath }: { lang: Lo
     const fc = facets.find((x) => x.key === k);
     for (const val of vals) {
       const fv = fc?.values.find((x) => x.value_en === val);
-      chips.push({ key: `${k}:${val}`, label: `${fc ? (lang === "ar" && fc.name_ar ? fc.name_ar : fc.name_en) : k}: ${lang === "ar" && fv?.value_ar ? fv.value_ar : val}`, href: href({ f: { ...st.f, [k]: vals.filter((x) => x !== val) } }) });
+      chips.push({ key: `${k}:${val}`, label: `${fc ? (lang === "ar" && fc.name_ar ? fc.name_ar : fc.name_en) : k}: ${fv ? label(fv) : val}`, href: href({ f: { ...st.f, [k]: vals.filter((x) => x !== val) } }) });
     }
   }
   const clearAll = `${basePath}${qs({ page: 1, f: {}, sort: st.sort })}`;
-  const title = category ? loc(category, "name", lang) : st.q ? `“${st.q}”` : dict.nav.products;
+  const title = category ? loc(category, "name", lang) : brand ? ((lang === "ar" && brand.name_ar) || brand.name) : st.q ? `“${st.q}”` : dict.nav.products;
 
   const sidebar = (
     <div className="space-y-6">
@@ -72,6 +75,22 @@ export async function Listing({ lang, dict, category, sp, basePath }: { lang: Lo
           <ul className="space-y-1 text-sm">{tree.map((c) => <li key={c.id}><Link href={`/${lang}/category/${c.slug}`} className="text-muted-foreground hover:text-primary">{loc(c, "name", lang)}</Link></li>)}</ul>
         </div>
       )}
+      {facets.map((fc) => (
+        <div key={fc.key} data-facet={fc.key}>
+          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide">{lang === "ar" && fc.name_ar ? fc.name_ar : fc.name_en}</h3>
+          <ul className="max-h-60 space-y-1 overflow-y-auto pe-1 text-sm">
+            {fc.values.map((v) => {
+              const on = (st.f[fc.key] ?? []).includes(v.value_en);
+              return (
+                <li key={v.value_en}><Link href={toggle(fc.key, v.value_en)} className="flex min-h-8 items-center gap-2 hover:text-primary" rel="nofollow" data-value={v.value_en}>
+                  <span className={`flex size-4 shrink-0 items-center justify-center rounded border ${on ? "border-primary bg-primary text-white" : "border-input"}`}>{on && <Check className="size-3" />}</span>
+                  <span className="flex-1 truncate" title={fc.key === "material" ? `${v.value_en} · ${v.label_en}` : undefined}>{fc.key === "material" ? <><span className="font-mono text-xs font-semibold">{v.value_en}</span> {label(v)}</> : label(v)}</span><span className="text-xs text-muted-foreground">{v.n}</span>
+                </Link></li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
       <div>
         <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide">{dict.filters.availability}</h3>
         <ul className="space-y-1 text-sm">
@@ -82,22 +101,6 @@ export async function Listing({ lang, dict, category, sp, basePath }: { lang: Lo
           ))}
         </ul>
       </div>
-      {facets.map((fc) => (
-        <div key={fc.key}>
-          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide">{lang === "ar" && fc.name_ar ? fc.name_ar : fc.name_en}</h3>
-          <ul className="max-h-60 space-y-1 overflow-y-auto pe-1 text-sm">
-            {fc.values.map((v) => {
-              const on = (st.f[fc.key] ?? []).includes(v.value_en);
-              return (
-                <li key={v.value_en}><Link href={toggle(fc.key, v.value_en)} className="flex items-center gap-2 hover:text-primary" rel="nofollow">
-                  <span className={`flex size-4 shrink-0 items-center justify-center rounded border ${on ? "border-primary bg-primary text-white" : "border-input"}`}>{on && <Check className="size-3" />}</span>
-                  <span className="flex-1 truncate">{lang === "ar" && v.value_ar ? v.value_ar : v.value_en}</span><span className="text-xs text-muted-foreground">{v.n}</span>
-                </Link></li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
       {activeCount > 0 && <Link href={`${basePath}${qs({ q: st.q, page: 1, f: {} })}`} className="inline-block text-sm font-medium text-primary hover:underline">{dict.filters.clear}</Link>}
     </div>
   );
@@ -155,7 +158,7 @@ export async function Listing({ lang, dict, category, sp, basePath }: { lang: Lo
                 <li><Link href={clearAll} rel="nofollow" className="inline-flex min-h-10 items-center rounded-full px-3.5 py-1.5 font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict.filters.clear}</Link></li>
               </ul>)}
           </div>
-          {products.length ? <ProductGrid products={products} lang={lang} dict={dict} /> : (
+          {products.length ? <ProductGrid products={products} lang={lang} dict={dict} activeMaterials={st.f.material} /> : (
             <div className="rounded-xl border border-dashed p-12 text-center">
               <p className="text-muted-foreground">{dict.common.noResults}</p>
               <Link href={`/${lang}/rfq`} className="mt-3 inline-block font-semibold text-primary hover:underline">{dict.nav.rfq} →</Link>

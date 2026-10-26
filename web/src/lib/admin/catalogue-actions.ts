@@ -227,6 +227,8 @@ export async function importApproved(sourceId: string, ids: string[]): Promise<R
       imported.push(pid as string);
     } catch (e) { failed.push({ id: r.id, name: p.name_en, error: (e as Error).message }); }
   }
+  // classify the new products' materials straight away (same rules as Admin → Materials; never touches admin decisions)
+  if (imported.length) { try { const { runDetection } = await import("@/lib/materials/run"); await runDetection(sb, { dryRun: false, productIds: imported }); } catch { /* detection can be re-run from Admin → Materials */ } }
   await sb.from("catalogue_import_runs").insert({ source_id: sourceId, created_by: user.id, summary: { imported: imported.length, failed, product_ids: imported } });
   await audit(sb, user.id, "catalogue.import", "catalogue_sources", sourceId, { imported: imported.length, failed: failed.length });
   refreshStorefront(); done(sourceId); revalidatePath("/admin/products");
