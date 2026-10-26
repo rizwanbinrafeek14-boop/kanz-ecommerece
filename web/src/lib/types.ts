@@ -29,7 +29,11 @@ export interface Product {
   og_title_en: string | null; og_title_ar: string | null; og_desc_en: string | null; og_desc_ar: string | null; og_image_path: string | null; seo_noindex: boolean;
   published_at: string | null; created_at: string; updated_at: string;
   manufacturer_ref?: string | null; country_of_origin?: string | null; applications_en?: string | null; applications_ar?: string | null;
-  specs?: { standards?: { code: string; scope: "product" | "general"; note?: string | null }[]; materials?: { type: string; grades: string[] }[]; notes?: string[]; choices?: ConfigChoice[]; properties?: { label_en: string; label_ar?: string | null; value_en: string; value_ar?: string | null }[] } | null;
+  specs?: { standards?: { code: string; scope: "product" | "general"; note?: string | null }[]; materials?: { type: string; grades: string[] }[]; notes?: string[]; choices?: ConfigChoice[]; properties?: { label_en: string; label_ar?: string | null; value_en: string; value_ar?: string | null }[];
+    /** Product-page overview: what it seals / connects to, and what the customer must confirm before ordering. */
+    overview?: { seals_en?: string | null; seals_ar?: string | null; confirm_en?: string[]; confirm_ar?: string[] };
+    /** Interactive explanation on the product page (only types with a built visual). */
+    visual?: { type?: "spiral-wound-gasket" | null; enable_3d?: boolean } } | null;
   source_ref?: { title?: string; pages?: number[]; import?: string; review?: string[]; possible_matches?: string | null; supplier_note?: string } | null;
 }
 /**

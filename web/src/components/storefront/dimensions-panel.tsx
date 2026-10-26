@@ -35,7 +35,7 @@ export function DimensionsPanel({ tables, variants, optionLabels, labels, drawin
                   {t.columns.filter((c) => hit.values[c.key] !== undefined).map((c) => <div key={c.key}><dt className="text-xs text-steel-600">{c.label_en}{c.symbol ? ` (${c.symbol})` : ""}</dt><dd className="font-mono text-lg tabular-nums">{hit.values[c.key]}{c.unit ? <span className="ms-1 text-xs text-steel-500">{c.unit}</span> : null}</dd></div>)}
                 </dl>
               </div>)}
-            <div className="overflow-x-auto rounded-md border border-steel-200">
+            <div className="overflow-x-auto rounded-md border border-steel-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" tabIndex={0} role="region" aria-label={t.title_en}>
               <table className="w-full min-w-max text-sm">
                 <thead className="bg-steel-50 text-xs text-steel-700"><tr>
                   {rowKeys.map((k) => <th key={k} scope="col" className="p-2 text-start font-semibold capitalize">{k.replace(/_/g, " ")}</th>)}

@@ -9,9 +9,11 @@ import { saveDimensionTable, saveTechSpecs } from "@/lib/admin/techdata-actions"
 import type { ConfigChoice } from "@/lib/types";
 
 export interface TechTable { id: string; title_en: string; title_ar: string | null; notes: string[]; applies: Record<string, string>; columns: { key: string; symbol?: string | null; label_en: string; unit?: string | null }[]; rows: { match: Record<string, string>; values: Record<string, string> }[] }
-export interface TechSpecs { choices: ConfigChoice[]; properties: { label_en: string; label_ar?: string | null; value_en: string; value_ar?: string | null }[]; notes: string[]; standards: { code: string; note?: string | null }[] }
+export interface TechSpecs { choices: ConfigChoice[]; properties: { label_en: string; label_ar?: string | null; value_en: string; value_ar?: string | null }[]; notes: string[]; standards: { code: string; note?: string | null }[];
+  overview: { seals_en?: string | null; seals_ar?: string | null; confirm_en?: string[]; confirm_ar?: string[] }; visual: { type?: "spiral-wound-gasket" | null; enable_3d?: boolean } }
 
 const kv = (o: Record<string, string>) => Object.entries(o).map(([k, v]) => `${k}=${v}`).join("; ");
+const lines = (t: string) => t.split("\n").map((x) => x.trim()).filter(Boolean);
 const parseKv = (t: string) => Object.fromEntries(t.split(/[;\n]/).map((x) => x.trim()).filter(Boolean).map((x) => { const i = x.indexOf("="); return [x.slice(0, i).trim(), x.slice(i + 1).trim()]; }).filter(([k, v]) => k && v));
 
 /** Import review notes (missing / ambiguous data, possible duplicate products) written by a catalogue import. */
@@ -33,14 +35,35 @@ export function TechDataEditor({ productId, specs, tables }: { productId: string
   const [props, setProps] = React.useState(specs.properties.map((p) => `${p.label_en} | ${p.value_en}${p.label_ar || p.value_ar ? ` | ${p.label_ar ?? ""} | ${p.value_ar ?? ""}` : ""}`).join("\n"));
   const [stds, setStds] = React.useState(specs.standards.map((s) => `${s.code}${s.note ? ` | ${s.note}` : ""}`).join("\n"));
   const [notes, setNotes] = React.useState(specs.notes.join("\n"));
+  const [ov, setOv] = React.useState({ seals_en: specs.overview.seals_en ?? "", seals_ar: specs.overview.seals_ar ?? "", confirm_en: (specs.overview.confirm_en ?? []).join("\n"), confirm_ar: (specs.overview.confirm_ar ?? []).join("\n") });
+  const [visual, setVisual] = React.useState({ type: specs.visual.type ?? "", enable_3d: !!specs.visual.enable_3d });
   const saveSpecs = async () => {
     let parsed: unknown; try { parsed = JSON.parse(choices || "[]"); } catch { alert("Configuration choices: not valid JSON."); return; }
     const properties = props.split("\n").map((l) => l.split("|").map((x) => x.trim())).filter((c) => c[0] && c[1]).map(([label_en, value_en, label_ar, value_ar]) => ({ label_en, value_en, label_ar: label_ar || null, value_ar: value_ar || null }));
     const standards = stds.split("\n").map((l) => l.split("|").map((x) => x.trim())).filter((c) => c[0]).map(([code, note]) => ({ code, note: note || null }));
-    setBusy(true); const r = await run(saveTechSpecs(productId, { choices: parsed, properties, standards, notes: notes.split("\n") }), "Technical data saved"); setBusy(false); if (r) router.refresh();
+    setBusy(true); const r = await run(saveTechSpecs(productId, { choices: parsed, properties, standards, notes: notes.split("\n"),
+      overview: { seals_en: ov.seals_en, seals_ar: ov.seals_ar, confirm_en: lines(ov.confirm_en), confirm_ar: lines(ov.confirm_ar) }, visual: { type: visual.type || null, enable_3d: visual.enable_3d } }), "Technical data saved"); setBusy(false); if (r) router.refresh();
   };
   return (
     <div className="space-y-4">
+      <Panel title="Product page overview and visual">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="block space-y-1.5"><span className="text-sm font-medium">Seals / connects to (English)</span><span className="block text-xs text-muted-foreground">What the product fits: flange standard and facing, thread, pipe end… Shown as an overview card.</span>
+            <Textarea rows={3} value={ov.seals_en} onChange={(e) => setOv({ ...ov, seals_en: e.target.value })} aria-label="Seals / connects to (English)" /></label>
+          <label className="block space-y-1.5"><span className="text-sm font-medium">Seals / connects to (Arabic)</span><span className="block text-xs text-muted-foreground">&nbsp;</span>
+            <Textarea dir="rtl" rows={3} value={ov.seals_ar} onChange={(e) => setOv({ ...ov, seals_ar: e.target.value })} aria-label="Seals / connects to (Arabic)" /></label>
+          <label className="block space-y-1.5"><span className="text-sm font-medium">Confirm before ordering (English, one per line)</span>
+            <Textarea rows={6} value={ov.confirm_en} onChange={(e) => setOv({ ...ov, confirm_en: e.target.value })} aria-label="Confirm before ordering (English)" /></label>
+          <label className="block space-y-1.5"><span className="text-sm font-medium">Confirm before ordering (Arabic, one per line)</span>
+            <Textarea dir="rtl" rows={6} value={ov.confirm_ar} onChange={(e) => setOv({ ...ov, confirm_ar: e.target.value })} aria-label="Confirm before ordering (Arabic)" /></label>
+          <label className="block space-y-1.5"><span className="text-sm font-medium">Interactive visual</span>
+            <select className="h-10 w-full rounded-md border bg-background px-2 text-sm" value={visual.type} onChange={(e) => setVisual({ ...visual, type: e.target.value })} aria-label="Interactive visual">
+              <option value="">None</option><option value="spiral-wound-gasket">Spiral wound gasket (layers, flange joint; uses this product&apos;s d1–d4 table)</option></select>
+            <span className="block text-xs text-muted-foreground">Visuals are labelled “Illustrative — not to scale”; dimensions shown come only from this product&apos;s dimension tables.</span></label>
+          <label className="flex items-center gap-2 self-center text-sm"><input type="checkbox" checked={visual.enable_3d} disabled={!visual.type} onChange={(e) => setVisual({ ...visual, enable_3d: e.target.checked })} />Offer the 3D view (loaded only when a customer clicks it)</label>
+        </div>
+        <Button className="mt-4" disabled={busy} onClick={saveSpecs}>Save overview and visual</Button>
+      </Panel>
       <Panel title="Configuration choices, specifications and standards">
         <div className="grid gap-4 lg:grid-cols-2">
           <label className="block space-y-1.5 lg:row-span-3"><span className="text-sm font-medium">Configuration choices (JSON)</span>

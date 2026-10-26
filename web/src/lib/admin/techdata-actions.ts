@@ -17,14 +17,21 @@ const choiceSchema = z.object({
 const propSchema = z.object({ label_en: z.string().trim().min(1).max(120), label_ar: z.string().trim().max(120).nullish(), value_en: z.string().trim().min(1).max(400), value_ar: z.string().trim().max(400).nullish() });
 
 /** Configuration choices and extra specification rows (stored in products.specs, next to standards / notes). */
-export async function saveTechSpecs(productId: string, input: { choices: unknown; properties: unknown; notes: string[]; standards: { code: string; note?: string | null }[] }): Promise<Result> {
+const overviewSchema = z.object({ seals_en: z.string().trim().max(600).nullish(), seals_ar: z.string().trim().max(600).nullish(), confirm_en: z.array(z.string().trim().min(1).max(200)).max(15), confirm_ar: z.array(z.string().trim().min(1).max(200)).max(15) });
+const visualSchema = z.object({ type: z.enum(["spiral-wound-gasket"]).nullable(), enable_3d: z.boolean() });
+
+export async function saveTechSpecs(productId: string, input: { choices: unknown; properties: unknown; notes: string[]; standards: { code: string; note?: string | null }[]; overview?: unknown; visual?: unknown }): Promise<Result> {
   const user = await requireStaff(); const sb = await createClient();
   const c = z.array(choiceSchema).max(30).safeParse(input.choices); if (!c.success) return fail(`Configuration choices: ${c.error.issues[0]?.path.join(".")} ${c.error.issues[0]?.message}`);
   if (new Set(c.data.map((x) => x.key)).size !== c.data.length) return fail("Configuration choices: every key must be unique.");
   const pr = z.array(propSchema).max(40).safeParse(input.properties); if (!pr.success) return fail(`Specification rows: ${pr.error.issues[0]?.path.join(".")} ${pr.error.issues[0]?.message}`);
+  const ov = overviewSchema.safeParse(input.overview ?? { confirm_en: [], confirm_ar: [] }); if (!ov.success) return fail(`Overview: ${ov.error.issues[0]?.path.join(".")} ${ov.error.issues[0]?.message}`);
+  const vi = visualSchema.safeParse(input.visual ?? { type: null, enable_3d: false }); if (!vi.success) return fail("Visual: choose a supported visual type.");
   const { data: p } = await sb.from("products").select("specs").eq("id", productId).single();
   const specs = { ...(p?.specs ?? {}), choices: c.data, properties: pr.data, notes: input.notes.map((x) => x.trim()).filter(Boolean).slice(0, 40),
-    standards: input.standards.filter((x) => x.code.trim()).slice(0, 30).map((x) => ({ code: x.code.trim().slice(0, 60), scope: "product", note: x.note?.trim() || null })) };
+    standards: input.standards.filter((x) => x.code.trim()).slice(0, 30).map((x) => ({ code: x.code.trim().slice(0, 60), scope: "product", note: x.note?.trim() || null })),
+    overview: { seals_en: ov.data.seals_en || null, seals_ar: ov.data.seals_ar || null, confirm_en: ov.data.confirm_en, confirm_ar: ov.data.confirm_ar },
+    visual: { type: vi.data.type, enable_3d: vi.data.type ? vi.data.enable_3d : false } };
   const { error } = await sb.from("products").update({ specs, updated_at: new Date().toISOString() }).eq("id", productId);
   if (error) return fail(error.message);
   await audit(sb, user.id, "product.techdata", "products", productId, { choices: c.data.length, properties: pr.data.length }); done(productId); return ok(true);

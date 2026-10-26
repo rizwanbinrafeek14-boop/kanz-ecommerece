@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Search, Folder, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
 import { publicUrl } from "@/lib/format";
-import { track } from "@/lib/track";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
@@ -39,7 +38,7 @@ export function SearchBox({ lang, dict, className }: { lang: Locale; dict: Dicti
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!q.trim()) return;
-    track("search", { query: q.trim(), lang });
+    // the results page records the search together with its number of results
     setOpen(false);
     router.push(`/${lang}/products?q=${encodeURIComponent(q.trim())}`);
   }

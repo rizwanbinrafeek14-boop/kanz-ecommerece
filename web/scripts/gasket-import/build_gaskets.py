@@ -242,6 +242,13 @@ product(
                mat("CS", [{"role": "outer ring", "grades": ["Carbon steel (standard)"]}]),
                mat("GRAPHITE", [{"role": "filler", "grades": ["Flexible graphite"]}]), mat("PTFE", [{"role": "filler", "grades": ["PTFE"]}]),
                mat("CERAMIC", [{"role": "filler", "grades": ["Ceramic"]}]), mat("MICA", [{"role": "filler", "grades": ["Mica-graphite"]}])],
+    overview={"seals_en": "Raised-face pipe flanges to ASME B16.5 (NPS ½–24) and ASME B16.47 Series A or Series B (NPS 26–60): styles SW-CR and SW-IR/CR, centred by the outer ring inside the bolt circle.\nTongue-and-groove and male/female joints, valve bonnets and pressure-vessel covers: styles SW and SW-IR, located by the joint itself.",
+              "seals_ar": "فلنجات الأنابيب ذات الوجه البارز وفق ASME B16.5 (المقاسات ½–24) وASME B16.47 السلسلة A أو B (المقاسات 26–60): النوعان SW-CR وSW-IR/CR وتتمركز بالحلقة الخارجية داخل دائرة المسامير.\nوصلات اللسان والمجرى والذكر/الأنثى وأغطية الصمامات وأوعية الضغط: النوعان SW وSW-IR ويحدد موضعهما شكل الوصلة.",
+              "confirm_en": ["NPS and pressure class", "Flange standard: ASME B16.5, ASME B16.47 Series A or Series B (their dimensions differ)", "Style: SW, SW-IR, SW-CR or SW-IR/CR (an inner ring is required with PTFE filler and for the sizes in the table notes)",
+                             "Winding metal and filler for the media and temperature", "Inner and outer ring materials (marked on the gasket when not SS304 / not carbon steel)", "Quantity"],
+              "confirm_ar": ["المقاس وفئة الضغط", "مواصفة الفلنجة: ASME B16.5 أو ASME B16.47 السلسلة A أو B (أبعادها مختلفة)", "النوع: SW أو SW-IR أو SW-CR أو SW-IR/CR (الحلقة الداخلية مطلوبة مع حشو PTFE وللمقاسات المذكورة في ملاحظات الجداول)",
+                             "معدن اللف ومادة الحشو المناسبة للمائع والحرارة", "مادتا الحلقتين الداخلية والخارجية (تُعلَّم على الجوان إذا لم تكن SS304 / صلباً كربونياً)", "الكمية"]},
+    visual={"type": "spiral-wound-gasket", "enable_3d": True},
     standards=[("ASME B16.20", "Gasket standard (dimensions and marking)"), ("ASME B16.5", "Flanges NPS ½–24"), ("ASME B16.47 Series A", "Flanges NPS 26–60 (MSS SP-44 pattern)"), ("ASME B16.47 Series B", "Flanges NPS 26–60 (API 605 pattern)")],
     properties=[("Sealing element thickness", "4.45 mm"), ("Ring thickness", "2.97–3.32 mm")],
     attributes={"gasket_family": [("Spiral wound gaskets", "جوانات حلزونية")], "gasket_standard": [("ASME B16.20", "ASME B16.20")]},
@@ -790,7 +797,8 @@ for p in PRODUCTS:
          "name_en": p["name_en"], "name_ar": p["name_ar"], "short_desc_en": p["short_desc_en"], "short_desc_ar": p["short_desc_ar"], "description_en": p["description_en"], "description_ar": p["description_ar"],
          "applications_en": p["applications_en"], "unit": p["unit"], "options": p["options"], "variants": p["variants"], "materials": p["materials"], "attributes": p["attributes"], "match_terms": p["match_terms"],
          "dimension_tables": [{k: v for k, v in t.items() if k != "drawing_path"} for t in p["dimension_tables"]],
-         "specs": {"standards": std, "materials": [], "notes": [], "choices": p.get("choices", []), "properties": [{"label_en": k, "value_en": v} for k, v in p.get("properties", [])]},
+         "specs": {"standards": std, "materials": [], "notes": [], "choices": p.get("choices", []), "properties": [{"label_en": k, "value_en": v} for k, v in p.get("properties", [])],
+                   **({"overview": p["overview"]} if p.get("overview") else {}), **({"visual": p["visual"]} if p.get("visual") else {})},
          "source_ref": {"import": IMPORT, "title": "Gaskets & Sealing Products — Technical Catalogue (Kanz Corner Trading)", "pages": p["pages"], "review": p["review"],
                         "supplier_note": "Kanz Corner Trading supplies products manufactured by qualified gasket manufacturers to these standards; the manufacturer is not named in the catalogue."},
          "seo_title_en": p["name_en"][:70], "seo_title_ar": p["name_ar"][:70], "seo_desc_en": p["short_desc_en"][:158], "seo_desc_ar": p["short_desc_ar"][:158]}
@@ -814,6 +822,14 @@ for p in PRODUCTS:
                      f"from products where slug = {lit(slug)} and source_ref->>'import' = '{IMPORT}' and not exists (select 1 from product_images x where x.product_id = products.id and x.storage_path = {lit(im['storage_path'])});")
 lines.append("commit;")
 open(f"{OUT}/2-gaskets-drawings.sql", "w").write("\n".join(lines) + "\n")
+
+upd = ["-- KANZ: product-page overview + interactive visual for gasket products imported earlier. Adds the fields only where they are missing", "-- (never overwrites what an admin has entered). Safe to run more than once.", "begin;"]
+for p in PRODUCTS:
+    extra = {k: p[k] for k in ("overview", "visual") if p.get(k)}
+    for k, v in extra.items():
+        upd.append(f"update products set specs = jsonb_set(coalesce(specs, '{{}}'::jsonb), '{{{k}}}', {dq(v)}) where slug = {lit(p['slug'])} and source_ref->>'import' = '{IMPORT}' and not (coalesce(specs, '{{}}'::jsonb) ? '{k}');")
+upd.append("commit;")
+open(f"{OUT}/3-gaskets-product-page-update.sql", "w").write("\n".join(upd) + "\n")
 
 rep = ["# Gasket catalogue import — review list", "", f"{len(PRODUCTS)} product families, {nv} configurations, {sum(len(p['dimension_tables']) for p in PRODUCTS)} dimension tables, "
        f"{sum(len(t['rows']) for p in PRODUCTS for t in p['dimension_tables'])} dimension rows, {len(os.listdir(f'{OUT}/catalogue/gaskets'))} drawings.", ""]

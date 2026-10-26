@@ -6,6 +6,7 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 import type { Category } from "@/lib/types";
 import { publicUrl } from "@/lib/format";
 import { ProductGrid } from "./product-card";
+import { SearchLogger } from "./search-logger";
 
 export type RawParams = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
@@ -40,6 +41,9 @@ export async function Listing({ lang, dict, category, brand, sp, basePath }: { l
     searchProducts({ q: st.q, category: category?.id, filters: brand ? { ...st.f, brand: [brand.name] } : st.f, availability: st.avail, flag: st.flag, sort: st.sort, page: st.page, pageSize: PAGE_SIZE }),
     getFacets(st.q, category?.id, brand?.id), getCategories(), category ? getBanners("category_top", category.id) : Promise.resolve([]),
   ]);
+  // nothing for the exact words: try the same words without sizes / classes / codes, so the customer sees the product type at least
+  const looser = !total && st.q ? st.q.split(/\s+/).filter((w) => !/\d/.test(w)).join(" ").trim() : "";
+  const closest = looser && looser !== st.q ? (await searchProducts({ q: looser, category: category?.id, pageSize: 8 })).products : [];
   const facets = brand ? allFacets.filter((f) => f.key !== "brand") : allFacets;
   const label = (v: { label_en: string; value_ar: string | null }) => (lang === "ar" && v.value_ar ? v.value_ar : v.label_en);
   const tree = buildTree(cats);
@@ -143,7 +147,7 @@ export async function Listing({ lang, dict, category, brand, sp, basePath }: { l
               <p className="text-muted-foreground" aria-live="polite">{total} {dict.filters.results}</p>
               <nav aria-label={dict.common.sortBy} className="flex flex-wrap items-center gap-1.5">
                 <span className="me-1 font-medium">{dict.common.sortBy}:</span>
-                {([["newest", dict.filters.sort.relevance], ["name_asc", dict.filters.sort.nameAsc], ["price_low", dict.filters.sort.priceLow], ["popular", dict.filters.sort.popular]] as const).map(([v, label]) => {
+                {([["newest", st.q ? dict.filters.sort.relevance : (lang === "ar" ? "الأحدث" : "Newest")], ["name_asc", dict.filters.sort.nameAsc], ["price_low", dict.filters.sort.priceLow], ["popular", dict.filters.sort.popular]] as const).map(([v, label]) => {
                   const on = (st.sort ?? "newest") === v;
                   return <Link key={v} href={href({ sort: v })} rel="nofollow" aria-current={on ? "true" : undefined}
                     className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${on ? "border-ink bg-ink text-white" : "bg-background hover:border-primary hover:text-primary"}`}>{on && <Check className="size-3.5" aria-hidden="true" />}{label}</Link>;
@@ -158,10 +162,16 @@ export async function Listing({ lang, dict, category, brand, sp, basePath }: { l
                 <li><Link href={clearAll} rel="nofollow" className="inline-flex min-h-10 items-center rounded-full px-3.5 py-1.5 font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict.filters.clear}</Link></li>
               </ul>)}
           </div>
+          {st.q && st.page === 1 && <SearchLogger query={st.q} results={total} lang={lang} />}
           {products.length ? <ProductGrid products={products} lang={lang} dict={dict} activeMaterials={st.f.material} /> : (
-            <div className="rounded-xl border border-dashed p-12 text-center">
-              <p className="text-muted-foreground">{dict.common.noResults}</p>
-              <Link href={`/${lang}/rfq`} className="mt-3 inline-block font-semibold text-primary hover:underline">{dict.nav.rfq} →</Link>
+            <div className="space-y-6" data-empty-results>
+              <div className="rounded-xl border border-dashed p-8 text-center">
+                <p className="font-medium">{dict.common.noResults}</p>
+                {st.q && <p className="mt-2 text-sm text-muted-foreground">{lang === "ar" ? `لم نجد مطابقة تامة لـ “${st.q}”. يمكنك إضافته إلى طلب عرض السعر كما هو وسنقترح الصنف المناسب.` : `No exact match for “${st.q}”. Add it to a quotation request as written and we will propose the right item.`}</p>}
+                <Link href={`/${lang}/rfq`} className="mt-4 inline-flex min-h-11 items-center rounded-md bg-ink px-5 text-sm font-semibold text-white hover:bg-ink-soft">{dict.nav.rfq} →</Link>
+              </div>
+              {closest.length > 0 && <section aria-labelledby="closest-h"><h2 id="closest-h" className="mb-3 text-lg font-semibold">{lang === "ar" ? `أقرب المنتجات لـ “${looser}”` : `Closest products for “${looser}”`}</h2>
+                <ProductGrid products={closest} lang={lang} dict={dict} /></section>}
             </div>
           )}
           {category && loc(category, "buying_guide", lang) && st.page === 1 && !Object.keys(st.f).length && !st.q && (

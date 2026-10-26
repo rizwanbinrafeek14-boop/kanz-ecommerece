@@ -15,7 +15,8 @@ Output in `out/`:
 2. `catalogue/gaskets/*.svg` — the catalogue drawings as standalone SVG files (page styles inlined, ids prefixed so they never clash).
    Upload the `catalogue` folder into Storage → `product-images`.
 3. `2-gaskets-drawings.sql` — links the drawings (product pictures, per-option drawings, table drawings). Run after the upload; safe to run again.
-4. `gaskets.json` (everything that is loaded, for review) and `REVIEW.md` (missing / ambiguous data for the admin).
+4. `3-gaskets-product-page-update.sql` — only for products already imported before the product-page update: adds the spiral wound overview (seals, confirm before ordering) and interactive visual where they are missing. Changes nothing else; safe to run again. Not needed on a fresh import (`1-gaskets-products.sql` already contains them).
+5. `gaskets.json` (everything that is loaded, for review) and `REVIEW.md` (missing / ambiguous data for the admin).
 
 The script stops with an error when the catalogue layout changes (unexpected table headers, missing sections), instead of loading wrong data.
 Only values printed in the catalogue are used: no prices, stock, brands or certifications are created, and "–" cells are not offered.
