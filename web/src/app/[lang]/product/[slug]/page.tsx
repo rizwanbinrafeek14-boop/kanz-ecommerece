@@ -87,10 +87,11 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
     ...(d.brand ? [[dict.common.brand, ar && d.brand.name_ar ? d.brand.name_ar : d.brand.name] as [string, React.ReactNode]] : []),
     ...(p.manufacturer_ref ? [[ar ? "مرجع الشركة المصنعة" : "Manufacturer reference", <span key="r" dir="ltr" className="font-mono">{p.manufacturer_ref}</span>] as [string, React.ReactNode]] : []),
     ...(d.family ? [[ar ? "عائلة المنتج" : "Product family", (ar && d.family.name_ar) || d.family.name_en] as [string, React.ReactNode]] : []),
+    [ar ? "المادة" : "Material", d.materials.length ? d.materials.map((m) => `${(ar && m.name_ar) || m.name_en} (${m.code})${m.grades.length ? `: ${m.grades.join(", ")}` : ""}`).join(" · ") : (ar ? "المادة غير مؤكدة - تُحدد في طلب عرض السعر" : "Material not verified - specify it in your request for quotation")] as [string, React.ReactNode],
     ...d.options.map((o) => [(ar && o.name_ar) || o.name_en, o.values.map((v) => (ar && v.label_ar) || v.label_en).join(" · ")] as [string, React.ReactNode]),
     ...(prodStd.length ? [[ar ? "المواصفات القياسية" : "Standards", prodStd.map((x) => x.code).join(", ")] as [string, React.ReactNode]] : []),
     ...(p.country_of_origin ? [[ar ? "بلد الصنع" : "Country of manufacture", p.country_of_origin] as [string, React.ReactNode]] : []),
-    ...d.attributes.map((a) => [(ar && a.def.name_ar) || a.def.name_en, a.values.map((v) => (ar && v.value_ar) || v.value_en).join(" · ")] as [string, React.ReactNode]),
+    ...d.attributes.filter((a) => a.def.key !== "material" || !d.materials.length).map((a) => [(ar && a.def.name_ar) || a.def.name_en, a.values.map((v) => (ar && v.value_ar) || v.value_en).join(" · ")] as [string, React.ReactNode]),
   ];
   const showWeights = d.variants.some((v) => v.weight_kg != null); const showCodes = d.variants.some((v) => v.manufacturer_code);
   const sourceNote = p.source_ref?.pages?.length ? (ar ? `البيانات كما نشرتها الشركة المصنعة (${d.brand?.name ?? ""})، صفحة ${p.source_ref.pages.join("، ")}. يرجى تأكيد المواصفة في طلب عرض السعر.` : `Data as published by the manufacturer (${d.brand?.name ?? ""}), catalogue page ${p.source_ref.pages.join(", ")}. Please confirm the specification in your request for quotation.`) : null;
@@ -147,7 +148,8 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
             <BuyBox approvals={certs} approvalLabels={approvalLabels} lang={lang} dict={dict} url={url} vatRate={vatRateOf(settings)} whatsapp={whatsappNumber(widget, s(settings, "company_whatsapp"))} waGreeting={lang === "ar" ? (widget?.default_message_ar ?? dict.product.shareWhatsapp) : (widget?.default_message_en ?? dict.product.shareWhatsapp)}
               product={{ id: p.id, slug: p.slug, name, unit: p.unit, quoteOnly: p.is_quote_only, basePrice: p.base_price, minQty: Number(p.min_order_qty), image: d.images[0]?.storage_path ?? null }}
               datasheet={`/api/datasheet/${p.slug}`} options={d.options.map((o) => ({ key: o.key, name: (lang === "ar" && o.name_ar) || o.name_en, values: o.values.map((v) => ({ value: v.value, label: (lang === "ar" && v.label_ar) || v.label_en })) }))}
-              variants={d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), spec: [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), price: v.price, available: v.available }))} />
+              variants={d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), spec: [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), price: v.price, available: v.available, material: v.material_code ?? null }))}
+              materials={d.materials.map((m) => ({ code: m.code, name: (lang === "ar" && m.name_ar) || m.name_en, grades: m.grades }))} />
           </div>
         </div>
       </div>

@@ -115,7 +115,7 @@ export async function publishImportItems(ids: string[]): Promise<Result<{ publis
   const [{ data: cats }, { data: defs }] = await Promise.all([sb.from("categories").select("id, slug"), sb.from("attribute_defs").select("id, key")]);
   const catId = new Map((cats ?? []).map((c) => [c.slug, c.id]));
   const defId = new Map((defs ?? []).map((d) => [d.key, d.id]));
-  let published = 0; const errors: string[] = [];
+  let published = 0; const errors: string[] = []; const newIds: string[] = [];
 
   for (const it of items) {
     let createdId: string | null = null;
@@ -152,7 +152,7 @@ export async function publishImportItems(ids: string[]): Promise<Result<{ publis
         if (shared) await sb.from("product_documents").insert({ product_id: product.id, kind: "mtc", title: mtc.title, storage_path: shared, is_public: false });
         else errors.push(`${it.name_en}: created, but the MTC file has not been uploaded to this batch yet — attach it later on the product's Documents tab.`);
       }
-      await sb.from("import_items").update({ status: "published", published_product_id: product.id }).eq("id", it.id);
+      await sb.from("import_items").update({ status: "published", published_product_id: product.id }).eq("id", it.id); newIds.push(product.id);
       await audit(sb, user.id, "import.publish_item", "products", product.id, { import_item: it.id });
       published++;
     } catch (e) {
@@ -161,6 +161,7 @@ export async function publishImportItems(ids: string[]): Promise<Result<{ publis
       errors.push(`${it.name_en}: ${(e as Error).message}`);
     }
   }
+  if (newIds.length) { try { const { runDetection } = await import("@/lib/materials/run"); await runDetection(sb, { dryRun: false, productIds: newIds }); } catch { /* re-run from Admin → Materials */ } }
   revalidatePath("/admin/import", "layout"); revalidatePath("/admin/products"); refreshStorefront();
   return ok({ published, errors });
 }

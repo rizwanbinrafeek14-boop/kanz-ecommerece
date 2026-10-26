@@ -44,6 +44,7 @@ function toOffer(d: ProductDetail, lang: Locale, approvals: Awaited<ReturnType<t
     .filter((x, i, a) => a.findIndex((y) => y.url === x.url) === i);
   const specRows: [string, string][] = [
     [ar ? "الشركة المصنعة" : "Manufacturer", brandName],
+    [ar ? "المادة" : "Material", d.materials.length ? d.materials.map((m) => `${(ar && m.name_ar) || m.name_en} (${m.code})${m.grades.length ? `: ${m.grades.join(", ")}` : ""}`).join(" · ") : (ar ? "المادة غير مؤكدة - تُحدد في طلب عرض السعر" : "Material not verified - specify it in your request for quotation")],
     ...(p.manufacturer_ref ? [[ar ? "مرجع الشركة المصنعة" : "Manufacturer reference", p.manufacturer_ref] as [string, string]] : []),
     ...opts.map((o) => [(ar && o.name_ar) || o.name_en, o.values.map((v) => (ar && v.label_ar) || v.label_en).join(" · ")] as [string, string]),
     ...(prodStandards(d).length ? [[ar ? "المواصفات القياسية" : "Standards", prodStandards(d).join(", ")] as [string, string]] : []),
@@ -55,7 +56,8 @@ function toOffer(d: ProductDetail, lang: Locale, approvals: Awaited<ReturnType<t
     options: opts.map((o) => ({ key: o.key, name: (ar && o.name_ar) || o.name_en, values: o.values.map((v) => ({ value: v.value, label: (ar && v.label_ar) || v.label_en })) })),
     variants: d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "),
       spec: [brandName, ...opts.map((o) => optionLabels[o.key]?.[v.options?.[o.key] ?? ""])].filter(Boolean).join(" · "), price: v.price, available: v.available,
-      weight: v.weight_kg == null ? null : Number(v.weight_kg), code: v.manufacturer_code ?? null })),
+      weight: v.weight_kg == null ? null : Number(v.weight_kg), code: v.manufacturer_code ?? null, material: v.material_code ?? null })),
+    shownMaterials: d.materials.map((m) => ({ code: m.code, name: (ar && m.name_ar) || m.name_en, grades: m.grades })),
     optionLabels, tables: d.dimensionTables, tableDrawings, drawings, specRows,
     standards: p.specs?.standards ?? [], materials: p.specs?.materials ?? [], notes: p.specs?.notes ?? [],
     documents: d.documents.map((x) => ({ id: x.id, title: x.title })),

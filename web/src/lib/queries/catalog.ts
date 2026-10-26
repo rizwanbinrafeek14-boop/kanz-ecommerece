@@ -33,13 +33,48 @@ export async function getCategoryBySlug(slug: string) {
   return (data as Category | null) ?? null;
 }
 
+export async function getBrandBySlug(slug: string) {
+  const c = sb(); if (!c) return null;
+  const { data } = await c.from("brands").select("id, slug, name, name_ar, logo_path").eq("slug", slug).eq("is_active", true).maybeSingle();
+  return (data as { id: string; slug: string; name: string; name_ar: string | null; logo_path: string | null } | null) ?? null;
+}
+
 const CARD_SELECT = "*, product_images(storage_path,is_primary,sort_order), brands(name,name_ar), product_variants(price,is_active)";
 
 export async function getProductCardsByIds(ids: string[]): Promise<ProductCard[]> {
   const c = sb(); if (!c || !ids.length) return [];
   const rows = await safe(() => c.from("products").select(CARD_SELECT).in("id", ids), [] as ProductCard[]);
   const order = new Map(ids.map((id, i) => [id, i]));
-  return groupFamilies(rows.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)));
+  return attachMaterials(await groupFamilies(rows.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0))));
+}
+
+export interface MaterialType { code: string; name_en: string; name_ar: string | null; sort_order: number }
+export async function getMaterialTypes(): Promise<MaterialType[]> {
+  const c = sb(); if (!c) return [];
+  return safe(() => c.from("material_types").select("code, name_en, name_ar, sort_order").order("sort_order"), [] as MaterialType[]);
+}
+/** Public materials per product: verified / auto offering materials (RLS hides the rest) plus materials set on active variants. */
+export async function getPublicMaterials(ids: string[]): Promise<Map<string, { code: string; grades: string[] }[]>> {
+  const out = new Map<string, { code: string; grades: string[] }[]>(); const c = sb(); if (!c || !ids.length) return out;
+  const [pm, vm] = await Promise.all([
+    safe(() => c.from("product_materials").select("product_id, material_code, grades").in("product_id", ids).in("status", ["auto", "verified"]), [] as { product_id: string; material_code: string; grades: string[] }[]),
+    safe(() => c.from("product_variants").select("product_id, material_code").in("product_id", ids).eq("is_active", true).not("material_code", "is", null).limit(5000), [] as { product_id: string; material_code: string }[]),
+  ]);
+  const add = (pid: string, code: string, grades: string[] = []) => { const l = out.get(pid) ?? []; const cur = l.find((x) => x.code === code); if (cur) cur.grades = [...new Set([...cur.grades, ...grades])]; else l.push({ code, grades }); out.set(pid, l); };
+  for (const r of pm) add(r.product_id, r.material_code, r.grades ?? []);
+  for (const r of vm) add(r.product_id, r.material_code);
+  return out;
+}
+async function attachMaterials(cards: ProductCard[]): Promise<ProductCard[]> {
+  const ids = [...new Set(cards.flatMap((p) => p.family?.memberIds ?? [p.id]))];
+  if (!ids.length) return cards;
+  const [types, mats] = await Promise.all([getMaterialTypes(), getPublicMaterials(ids)]);
+  const T = new Map(types.map((t) => [t.code, t]));
+  return cards.map((p) => {
+    const codes = new Set((p.family?.memberIds ?? [p.id]).flatMap((id) => (mats.get(id) ?? []).map((m) => m.code)));
+    const materials = [...codes].map((c) => T.get(c)).filter((t): t is MaterialType => !!t).sort((a, b) => a.sort_order - b.sort_order).map((t) => ({ code: t.code, name_en: t.name_en, name_ar: t.name_ar }));
+    return { ...p, materials };
+  });
 }
 
 /**
@@ -66,7 +101,7 @@ async function groupFamilies(cards: ProductCard[]): Promise<ProductCard[]> {
     const prices = ms.map((m) => cardPrice(m as unknown as ProductCard)).filter((x): x is number => x != null);
     // family photo first; otherwise the first manufacturer (in admin order) that has a picture
     const firstImg = ms.map((m) => [...(m.product_images ?? [])].sort((x, y) => Number(y.is_primary) - Number(x.is_primary) || x.sort_order - y.sort_order)[0]?.storage_path).find(Boolean) ?? null;
-    out.push({ ...p, family: { slug: f.slug, name_en: f.name_en, name_ar: f.name_ar, image_path: f.image_path ?? firstImg, price: prices.length ? Math.min(...prices) : null,
+    out.push({ ...p, family: { slug: f.slug, name_en: f.name_en, name_ar: f.name_ar, image_path: f.image_path ?? firstImg, price: prices.length ? Math.min(...prices) : null, memberIds: ms.map((m) => m.id),
       brands: ms.map((m) => (Array.isArray(m.brands) ? m.brands[0] : m.brands)).filter((b): b is { name: string; name_ar: string | null } => !!b) } });
   }
   return out;
@@ -86,16 +121,20 @@ export async function searchProducts(p: SearchParams): Promise<{ products: Produ
   return { products: await getProductCardsByIds(rows.map((r) => r.id)), total };
 }
 
-export interface Facet { key: string; name_en: string; name_ar: string | null; values: { value_en: string; value_ar: string | null; n: number }[] }
-export async function getFacets(q?: string, category?: string): Promise<Facet[]> {
+export interface Facet { key: string; name_en: string; name_ar: string | null; values: { value_en: string; label_en: string; value_ar: string | null; n: number }[] }
+/** Filter groups: Material, Brand, Size, Connection, Pressure class (from real variants), then other filterable attributes. Counts = listing entries (a family counts once). */
+export async function getFacets(q?: string, category?: string, brand?: string): Promise<Facet[]> {
   const c = sb(); if (!c) return [];
-  const rows = await safe(() => c.rpc("product_facets", { p_q: q || null, p_category: category || null }),
-    [] as { attr_key: string; attr_name_en: string; attr_name_ar: string | null; value_en: string; value_ar: string | null; n: number }[]);
+  const rows = await safe(() => c.rpc("product_facets", { p_q: q || null, p_category: category || null, p_brand: brand || null }),
+    [] as { attr_key: string; attr_name_en: string; attr_name_ar: string | null; value_en: string; value_ar: string | null; n: number; label_en: string | null; sort_key: string | null }[]);
   const map = new Map<string, Facet>();
   for (const r of rows) {
     if (!map.has(r.attr_key)) map.set(r.attr_key, { key: r.attr_key, name_en: r.attr_name_en, name_ar: r.attr_name_ar, values: [] });
-    map.get(r.attr_key)!.values.push({ value_en: r.value_en, value_ar: r.value_ar, n: Number(r.n) });
+    map.get(r.attr_key)!.values.push({ value_en: r.value_en, label_en: r.label_en ?? r.value_en, value_ar: r.value_ar, n: Number(r.n) });
   }
+  // sizes in numeric order (1/8", 1/4" … 1-1/2", 2" …), classes numerically
+  const num = (v: string) => { const f = v.match(/^(?:(\d+)-)?(\d+)\/(\d+)/); if (f) return Number(f[1] ?? 0) + Number(f[2]) / Number(f[3]); const n = parseFloat(v); return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY; };
+  for (const f of map.values()) if (f.key === "size" || f.key === "pressure_class") f.values.sort((a, b) => num(a.value_en) - num(b.value_en) || a.value_en.localeCompare(b.value_en));
   return [...map.values()];
 }
 
@@ -115,6 +154,8 @@ export interface ProductDetail {
   attributes: { def: AttributeDef; values: { value_en: string; value_ar: string | null }[] }[];
   brand: Brand | null; category: Category | null; related: ProductCard[]; alternatives: ProductCard[];
   options: ProductOptionRow[]; dimensionTables: DimensionTableRow[]; family: { slug: string; name_en: string; name_ar: string | null } | null;
+  /** Shown materials (verified / auto-detected, plus variant materials) with the manufacturer's exact grades. */
+  materials: { code: string; name_en: string; name_ar: string | null; grades: string[] }[];
 }
 export interface ProductOptionRow { key: string; name_en: string; name_ar: string | null; values: { value: string; label_en: string; label_ar: string | null }[] }
 export interface DimensionTableRow { id: string; title_en: string; title_ar: string | null; columns: { key: string; symbol?: string | null; label_en: string; label_ar?: string | null; unit?: string | null }[]; applies: Record<string, string>; notes: string[]; drawing_path: string | null; source_page: number | null; rows: { match: Record<string, string>; values: Record<string, string> }[] }
@@ -160,6 +201,9 @@ async function productDetail(c: NonNullable<ReturnType<typeof sb>>, product: Pro
     (product as Product & { family_id?: string | null }).family_id ? c.from("product_families").select("slug, name_en, name_ar")   /* RLS: published families only */.eq("id", (product as Product & { family_id: string }).family_id).maybeSingle().then((r) => r.data) : Promise.resolve(null),
   ]);
   const availMap = new Map(avail.map((a) => [a.variant_id, Number(a.available)]));
+  const [mtypes, pmats] = await Promise.all([getMaterialTypes(), getPublicMaterials([pid])]);
+  const materials = (pmats.get(pid) ?? []).map((m) => ({ m, t: mtypes.find((t) => t.code === m.code) })).filter((x) => x.t).sort((a, b) => a.t!.sort_order - b.t!.sort_order)
+    .map(({ m, t }) => ({ code: m.code, name_en: t!.name_en, name_ar: t!.name_ar, grades: m.grades }));
   const attributes = defs
     .filter((d) => d.show_in_specs)
     .map((def) => ({ def, values: attrs.filter((a) => a.attribute_id === def.id).map((a) => ({ value_en: a.value_en, value_ar: a.value_ar })) }))
@@ -175,7 +219,7 @@ async function productDetail(c: NonNullable<ReturnType<typeof sb>>, product: Pro
     documents: docs.filter((d) => d.is_public), attributes, brand, category, related, alternatives,
     options: opts.map((o) => ({ key: o.key, name_en: o.name_en, name_ar: o.name_ar, values: [...(o.product_option_values ?? [])].sort((a, b) => a.sort_order - b.sort_order).map(({ value, label_en, label_ar }) => ({ value, label_en, label_ar })) })),
     dimensionTables: dims.map(({ dimension_rows, ...t }) => ({ ...t, notes: (t.notes ?? []) as string[], rows: [...(dimension_rows ?? [])].sort((a, b) => a.sort_order - b.sort_order).map(({ match, values }) => ({ match, values })) })),
-    family: family ?? null,
+    family: family ?? null, materials,
   };
 }
 
@@ -196,13 +240,15 @@ export async function getCategoryProductCounts(): Promise<Map<string, number>> {
 }
 
 export async function getAllSlugsForSitemap() {
-  const c = sb(); if (!c) return { products: [], categories: [], families: [] };
-  const [products, categories, counts, fams] = await Promise.all([
-    safe(() => c.from("products").select("slug, updated_at, name_ar, seo_noindex, family_id, family_link").eq("status", "published"), [] as { slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean; family_id: string | null; family_link: string }[]),
+  const c = sb(); if (!c) return { products: [], categories: [], families: [], brands: [] };
+  const [products, categories, counts, fams, brands] = await Promise.all([
+    safe(() => c.from("products").select("slug, updated_at, name_ar, seo_noindex, family_id, family_link, brand_id").eq("status", "published"), [] as { slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean; family_id: string | null; family_link: string; brand_id: string | null }[]),
     safe(() => c.from("categories").select("id, slug, updated_at, name_ar, seo_noindex").eq("is_active", true), [] as { id: string; slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean }[]),
     getCategoryProductCounts(),
     safe(() => c.from("product_families").select("id, slug, updated_at, name_ar, seo_noindex").eq("status", "published"), [] as { id: string; slug: string; updated_at: string; name_ar: string | null; seo_noindex: boolean }[]),
+    safe(() => c.from("brands").select("id, slug").eq("is_active", true), [] as { id: string; slug: string }[]),
   ]);
+  const withProducts = new Set(products.map((p) => p.brand_id).filter(Boolean));
   // a family page exists only when it has at least one confirmed, published offering; those offerings redirect to it and are not listed themselves
   const live = new Set(products.filter((p) => p.family_link === "confirmed" && p.family_id).map((p) => p.family_id!));
   const families = fams.filter((f) => live.has(f.id));
@@ -210,6 +256,7 @@ export async function getAllSlugsForSitemap() {
   return {
     products: products.filter((p) => !p.seo_noindex && !(p.family_link === "confirmed" && p.family_id && famIds.has(p.family_id))),
     categories: categories.filter((x) => !x.seo_noindex && (counts.get(x.id) ?? 0) > 0),
+    brands: brands.filter((b) => withProducts.has(b.id)),
     families: families.filter((f) => !f.seo_noindex),
   };
 }

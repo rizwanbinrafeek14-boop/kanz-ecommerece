@@ -318,3 +318,24 @@ update product_families set status = 'draft' where id = '52000000-0000-0000-0000
 set role anon; select pg_temp.as_user(null);
 select count(*) as entries_when_family_draft from search_products('ZZList');
 reset role;
+
+\echo '--- T33 materials: public sees verified/auto only; a family is listed only when ONE variant meets every filter (expect 2 visible, then 1 / 0 / 0 / 1 / 1)'
+reset role;
+insert into products (id, slug, name_en, status, published_at, brand_id) values
+  ('53000000-0000-0000-0000-0000000000a1','mat-a','ZZMat A','published',now(),(select id from brands order by name limit 1));
+insert into product_materials (product_id, material_code, status, grades) values
+  ('53000000-0000-0000-0000-0000000000a1','SS','verified','{"A182 F316L"}'), ('53000000-0000-0000-0000-0000000000a1','CS','auto','{}'), ('53000000-0000-0000-0000-0000000000a1','AS','unverified','{}');
+-- class 3000 variant is carbon steel only; class 6000 variant carries the product's materials
+insert into product_variants (product_id, sku, options, material_code) values
+  ('53000000-0000-0000-0000-0000000000a1','ZZM-1','{"size":"1/2","class":"3000","connection":"threaded"}','CS'),
+  ('53000000-0000-0000-0000-0000000000a1','ZZM-2','{"size":"1","class":"6000","connection":"threaded"}',null);
+set role anon; select pg_temp.as_user(null);
+select count(*) as visible_materials from product_materials where product_id = '53000000-0000-0000-0000-0000000000a1';
+select count(*) as cs_3000 from search_products('ZZMat', p_filters => '{"material":["CS"],"pressure_class":["Class 3000"]}');
+select count(*) as as_unverified from search_products('ZZMat', p_filters => '{"material":["AS"]}');
+select count(*) as ss_3000_cross_variant from search_products('ZZMat', p_filters => '{"material":["SS"],"pressure_class":["3000"]}');
+select count(*) as ss_1in_by_name from search_products('ZZMat', p_filters => '{"material":["Stainless Steel"],"size":["1\""]}');
+select count(*) as material_facet from product_facets('ZZMat') where attr_key = 'material' and value_en = 'SS';
+\echo '--- T33b anon cannot write materials (expect error)'
+insert into product_materials (product_id, material_code, status) values ('53000000-0000-0000-0000-0000000000a1','BRASS','verified');
+reset role;

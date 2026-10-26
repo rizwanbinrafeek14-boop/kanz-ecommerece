@@ -15,21 +15,48 @@ import type { Approval } from "@/lib/queries/certs";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-export interface BuyVariant { id: string; sku: string; label: string; spec: string; price: number | null; available: number; options?: Record<string, string> }
+export interface BuyVariant { id: string; sku: string; label: string; spec: string; price: number | null; available: number; options?: Record<string, string>; material?: string | null }
+/** A shown (verified / auto-detected) material of this product, with the exact grades its manufacturer lists. */
+export interface MatOpt { code: string; name: string; grades: string[] }
 export interface BuyProps {
   product: { id: string; slug: string; name: string; unit: string; quoteOnly: boolean; basePrice: number | null; minQty: number; image: string | null };
   variants: BuyVariant[]; options?: SelOption[]; datasheet?: string; approvals: Approval[];
   /** Family pages: start from a carried-over selection and report every change (to keep compatible choices when the brand changes). */
-  initialSel?: Record<string, string>; onSelChange?: (sel: Record<string, string>, variantId: string | null) => void; brandName?: string; afterOptions?: React.ReactNode; approvalLabels: ApprovalLabels; vatRate: number; whatsapp: string; waGreeting: string; lang: Locale; dict: Dictionary; url: string;
+  initialSel?: Record<string, string>; onSelChange?: (sel: Record<string, string>, variantId: string | null) => void; brandName?: string; afterOptions?: React.ReactNode;
+  /** Materials: shown as the first selector (or controlled by the family page, which shows Material above the brands). A variant with its own material only matches that material. */
+  materials?: MatOpt[]; material?: string | null; onMaterialChange?: (code: string | null) => void; materialControlled?: boolean;
+  approvalLabels: ApprovalLabels; vatRate: number; whatsapp: string; waGreeting: string; lang: Locale; dict: Dictionary; url: string;
 }
 
-export function BuyBox({ product, variants, options = [], datasheet, approvals, approvalLabels, vatRate, whatsapp, waGreeting, lang, dict, url, initialSel, onSelChange, brandName, afterOptions }: BuyProps) {
-  const { add } = useCart();
+export function BuyBox({ product, variants: allVariants, options = [], datasheet, approvals, approvalLabels, vatRate, whatsapp, waGreeting, lang, dict, url, initialSel, onSelChange, brandName, afterOptions, materials = [], material: matProp, onMaterialChange, materialControlled }: BuyProps) {
+  const { add } = useCart(); const ar = lang === "ar";
+  const [matOwn, setMatOwn] = React.useState<string | null>(() => matProp ?? null);
+  const material = materialControlled ? (matProp ?? null) : matOwn;
+  const mat = materials.find((m) => m.code === material) ?? null;
+  // the grade belongs to the material it was chosen for; another material starts without a grade
+  const [gradeSel, setGradeSel] = React.useState<{ m: string | null; g: string }>({ m: null, g: "" });
+  const grade = gradeSel.m === material ? gradeSel.g : ""; const setGrade = (g: string) => setGradeSel({ m: material, g });
+  const setMaterial = (c: string | null) => {
+    if (!materialControlled) { setMatOwn(c); const u = new URL(window.location.href); if (c) u.searchParams.set("material", c); else u.searchParams.delete("material"); window.history.replaceState(null, "", u); }
+    onMaterialChange?.(c);
+  };
+  // ?material=SS (from a filtered listing) preselects the material after the first paint
+  const fromUrl = React.useCallback(() => { const m = new URLSearchParams(window.location.search).get("material")?.toUpperCase(); if (m && materials.some((x) => x.code === m)) setMatOwn(m); }, [materials]);
+  React.useEffect(() => { if (materialControlled) return; const t = setTimeout(fromUrl, 0); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // only variants that are made in the chosen material (a variant without its own material carries all of the product's materials)
+  const variants = React.useMemo(() => (material ? allVariants.filter((x) => !x.material || x.material === material) : allVariants), [allVariants, material]);
   const optVariants = React.useMemo(() => variants.filter((x) => x.options && Object.keys(x.options).length).map((x) => ({ id: x.id, options: x.options! })), [variants]);
   const match = (next: Record<string, string>) => optVariants.find((x) => options.every((o) => x.options[o.key] === next[o.key]));
   const [sel, setSel] = React.useState<Record<string, string>>(() => (options.length && optVariants[0] ? settle(options, optVariants, initialSel ?? optVariants[0].options) : {}));
   const [vid, setVid] = React.useState(() => match(sel)?.id ?? variants[0]?.id ?? "");
   const pick = (next: Record<string, string>) => { setSel(next); const m = match(next); if (m) setVid(m.id); };
+  // a new material can rule out the current combination: settle it again on the remaining variants
+  const [seen, setSeen] = React.useState(variants);
+  if (seen !== variants) {   // adjusted during render (React's pattern for state derived from a changed prop)
+    setSeen(variants);
+    if (!options.length || !optVariants.length) { if (!variants.some((x) => x.id === vid)) setVid(variants[0]?.id ?? ""); }
+    else { const next = settle(options, optVariants, sel); if (JSON.stringify(next) !== JSON.stringify(sel) || !match(next)) pick(next); }
+  }
   React.useEffect(() => { onSelChange?.(sel, vid || null); }, [sel, vid]); // eslint-disable-line react-hooks/exhaustive-deps
   const [qty, setQty] = React.useState(Math.max(1, product.minQty));
   const [justAdded, setJustAdded] = React.useState<"cart" | "quote" | null>(null);
@@ -40,15 +67,27 @@ export function BuyBox({ product, variants, options = [], datasheet, approvals, 
   const canBuy = !product.quoteOnly && !!v && price != null && (stock ?? 0) >= qty;
   const t = price != null ? withVat(price * qty, vatRate) : null;
 
+  const matSpec = mat ? [`${mat.name} (${mat.code})`, grade && `${ar ? "الدرجة" : "Grade"} ${grade}`].filter(Boolean).join(" · ") : "";
+  const fullSpec = [v?.spec, matSpec].filter(Boolean).join(" · ") || undefined;
+  const lineMat = mat ? `${mat.code}${grade ? `/${grade}` : ""}` : undefined;
   const flash = (k: "cart" | "quote") => { setJustAdded(k); setTimeout(() => setJustAdded(null), 1600); };
   const base = { productId: product.id, slug: product.slug, name: product.name, image: product.image, unit: product.unit, qty };
-  const waLines = [`${waGreeting}`.trim(), `${dict.product.waProduct}: ${product.name}`, brandName && `${dict.common.brand}: ${brandName}`, v?.sku && `${dict.product.waSku}: ${v.sku}`, v?.spec && `${dict.product.waVariant}: ${v.spec}`, `${dict.product.waQty}: ${qty} ${product.unit}`, `${dict.product.waLink}: ${url}`].filter(Boolean);
+  const waLines = [`${waGreeting}`.trim(), `${dict.product.waProduct}: ${product.name}`, brandName && `${dict.common.brand}: ${brandName}`, v?.sku && `${dict.product.waSku}: ${v.sku}`, fullSpec && `${dict.product.waVariant}: ${fullSpec}`, `${dict.product.waQty}: ${qty} ${product.unit}`, `${dict.product.waLink}: ${url}`].filter(Boolean);
   const wa = `https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(waLines.join("\n"))}`;
-  const addQuote = () => { add({ ...base, kind: "quote", variantId: v?.id, sku: v?.sku, spec: v?.spec }); flash("quote"); toast.success(`${dict.product.added}: ${product.name}`); };
-  const addCart = () => { add({ ...base, kind: "cart", variantId: v!.id, sku: v!.sku, spec: v!.spec, unitPrice: price }); flash("cart"); toast.success(`${dict.product.added}: ${product.name}`); };
+  const addQuote = () => { add({ ...base, kind: "quote", variantId: v?.id, sku: v?.sku, spec: fullSpec, material: lineMat }); flash("quote"); toast.success(`${dict.product.added}: ${product.name}`); };
+  const addCart = () => { add({ ...base, kind: "cart", variantId: v!.id, sku: v!.sku, spec: fullSpec, material: lineMat, unitPrice: price }); flash("cart"); toast.success(`${dict.product.added}: ${product.name}`); };
 
   return (
     <div className="space-y-5 rounded-xl border bg-card p-5">
+      {!materialControlled && materials.length > 0 && <MaterialChips materials={materials} value={material} onChange={setMaterial} lang={lang} />}
+      {mat && mat.grades.length > 0 && (
+        <div className="space-y-1.5">
+          <Label htmlFor="grade">{ar ? "درجة المادة" : "Material grade"}</Label>
+          <NativeSelect id="grade" value={grade} onChange={(e) => setGrade(e.target.value)}>
+            <option value="">{ar ? "أي درجة مذكورة - تُؤكد في عرض السعر" : "Any listed grade - confirm in the quotation"}</option>
+            {mat.grades.map((g) => <option key={g} value={g}>{g}</option>)}
+          </NativeSelect>
+        </div>)}
       {options.length > 0 && optVariants.length > 0 ? (
         <OptionSelector options={options} variants={optVariants} value={sel} onChange={pick} unavailableLabel={lang === "ar" ? "غير متوفر بهذه التركيبة" : "Not offered in this combination"} />
       ) : variants.length > 0 && (
@@ -117,4 +156,20 @@ export function BuyBox({ product, variants, options = [], datasheet, approvals, 
       </div>
     </div>
   );
+}
+
+/** Material chips (single choice; choose again to clear). Only materials of this product / family are offered. */
+export function MaterialChips({ materials, value, onChange, lang, disabled }: { materials: { code: string; name: string }[]; value: string | null; onChange: (c: string | null) => void; lang: Locale; disabled?: (code: string) => string | null }) {
+  const ar = lang === "ar";
+  return (
+    <fieldset data-material-picker>
+      <legend className="mb-2 text-sm font-semibold">{ar ? "المادة" : "Material"}</legend>
+      <div role="radiogroup" aria-label={ar ? "المادة" : "Material"} className="flex flex-wrap gap-2">
+        {materials.map((m) => { const on = value === m.code; const why = disabled?.(m.code) ?? null;
+          return <button key={m.code} type="button" role="radio" aria-checked={on} disabled={!!why} title={why ?? m.name} data-code={m.code} onClick={() => onChange(on ? null : m.code)}
+            className={`inline-flex min-h-11 items-center gap-2 rounded-md border px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 ${on ? "border-ink bg-ink text-white" : "border-steel-300 bg-white hover:border-primary"}`}>
+            <span className="font-mono text-xs font-bold">{m.code}</span><span>{m.name}</span></button>; })}
+      </div>
+      {!value && <p className="mt-1.5 text-xs text-muted-foreground">{ar ? "اختر المادة لعرض الدرجات والتكوينات المتاحة بها." : "Choose a material to see its grades and the configurations offered in it."}</p>}
+    </fieldset>);
 }

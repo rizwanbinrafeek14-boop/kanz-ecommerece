@@ -4,7 +4,7 @@ import { track } from "@/lib/track";
 
 export interface CartLine {
   key: string; kind: "cart" | "quote"; productId: string; variantId?: string; slug: string; name: string;
-  sku?: string; spec?: string; image?: string | null; unitPrice?: number | null; qty: number; unit: string;
+  sku?: string; spec?: string; material?: string; image?: string | null; unitPrice?: number | null; qty: number; unit: string;
 }
 interface CartCtx {
   lines: CartLine[]; cart: CartLine[]; quote: CartLine[]; ready: boolean;
@@ -46,7 +46,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value = React.useMemo<CartCtx>(() => ({
     lines, ready, cart: lines.filter((l) => l.kind === "cart"), quote: lines.filter((l) => l.kind === "quote"),
     add(l) {
-      const key = `${l.kind}:${l.variantId ?? l.productId}`;
+      const key = `${l.kind}:${l.variantId ?? l.productId}${l.material ? `:${l.material}` : ""}`;   // the same item in another material / grade is a separate line
       const existing = lines.find((x) => x.key === key);
       const qty = Math.max(1, l.qty ?? 1);
       write(existing ? lines.map((x) => (x.key === key ? { ...x, qty: x.qty + qty } : x)) : [...lines, { ...l, key, qty }]);
