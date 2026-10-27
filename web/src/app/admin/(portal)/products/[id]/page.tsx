@@ -32,7 +32,7 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
   const specs = (p.specs ?? {}) as { choices?: never[]; properties?: never[]; notes?: string[]; standards?: { code: string; note?: string | null }[]; overview?: TechSpecs["overview"]; visual?: TechSpecs["visual"] };
   const src = (p.source_ref ?? {}) as { review?: string[]; possible_matches?: string | null; supplier_note?: string };
   const vc = new Map((vcosts.data ?? []).map((c) => [c.variant_id, c.purchase_cost])); const av = new Map((avail.data ?? []).map((a) => [a.variant_id, Number(a.available)]));
-  const mtc = (docs.data ?? []).filter((d) => !d.is_public).map((d) => d.storage_path);
+  const mtc = (docs.data ?? []).filter((d) => !d.is_public && d.storage_path).map((d) => d.storage_path as string);
   const { data: signed } = mtc.length ? await sb.storage.from("product-mtc").createSignedUrls(mtc, 3600) : { data: [] };
   const sUrl = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
   const relRows = (kind: string) => (rels.data ?? []).filter((r) => r.relation === kind).map((r: any) => ({ id: r.related_id as string, name: (Array.isArray(r.products) ? r.products[0] : r.products)?.name_en ?? r.related_id }));
@@ -48,7 +48,7 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
         images={(imgs.data ?? []).map((i) => ({ id: i.id, storage_path: i.storage_path, thumb_path: i.thumb_path ?? null, is_primary: i.is_primary, needs_hires: i.needs_hires, sort_order: i.sort_order, alt_en: i.alt_en, alt_ar: i.alt_ar, option_match: i.option_match ?? null,
           source: i.source ?? "upload", kind: i.kind ?? "photo", width: i.width ?? null, height: i.height ?? null, bytes: i.bytes ?? null, original_name: i.original_name ?? null, previous_path: i.previous_path ?? null, replaced_at: i.replaced_at ?? null }))}
         placeholder={{ kind: p.placeholder_kind ?? null, auto: placeholderKind({ name_en: p.name_en, category_slug: (cats.data ?? []).find((c) => c.id === p.category_id)?.slug }) }}
-        docs={(docs.data ?? []).map((d) => ({ id: d.id, kind: d.kind, title: d.title, storage_path: d.storage_path, is_public: d.is_public, url: d.is_public ? publicUrl("product-docs", d.storage_path) : sUrl.get(d.storage_path) ?? null }))}
+        docs={(docs.data ?? []).map((d) => ({ id: d.id, kind: d.kind, title: d.title, storage_path: d.storage_path, is_public: d.is_public, external: !d.storage_path, url: d.external_url ? d.external_url : d.is_public ? publicUrl("product-docs", d.storage_path) : sUrl.get(d.storage_path) ?? null }))}
         certOptions={(allCerts.data ?? []).map((c) => ({ id: c.id, name: c.name_en, note: !c.is_active ? "Unpublished — hidden" : c.valid_until && c.valid_until < new Date().toISOString().slice(0, 10) ? "Expired — hidden" : c.issued_at && c.issued_at > new Date().toISOString().slice(0, 10) ? "Not valid yet — hidden" : null }))}
         assignments={(pcerts.data ?? []).map((a) => ({ certification_id: a.certification_id, status: a.status, reference_number: a.reference_number, document_path: a.document_path, verification_url: a.verification_url, scope_note: a.scope_note, variant_ids: a.variant_ids ?? [] }))}
         variantOptions={(vars.data ?? []).map((v) => ({ id: v.id, label: [v.label_en || v.size, v.sku].filter(Boolean).join(" · ") }))} materials={(mats.data ?? []) as never}

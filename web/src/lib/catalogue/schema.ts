@@ -35,12 +35,18 @@ export const DimensionTableSchema = z.object({
   page,
   drawing: z.object({ page, bbox: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1), z.number().min(0).max(1), z.number().min(0).max(1)]) }).nullish(),
 });
+const bbox = z.tuple([z.number().min(0).max(1), z.number().min(0).max(1), z.number().min(0).max(1), z.number().min(0).max(1)]);   // x0,y0,x1,y1 as fractions of the page
+const httpUrl = z.string().trim().max(2000).url().refine((u) => /^https?:\/\//i.test(u), "Only http(s) links");
+/** A picture of the product: cropped from a catalogue page (page + bbox) or, for a manufacturer website, its image URL. */
 export const ImageSchema = z.object({
-  page,
-  bbox: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1), z.number().min(0).max(1), z.number().min(0).max(1)]),   // x0,y0,x1,y1 as fractions of the page
+  page: page.optional(), bbox: bbox.optional(), url: httpUrl.optional(),
   kind: z.enum(["photo", "drawing"]),
   alt_en: str(200), alt_ar: optStr(200),
-});
+}).refine((i) => !!i.url || (i.page !== undefined && !!i.bbox), "An image needs a page and crop box, or a URL");
+/** A manufacturer document for the product (datasheet, drawing, certificate, catalogue PDF) — only links found on the source. */
+export const DocumentSchema = z.object({ url: httpUrl, title: str(200), kind: z.enum(["datasheet", "drawing", "certificate", "catalogue", "manual", "other"]).default("datasheet") });
+/** A specification row exactly as published (e.g. "Working pressure" | "PN16"), for values that are not selectable options. */
+export const PropertySchema = z.object({ label_en: str(120), value_en: str(500), label_ar: optStr(120), value_ar: optStr(500) });
 export const ExtractedProductSchema = z.object({
   manufacturer: str(120),
   family: z.object({ key: z.string().regex(/^[a-z0-9-]{2,80}$/), name_en: str(120), name_ar: optStr(120), type: z.string().trim().max(60).nullish() }),
@@ -56,11 +62,17 @@ export const ExtractedProductSchema = z.object({
   variants: z.array(VariantSchema).max(5000).default([]),
   dimension_tables: z.array(DimensionTableSchema).max(40).default([]),
   images: z.array(ImageSchema).max(20).default([]),
+  properties: z.array(PropertySchema).max(60).default([]),
+  documents: z.array(DocumentSchema).max(30).default([]),
+  /** website sources: the product page, and the identity used to find the product again on a later import (page URL + model) */
+  source_url: httpUrl.nullish(),
+  source_key: z.string().trim().max(2100).nullish(),
+  retrieved_at: z.string().max(40).nullish(),
   notes: z.array(z.string().trim().max(1000)).max(40).default([]),
   warnings: z.array(z.object({ severity: z.enum(["info", "warning", "error"]), code: str(60), message: str(1000), page: page.optional() })).max(100).default([]),
-  pages: z.array(page).min(1).max(200),
+  pages: z.array(page).max(200).default([]),
   confidence: z.number().min(0).max(1).default(0.5),
-});
+}).refine((p) => p.pages.length > 0 || !!p.source_url, { message: "A product needs its catalogue page(s) or its source URL", path: ["pages"] });
 export type ExtractedProduct = z.infer<typeof ExtractedProductSchema>;
 export type DimensionTable = z.infer<typeof DimensionTableSchema>;
 
@@ -69,7 +81,7 @@ export const ExtractionFileSchema = z.object({
   format: z.literal("kanz-catalogue-extraction/1"),
   manufacturer: str(120),
   source_title: str(200),
-  page_count: z.number().int().min(1).max(2000),
+  page_count: z.number().int().min(1).max(2000).nullish(),   // PDF catalogues; null for a website extraction
   pages: z.array(z.object({ page, status: z.enum(["extracted", "needs_review", "skipped"]), note: optStr(1000), method: z.enum(["text", "vision", "manual"]).default("manual") })).default([]),
   products: z.array(ExtractedProductSchema).max(1000),
 });

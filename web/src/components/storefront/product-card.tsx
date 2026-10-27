@@ -70,6 +70,7 @@ export function ProductCard({ p, lang, dict, activeMaterials }: { p: PC; lang: L
         <div className="absolute start-2 top-2 flex flex-col gap-1">
           {p.is_special_offer && <Badge>{loc(p, "offer_label", lang) || dict.product.offer}</Badge>}
           {p.is_new_arrival && <Badge variant="dark">{dict.product.new}</Badge>}
+          {p.catalogue_only && <Badge variant="secondary" data-catalogue-item>{lang === "ar" ? "منتج كتالوج" : "Catalogue item"}</Badge>}
         </div>
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-4">
@@ -78,7 +79,7 @@ export function ProductCard({ p, lang, dict, activeMaterials }: { p: PC; lang: L
         <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-snug"><Link href={href} className="hover:text-primary">{name}</Link></h3>
         <Materials p={p} lang={lang} active={activeMaterials} />
         <div className="mt-auto pt-1">
-          {price != null ? (
+          {p.catalogue_only && price == null ? <p className="text-sm font-medium text-muted-foreground">{lang === "ar" ? "اطلب عرض سعر" : "Request a quotation"}</p> : price != null ? (
             <p className="text-base font-bold">{hasVariants && <span className="me-1 text-xs font-normal text-muted-foreground">{lang === "ar" ? "من" : "From"}</span>}{formatSAR(price, lang)} <span className="text-xs font-normal text-muted-foreground">{dict.common.exVat}</span></p>
           ) : (
             <p className="text-sm font-medium text-muted-foreground">{dict.product.priceOnRequest}</p>

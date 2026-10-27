@@ -18,7 +18,7 @@ import { publicUrl } from "@/lib/format";
 
 export interface ImageRow { id: string; storage_path: string; thumb_path?: string | null; is_primary: boolean; needs_hires: boolean; sort_order: number; alt_en: string | null; alt_ar: string | null; option_match?: Record<string, string> | null;
   source?: string | null; kind?: string | null; width?: number | null; height?: number | null; bytes?: number | null; original_name?: string | null; previous_path?: string | null; replaced_at?: string | null }
-export interface DocRow { id: string; kind: string; title: string; storage_path: string; is_public: boolean; url: string | null }
+export interface DocRow { id: string; kind: string; title: string; storage_path: string | null; is_public: boolean; url: string | null; external?: boolean }
 
 const ACCEPT = IMAGE_TYPES.join(",");
 const SOURCE: Record<string, { label: string; variant: "success" | "secondary" | "warning" }> = {
@@ -168,7 +168,7 @@ export function ProductDocs({ productId, rows }: { productId: string; rows: DocR
         <ul className="divide-y rounded-lg border">{rows.map((d) => (
           <li key={d.id} className="flex items-center gap-3 p-3 text-sm"><FileText className="size-5 text-primary" />
             <div className="min-w-0 flex-1"><p className="truncate font-medium">{d.title}</p><p className="text-xs text-muted-foreground">{d.kind}</p></div>
-            <Badge variant={d.is_public ? "success" : "secondary"}>{d.is_public ? "public" : "private"}</Badge>
+            {d.external && <Badge variant="info" title="Linked to the manufacturer's own file (not copied)">manufacturer link</Badge>}<Badge variant={d.is_public ? "success" : "secondary"}>{d.is_public ? "public" : "private"}</Badge>
             {d.url && <a className="text-primary underline" href={d.url} target="_blank" rel="noopener noreferrer">Open</a>}
             <Button size="icon" variant="ghost" className="size-8 text-destructive" aria-label="Delete document" onClick={async () => { if (confirm("Delete this document?") && (await run(deleteProductDocument(productId, d.id, d.is_public ? "product-docs" : "product-mtc", d.storage_path), "Deleted"))) router.refresh(); }}><Trash2 className="size-4" /></Button>
           </li>))}</ul>

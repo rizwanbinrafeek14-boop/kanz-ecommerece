@@ -12,11 +12,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (!/^[0-9a-f-]{36}$/.test(id)) return new NextResponse("Not found", { status: 404 });
   const sb = await createClient();
   // RLS: only public documents of published products are visible
-  const { data: doc } = await sb.from("product_documents").select("title, storage_path, products(slug)").eq("id", id).eq("is_public", true).maybeSingle();
+  const { data: doc } = await sb.from("product_documents").select("title, storage_path, external_url, products(slug)").eq("id", id).eq("is_public", true).maybeSingle();
   if (!doc) return new NextResponse("Not found", { status: 404 });
   const slug = (Array.isArray(doc.products) ? doc.products[0] : doc.products)?.slug ?? null;
   const gate = await requireSignedIn(req, slug);
   if (gate) return gate;
+  // a manufacturer document we may only link to: send the customer to the manufacturer's own file
+  if (!doc.storage_path && doc.external_url?.startsWith("https://")) return NextResponse.redirect(doc.external_url, { status: 302, headers: { "cache-control": "private, no-store" } });
+  if (!doc.storage_path) return new NextResponse("Not found", { status: 404 });
   const src = publicUrl("product-docs", doc.storage_path);
   const file = src ? await fetch(src) : null;
   if (!file?.ok || !file.body) return new NextResponse("Document unavailable", { status: 502 });

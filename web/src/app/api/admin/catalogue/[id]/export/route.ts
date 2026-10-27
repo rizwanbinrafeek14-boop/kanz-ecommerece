@@ -16,27 +16,33 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const format = new URL(req.url).searchParams.get("format") ?? "json";
   const sb = await createClient();
   const [{ data: src }, { data: pages }, { data: items }] = await Promise.all([
-    sb.from("catalogue_sources").select("title, page_count, brands(name)").eq("id", id).maybeSingle(),
+    sb.from("catalogue_sources").select("title, page_count, kind, brands(name)").eq("id", id).maybeSingle(),
     sb.from("catalogue_pages").select("page_no, status, method, skip_reason, error").eq("source_id", id).order("page_no"),
     sb.from("extracted_products").select("status, data").eq("source_id", id).order("created_at"),
   ]);
   if (!src) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  // website sources: the crawl manifest = every discovered URL with its type, status, HTTP result and error (the error report)
+  const { data: web } = src.kind === "website" ? await sb.from("catalogue_web_pages").select("url, kind, status, http_status, title, products_found, skip_reason, error, attempts, fetched_at, extracted_at, discovered_from").eq("source_id", id).order("created_at") : { data: [] };
+  const manifest = (web ?? []).map((w) => ({ url: w.url, type: w.kind, status: w.status, http: w.http_status ?? "", title: w.title ?? "", products: w.products_found, note: w.skip_reason ?? "", error: w.error ?? "", attempts: w.attempts, fetched: w.fetched_at ?? "", extracted: w.extracted_at ?? "", found_on: w.discovered_from ?? "" }));
   const manufacturer = ((Array.isArray(src.brands) ? src.brands[0] : src.brands) as { name: string } | null)?.name ?? "Unknown";
   const products = (items ?? []).map((i) => i.data as ExtractedProduct);
   const stamp = `${src.title.replace(/[^a-z0-9]+/gi, "-").slice(0, 40)}-${new Date().toISOString().slice(0, 10)}`;
   if (format === "json") {
-    const file: ExtractionFile = { format: "kanz-catalogue-extraction/1", manufacturer, source_title: src.title, page_count: src.page_count ?? 1,
+    const file: ExtractionFile = { format: "kanz-catalogue-extraction/1", manufacturer, source_title: src.title, page_count: src.page_count ?? null,
       pages: (pages ?? []).filter((p) => ["extracted", "needs_review", "skipped"].includes(p.status)).map((p) => ({ page: p.page_no, status: p.status as "extracted", note: p.skip_reason ?? p.error ?? null, method: (p.method ?? "manual") as "manual" })), products };
     return new NextResponse(JSON.stringify(file, null, 2), { headers: { "content-type": "application/json", "content-disposition": `attachment; filename="${stamp}.json"` } });
   }
-  const variantRows = (items ?? []).flatMap((i) => { const p = i.data as ExtractedProduct; return (p.variants.length ? p.variants : [{ options: {} as Record<string, string>, page: p.pages[0] }]).map((v) => ({ product: p.name_en, family: p.family.key, status: i.status, ...Object.fromEntries(p.options.map((o) => [o.name_en, o.values.find((x) => x.value === v.options[o.key])?.label_en ?? ""])), manufacturer_code: "manufacturer_code" in v ? v.manufacturer_code ?? "" : "", weight_kg: "weight_kg" in v ? v.weight_kg ?? "" : "", page: v.page ?? "" })); });
+  const variantRows = (items ?? []).flatMap((i) => { const p = i.data as ExtractedProduct; return (p.variants.length ? p.variants : [{ options: {} as Record<string, string>, page: p.pages[0] }]).map((v) => ({ product: p.name_en, family: p.family.key, status: i.status, ...Object.fromEntries(p.options.map((o) => [o.name_en, o.values.find((x) => x.value === v.options[o.key])?.label_en ?? ""])), manufacturer_code: "manufacturer_code" in v ? v.manufacturer_code ?? "" : "", weight_kg: "weight_kg" in v ? v.weight_kg ?? "" : "", page: v.page ?? "",
+    model: p.manufacturer_ref ?? "", source_url: p.source_url ?? "", specifications: p.properties.map((x) => `${x.label_en}: ${x.value_en}`).join("; "), documents: p.documents.map((d) => d.url).join(" "), images: p.images.flatMap((im) => (im.url ? [im.url] : [])).join(" ") })); });
   const clean = (rows: Record<string, unknown>[]) => rows.map((r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, safe(v)])));
+  if (format === "manifest") return new NextResponse("\ufeff" + Papa.unparse(manifest.map((r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, safe(v)])))), { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${stamp}-pages.csv"` } });
   if (format === "csv") return new NextResponse("﻿" + Papa.unparse(clean(variantRows)), { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${stamp}.csv"` } });
   const wb = new ExcelJS.Workbook();
   const add = (name: string, rows: Record<string, unknown>[]) => { const ws = wb.addWorksheet(name); const cols = [...new Set(rows.flatMap((r) => Object.keys(r)))]; ws.columns = cols.map((c) => ({ header: c, key: c, width: Math.min(40, Math.max(10, c.length + 2)) })); rows.forEach((r) => ws.addRow(r)); ws.getRow(1).font = { bold: true }; };
   add("Variants", clean(variantRows));
   add("Dimensions", clean(products.flatMap((p) => p.dimension_tables.flatMap((t) => t.rows.map((r) => ({ product: p.name_en, table: t.title_en, page: t.page, applies: Object.entries(t.applies).map(([k, v]) => `${k}=${v}`).join(", "), ...Object.fromEntries(Object.entries(r.match).map(([k, v]) => [`[${k}]`, v])), ...Object.fromEntries(t.columns.map((c) => [`${c.key}${c.unit ? ` (${c.unit})` : ""}`, r.values[c.key] ?? ""])) }))))));
-  add("Pages", clean((pages ?? []).map((p) => ({ page: p.page_no, status: p.status, method: p.method ?? "", note: p.skip_reason ?? p.error ?? "" }))));
+  if (src.kind === "website") { add("Website pages", clean(manifest)); add("Problems", clean(manifest.filter((m) => ["failed", "blocked"].includes(m.status) || m.error))); }
+  else add("Pages", clean((pages ?? []).map((p) => ({ page: p.page_no, status: p.status, method: p.method ?? "", note: p.skip_reason ?? p.error ?? "" }))));
   const buf = await wb.xlsx.writeBuffer();
   return new NextResponse(buf as ArrayBuffer, { headers: { "content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "content-disposition": `attachment; filename="${stamp}.xlsx"` } });
 }
