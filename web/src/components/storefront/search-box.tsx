@@ -1,5 +1,7 @@
 "use client";
 import * as React from "react";
+import { ProductPlaceholder } from "@/components/storefront/product-placeholder";
+import { placeholderKind } from "@/lib/images/placeholder";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Folder, Loader2 } from "lucide-react";
@@ -64,7 +66,7 @@ export function SearchBox({ lang, dict, className }: { lang: Locale; dict: Dicti
               return (
                 <li key={s.kind + s.id}>
                   <Link href={href} onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 hover:bg-accent">
-                    {img ? <img src={img} alt="" className="size-9 rounded object-contain bg-muted" /> : <span className="flex size-9 items-center justify-center rounded bg-muted"><Folder className="size-4 text-muted-foreground" /></span>}
+                    {img ? <img src={img} alt="" className="size-9 rounded object-contain bg-muted" /> : s.kind !== "category" ? <ProductPlaceholder kind={placeholderKind({ name_en: s.name_en })} compact className="size-9 shrink-0 rounded" /> : <span className="flex size-9 items-center justify-center rounded bg-muted"><Folder className="size-4 text-muted-foreground" /></span>}
                     <span className="text-sm">{name}</span>
                     {s.kind === "category" && <span className="ms-auto text-xs text-muted-foreground">{dict.common.category}</span>}
                   </Link>

@@ -16,8 +16,10 @@ import { applyProductImport, previewProductImport, type ImportRow, type VariantI
 import { run } from "@/lib/admin/client";
 import { formatSAR } from "@/lib/format";
 import { ProductImage } from "@/components/storefront/product-image";
+import { UploadReplaceButton } from "./product-media";
+import type { PlaceholderKind } from "@/lib/images/placeholder";
 
-export interface ProductRow { id: string; name_en: string; sku: string | null; slug: string; status: string; base_price: number | null; is_quote_only: boolean; category: string | null; image: string | null; variants: number; available: number | null; updated_at: string; needs_hires: boolean }
+export interface ProductRow { id: string; name_en: string; sku: string | null; slug: string; status: string; base_price: number | null; is_quote_only: boolean; category: string | null; image: string | null; image_status: string; has_main: boolean; placeholder: PlaceholderKind; variants: number; available: number | null; updated_at: string; needs_hires: boolean }
 const sv = { draft: "warning", published: "success", archived: "secondary" } as const;
 
 export function ProductsTable({ rows, isAdmin }: { rows: ProductRow[]; isAdmin: boolean }) {
@@ -57,15 +59,18 @@ export function ProductsTable({ rows, isAdmin }: { rows: ProductRow[]; isAdmin: 
         <Table>
           <TableHeader><TableRow>
             <TableHead className="w-10"><Checkbox aria-label="Select all" checked={rows.length > 0 && rows.every((r) => sel.has(r.id))} onChange={(e) => setSel(e.target.checked ? new Set(rows.map((r) => r.id)) : new Set())} /></TableHead>
-            <TableHead>Product</TableHead><TableHead>SKU</TableHead><TableHead>Category</TableHead><TableHead>Status</TableHead><TableHead className="text-end">Price (ex-VAT)</TableHead><TableHead className="text-end">Variants</TableHead><TableHead className="text-end">In stock</TableHead>
+            <TableHead>Product</TableHead><TableHead>Image</TableHead><TableHead>SKU</TableHead><TableHead>Category</TableHead><TableHead>Status</TableHead><TableHead className="text-end">Price (ex-VAT)</TableHead><TableHead className="text-end">Variants</TableHead><TableHead className="text-end">In stock</TableHead>
           </TableRow></TableHeader>
           <TableBody>
             {rows.map((r) => (
               <TableRow key={r.id}>
                 <TableCell><Checkbox aria-label={`Select ${r.name_en}`} checked={sel.has(r.id)} onChange={() => setSel((s) => { const n = new Set(s); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })} /></TableCell>
                 <TableCell><Link href={`/admin/products/${r.id}`} className="flex items-center gap-3 hover:text-primary">
-                  <ProductImage path={r.image} alt="" className="size-10 shrink-0 rounded border" /><span className="font-medium">{r.name_en}</span>{r.needs_hires && <Badge variant="warning" title="Image is low resolution">low-res</Badge>}
+                  <ProductImage path={r.image} alt="" placeholder={r.placeholder} compact className="size-10 shrink-0 rounded border" /><span className="font-medium">{r.name_en}</span>{r.needs_hires && <Badge variant="warning" title="Image is low resolution">low-res</Badge>}
                 </Link></TableCell>
+                <TableCell><div className="flex flex-col items-start gap-1">
+                  <Badge variant={r.image_status === "photo" ? "success" : r.image_status === "temporary" ? "warning" : "secondary"} data-image-status={r.image_status}>{r.image_status === "photo" ? "Photo" : r.image_status === "temporary" ? "Catalogue image" : "Placeholder"}</Badge>
+                  <UploadReplaceButton productId={r.id} productName={r.name_en} hasImage={r.has_main} size="sm" variant="outline" /></div></TableCell>
                 <TableCell className="font-mono text-xs">{r.sku ?? "—"}</TableCell>
                 <TableCell className="text-muted-foreground">{r.category ?? "—"}</TableCell>
                 <TableCell><Badge variant={sv[r.status as keyof typeof sv]}>{r.status}</Badge></TableCell>
@@ -74,7 +79,7 @@ export function ProductsTable({ rows, isAdmin }: { rows: ProductRow[]; isAdmin: 
                 <TableCell className="text-end tabular-nums">{r.available == null ? "—" : r.available}</TableCell>
               </TableRow>
             ))}
-            {!rows.length && <TableRow><TableCell colSpan={8} className="py-10 text-center text-muted-foreground">No products match. Use <Link href="/admin/import" className="text-primary underline">Import review</Link> to bring in catalogue products, or add one.</TableCell></TableRow>}
+            {!rows.length && <TableRow><TableCell colSpan={9} className="py-10 text-center text-muted-foreground">No products match. Use <Link href="/admin/import" className="text-primary underline">Import review</Link> to bring in catalogue products, or add one.</TableCell></TableRow>}
           </TableBody>
         </Table>
       </div>

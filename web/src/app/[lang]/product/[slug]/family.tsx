@@ -11,6 +11,8 @@ import { publicUrl } from "@/lib/format";
 import { getContact, whatsappNumber } from "@/lib/queries/contact";
 import { getProductApprovals } from "@/lib/queries/certs";
 import { FamilyView, type Offer } from "@/components/storefront/family-view";
+import { placeholderKind } from "@/lib/images/placeholder";
+import { imageNote, thumbOf } from "@/lib/images/display";
 import { ProductViewTracker } from "@/components/storefront/page-tracker";
 
 /** Picker order on family pages: material, size, connection, class/schedule (each brand only shows the options its catalogue lists). */
@@ -39,7 +41,7 @@ function toOffer(d: ProductDetail, lang: Locale, approvals: Awaited<ReturnType<t
   const optionLabels = Object.fromEntries(opts.map((o) => [o.key, Object.fromEntries(o.values.map((v) => [v.value, (ar && v.label_ar) || v.label_en]))]));
   const brandName = d.brand ? (ar && d.brand.name_ar) || d.brand.name : "";
   const tableDrawings = Object.fromEntries(d.dimensionTables.map((t) => [t.id, publicUrl("product-images", t.drawing_path)]));
-  const drawings = [...d.images.map((i) => ({ url: publicUrl("product-images", i.storage_path)!, alt: (ar ? i.alt_ar || i.alt_en : i.alt_en) || `${brandName} drawing` })),
+  const drawings = [...d.images.map((i) => ({ url: publicUrl("product-images", i.storage_path)!, thumb: publicUrl("product-images", i.thumb_path), note: imageNote(i, lang), alt: (ar ? i.alt_ar || i.alt_en : i.alt_en) || `${brandName} drawing` })),
     ...d.dimensionTables.filter((t) => t.drawing_path).map((t) => ({ url: tableDrawings[t.id]!, alt: (ar && t.title_ar) || t.title_en }))]
     .filter((x, i, a) => a.findIndex((y) => y.url === x.url) === i);
   const specRows: [string, string][] = [
@@ -51,7 +53,7 @@ function toOffer(d: ProductDetail, lang: Locale, approvals: Awaited<ReturnType<t
     ...(p.country_of_origin ? [[ar ? "بلد الصنع" : "Country of manufacture", p.country_of_origin] as [string, string]] : []),
   ];
   return {
-    id: p.id, slug: p.slug, name: loc(p, "name", lang), unit: p.unit, quoteOnly: p.is_quote_only, basePrice: p.base_price, minQty: Number(p.min_order_qty), cartImage: d.images[0]?.storage_path ?? null,
+    id: p.id, slug: p.slug, name: loc(p, "name", lang), unit: p.unit, quoteOnly: p.is_quote_only, basePrice: p.base_price, minQty: Number(p.min_order_qty), cartImage: thumbOf(d.images[0]),
     brand: { slug: d.brand?.slug ?? p.slug, name: brandName || loc(p, "name", lang), logo: publicUrl("brand-logos", d.brand?.logo_path) },
     options: opts.map((o) => ({ key: o.key, name: (ar && o.name_ar) || o.name_en, values: o.values.map((v) => ({ value: v.value, label: (ar && v.label_ar) || v.label_en })) })),
     variants: d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "),
@@ -78,13 +80,14 @@ export async function FamilyPage({ fd, lang }: { fd: FamilyDetail; lang: Locale 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 pb-28 lg:pb-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([ld, breadcrumbLd(crumbs)]).replace(/</g, "\\u003c") }} />
-      <ProductViewTracker productId={offers[0].id} recent={{ slug: f.slug, name_en: f.name_en, name_ar: f.name_ar, image: f.image_path ?? fd.offerings[0].images[0]?.storage_path ?? null }} />
+      <ProductViewTracker productId={offers[0].id} recent={{ slug: f.slug, name_en: f.name_en, name_ar: f.name_ar, image: f.image_path ?? thumbOf(fd.offerings[0].images[0]) }} />
       <nav className="mb-5 flex flex-wrap items-center gap-1 text-sm text-muted-foreground" aria-label="Breadcrumb">
         <Link href={`/${lang}`} className="hover:text-primary">{dict.common.home}</Link><ChevronRight className="size-3.5 rtl:rotate-180" />
         {fd.category && <><Link href={`/${lang}/category/${fd.category.slug}`} className="hover:text-primary">{loc(fd.category, "name", lang)}</Link><ChevronRight className="size-3.5 rtl:rotate-180" /></>}
         <span className="text-foreground">{name}</span>
       </nav>
       <FamilyView name={name} shortDesc={loc(f, "short_desc", lang) || null} familyImage={familyImage} offers={offers}
+        placeholder={placeholderKind({ name_en: f.name_en, product_type: f.product_type, category_slug: fd.category?.slug })}
         galleryLabels={{ enlarge: dict.product.enlarge, zoomIn: dict.product.zoom, zoomOut: dict.product.zoomOut, close: dict.common.close, prev: dict.product.prevImg, next: dict.product.nextImg, image: ar ? "صورة" : "Image" }}
         approvalLabels={{ heading: dict.product.approvals, none: dict.product.approvalsNone, view: dict.product.viewCert, opensNew: dict.product.opensNew, number: dict.product.certNumber, scope: dict.product.certScope, validUntil: dict.product.certValid, issuer: dict.product.certIssuer }}
         common={{ lang, dict, url, vatRate: vatRateOf(settings), whatsapp: whatsappNumber(widget, s(settings, "company_whatsapp")), waGreeting: ar ? (widget?.default_message_ar ?? dict.product.shareWhatsapp) : (widget?.default_message_en ?? dict.product.shareWhatsapp),

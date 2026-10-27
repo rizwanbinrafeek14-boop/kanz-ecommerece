@@ -115,6 +115,13 @@ Run `supabase/migrations/0018_gaskets.sql` (contents) and redeploy. Then run the
 ## Step 8h — Better search and the new product page
 Run `supabase/migrations/0019_search.sql` (contents) and redeploy. It builds the search index for all products; nothing in the products changes. Optional, for the spiral wound gasket page: run `3-gaskets-product-page-update.sql` from the gasket package, or fill Admin → product → Technical → "Product page overview and visual". Searches that find nothing appear in Admin → Reports.
 
+## Step 8i — Product images (temporary images, placeholders, bulk upload)
+Run `supabase/migrations/0020_product_images.sql` (contents) and redeploy. The migration only adds things and is safe to run again. Existing images are classified automatically: catalogue crops and drawings count as temporary catalogue images, and nothing is deleted. Afterwards:
+- Admin → Products → Product images shows how many products still need a photo.
+- Upload photos there in bulk, or per product with *Upload / Replace product image*.
+
+See `docs/nextjs/09-PRODUCT-IMAGES.md`.
+
 ## Step 8c — New homepage
 Run `supabase/migrations/0013_homepage_sections.sql` (contents, not the file name) and redeploy. The new homepage blocks appear in Admin → Content & settings → Homepage sections, where you can reorder or disable them. Blocks without real data (featured products, brands, certificates, material/standard chips) stay hidden automatically.
 

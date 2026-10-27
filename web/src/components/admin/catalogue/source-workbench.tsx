@@ -67,7 +67,7 @@ export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, 
     const ids = items.filter((i) => i.status === "approved" && (!sel.size || sel.has(i.id))).map((i) => i.id);
     if (!ids.length) return toast.info("Approve records first.");
     if (!confirm(`Import ${ids.length} approved product(s) as unpublished drafts?`)) return;
-    setBusy("Importing…"); const r = await run(importApproved(sourceId, ids), (d) => `${d.imported} imported${d.failed.length ? `, ${d.failed.length} failed` : ""}`); setBusy("");
+    setBusy("Importing…"); const r = await run(importApproved(sourceId, ids), (d) => `${d.imported} imported${d.failed.length ? `, ${d.failed.length} failed` : ""}. Temporary images: ${d.images.photo} catalogue picture(s), ${d.images.drawing} drawing(s), ${d.images.none} placeholder(s) — upload your photos any time in Product images.`); setBusy("");
     if (r && (r as { failed: { name: string; error: string }[] }).failed.length) toast.error((r as { failed: { name: string; error: string }[] }).failed.map((f) => `${f.name}: ${f.error}`).join("\n"), { duration: 15000 });
     router.refresh();
   };

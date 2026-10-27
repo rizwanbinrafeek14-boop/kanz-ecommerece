@@ -7,8 +7,10 @@ import { cn } from "@/lib/utils";
 export interface GalleryLabels { enlarge: string; zoomIn: string; zoomOut: string; close: string; prev: string; next: string; image: string }
 
 /** Product gallery: thumbnails, click to open a lightbox with keyboard navigation and a 2.5× zoom you can pan by moving the pointer. */
-export function Gallery({ images, alt, labels }: { images: { url: string; needsHires?: boolean; alt?: string }[]; alt: string; labels: GalleryLabels }) {
+export interface GalleryImage { url: string; thumb?: string | null; needsHires?: boolean; alt?: string; note?: string | null }
+export function Gallery({ images, alt, labels, empty }: { images: GalleryImage[]; alt: string; labels: GalleryLabels; empty?: React.ReactNode }) {
   const [i, setI] = React.useState(0); const [open, setOpen] = React.useState(false); const [zoom, setZoom] = React.useState(false); const [origin, setOrigin] = React.useState("50% 50%");
+  if (!images.length && empty) return <>{empty}</>;
   if (!images.length) return <div className="flex aspect-square items-center justify-center rounded-xl border bg-muted text-muted-foreground/40"><Package className="size-20" aria-hidden="true" /></div>;
   const go = (d: number) => { setI((n) => (n + d + images.length) % images.length); setZoom(false); };
   const move = (e: React.PointerEvent<HTMLDivElement>) => { if (!zoom) return; const r = e.currentTarget.getBoundingClientRect(); setOrigin(`${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`); };
@@ -17,7 +19,7 @@ export function Gallery({ images, alt, labels }: { images: { url: string; needsH
       {images.map((im, n) => (
         <button key={n} type="button" onClick={() => { setI(n); setZoom(false); }} aria-label={`${labels.image} ${n + 1}`} aria-current={n === i}
           className={cn("size-16 shrink-0 overflow-hidden rounded-lg border bg-white p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", n === i && "border-primary ring-2 ring-primary/30")}>
-          <img src={im.url} alt="" loading="lazy" className="size-full object-contain" />
+          <img src={im.thumb || im.url} alt="" loading="lazy" className="size-full object-contain" />
         </button>))}
     </div>);
   return (
@@ -26,6 +28,8 @@ export function Gallery({ images, alt, labels }: { images: { url: string; needsH
         <img src={images[i].url} alt={images[i].alt ?? alt} className="size-full object-contain p-4" />
         <span className="absolute end-3 top-3 flex size-9 items-center justify-center rounded-full bg-ink/80 text-white opacity-90"><Search className="size-4" aria-hidden="true" /></span>
       </button>
+      {/* where the shown image comes from, e.g. "Image from the manufacturer's catalogue" (never claimed as our photograph) */}
+      {images[i].note && <p className="mt-2 text-xs text-muted-foreground" data-image-note>{images[i].note}</p>}
       {thumbs("mt-3")}
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setZoom(false); }}>
         <DialogContent showCloseButton={false} aria-describedby={undefined} onKeyDown={(e) => { if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); }} className="flex h-[92vh] max-w-[min(1200px,96vw)] flex-col gap-3 p-3 sm:max-w-[min(1200px,96vw)]">

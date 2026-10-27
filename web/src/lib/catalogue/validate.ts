@@ -65,7 +65,8 @@ export function validateExtracted(p: ExtractedProduct): Issue[] {
   for (const m of p.materials) if (!m.grades.length) out.push({ severity: "warning", code: "no_grades", message: `Material “${m.type}” has no explicitly listed grades; no grade option will be offered.` });
   if (!p.category_slug) out.push({ severity: "warning", code: "no_category", message: "No category chosen." });
   if (!p.name_ar) out.push({ severity: "info", code: "no_arabic", message: "No Arabic name: the Arabic page stays out of search until one is added." });
-  if (!p.images.length) out.push({ severity: "info", code: "no_images", message: "No image selected." });
+  // never blocks the import: the product gets its catalogue drawing or a labelled placeholder until a photo is uploaded
+  if (!p.images.length) out.push({ severity: "info", code: "no_images", message: p.dimension_tables.some((t) => t.drawing) ? "No product picture selected — the dimensional drawing will be the temporary image." : "No image selected — a labelled placeholder is shown until you upload a photo." });
   return [...p.warnings.map((w) => ({ ...w })), ...out];
 }
 

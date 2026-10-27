@@ -87,11 +87,13 @@ export async function deleteProducts(ids: string[]): Promise<Result<{ deleted: n
   const sb = await createClient();
   let deleted = 0;
   for (const id of ids) {
-    const { data: imgs } = await sb.from("product_images").select("storage_path").eq("product_id", id);
+    const { data: imgs } = await sb.from("product_images").select("storage_path, thumb_path, previous_path, previous_thumb_path").eq("product_id", id);
     const { count, error } = await sb.from("products").delete({ count: "exact" }).eq("id", id);
     if (error) return fail(error.code === "23503" ? "This product has orders and cannot be deleted. Archive it instead." : error.message);
     if (!count) return fail("Only administrators can delete published or archived products. Archive it instead, or ask an admin.");
-    if (imgs?.length) await sb.storage.from("product-images").remove(imgs.map((i) => i.storage_path));
+    // only files nothing else uses (catalogue drawings can be shared by several products)
+    const paths = (imgs ?? []).flatMap((i) => [i.storage_path, i.thumb_path, i.previous_path, i.previous_thumb_path]).filter(Boolean);
+    if (paths.length) { const { data: drop } = await sb.rpc("unreferenced_image_paths", { p_paths: paths }); if ((drop as string[] | null)?.length) await sb.storage.from("product-images").remove(drop as string[]); }
     deleted++;
   }
   await audit(sb, user.id, "product.delete", "products", undefined, { ids });
@@ -198,17 +200,7 @@ export async function saveProductAttributes(productId: string, values: Record<st
 }
 
 // ───────── Images ─────────
-export async function addProductImages(productId: string, paths: string[]): Promise<Result> {
-  await requireStaff();
-  const sb = await createClient();
-  const { data: ex } = await sb.from("product_images").select("sort_order, is_primary").eq("product_id", productId);
-  let next = Math.max(-1, ...(ex ?? []).map((e) => e.sort_order)) + 1; let hasPrimary = (ex ?? []).some((e) => e.is_primary);
-  const rows = paths.map((storage_path) => { const r = { product_id: productId, storage_path, sort_order: next++, is_primary: !hasPrimary, needs_hires: false }; hasPrimary = true; return r; });
-  const { error } = await sb.from("product_images").insert(rows);
-  if (error) return fail(error.message);
-  refreshStorefront(); revalidatePath(`/admin/products/${productId}`);
-  return ok(null);
-}
+// adding, replacing and deleting image files: see image-actions.ts
 export async function setPrimaryImage(productId: string, imageId: string): Promise<Result> {
   await requireStaff();
   const sb = await createClient();
@@ -226,32 +218,6 @@ export async function updateImageMeta(productId: string, imageId: string, patch:
   refreshStorefront(); revalidatePath(`/admin/products/${productId}`);
   return ok(null);
 }
-/** Replace an image file (e.g. with a high-resolution original) while keeping its position and primary flag. */
-export async function replaceImageFile(productId: string, imageId: string, newPath: string): Promise<Result> {
-  await requireStaff();
-  const sb = await createClient();
-  const { data: old } = await sb.from("product_images").select("storage_path").eq("id", imageId).single();
-  const { error } = await sb.from("product_images").update({ storage_path: newPath, needs_hires: false }).eq("id", imageId);
-  if (error) return fail(error.message);
-  if (old?.storage_path) await sb.storage.from("product-images").remove([old.storage_path]);
-  refreshStorefront(); revalidatePath(`/admin/products/${productId}`);
-  return ok(null);
-}
-export async function deleteImage(productId: string, imageId: string): Promise<Result> {
-  await requireStaff();
-  const sb = await createClient();
-  const { data: img } = await sb.from("product_images").select("storage_path, is_primary").eq("id", imageId).single();
-  const { error } = await sb.from("product_images").delete().eq("id", imageId);
-  if (error) return fail(error.message);
-  if (img) await sb.storage.from("product-images").remove([img.storage_path]);
-  if (img?.is_primary) {
-    const { data: first } = await sb.from("product_images").select("id").eq("product_id", productId).order("sort_order").limit(1);
-    if (first?.[0]) await sb.from("product_images").update({ is_primary: true }).eq("id", first[0].id);
-  }
-  refreshStorefront(); revalidatePath(`/admin/products/${productId}`);
-  return ok(null);
-}
-
 // ───────── Documents (datasheets, MTCs) ─────────
 export async function addProductDocument(productId: string, input: { kind: "datasheet" | "mtc" | "certificate" | "other"; title: string; path: string; is_public: boolean }): Promise<Result> {
   await requireStaff();

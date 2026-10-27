@@ -4,6 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/auth";
 import { publicUrl } from "@/lib/format";
+import { placeholderKind } from "@/lib/images/placeholder";
 import { PageHeader } from "@/components/admin/ui";
 import { ProductEditor, type ProductFull } from "@/components/admin/product-editor";
 import type { TechSpecs, TechTable } from "@/components/admin/techdata-editor";
@@ -18,7 +19,7 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
   const { data: p } = await sb.from("products").select("*").eq("id", id).maybeSingle();
   if (!p) notFound();
   const [cats, brands, cost, vars, vcosts, avail, defs, vals, imgs, docs, rels, allCerts, pcerts, mats, mtypes, dtabs] = await Promise.all([
-    sb.from("categories").select("id, name_en, parent_id, sort_order").order("sort_order"), sb.from("brands").select("id, name").order("name"),
+    sb.from("categories").select("id, slug, name_en, parent_id, sort_order").order("sort_order"), sb.from("brands").select("id, name").order("name"),
     sb.from("product_costs").select("purchase_cost").eq("product_id", id).maybeSingle(), sb.from("product_variants").select("*").eq("product_id", id).order("sort_order").order("sku"),
     sb.from("variant_costs").select("variant_id, purchase_cost"), sb.from("variant_availability").select("variant_id, available").eq("product_id", id),
     sb.from("attribute_defs").select("id, key, name_en, is_filterable").order("sort_order"), sb.from("product_attribute_values").select("*").eq("product_id", id),
@@ -44,7 +45,9 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
         categories={(cats.data ?? []).map((c) => ({ id: c.id, name: c.name_en, parent_id: c.parent_id }))} brands={(brands.data ?? []).map((b) => ({ id: b.id, name: b.name }))}
         variants={(vars.data ?? []).map((v) => ({ id: v.id, sku: v.sku, barcode: v.barcode ?? "", label_en: v.label_en ?? "", label_ar: v.label_ar ?? "", size: v.size ?? "", grade: v.grade ?? "", schedule: v.schedule ?? "", pressure_class: v.pressure_class ?? "", material: v.material ?? "", price: v.price == null ? "" : String(v.price), purchase_cost: vc.has(v.id) ? String(vc.get(v.id)) : "", is_active: v.is_active, available: av.get(v.id) ?? 0 }))}
         attrDefs={defs.data ?? []} attrValues={vals.data ?? []}
-        images={(imgs.data ?? []).map((i) => ({ id: i.id, storage_path: i.storage_path, is_primary: i.is_primary, needs_hires: i.needs_hires, sort_order: i.sort_order, alt_en: i.alt_en, alt_ar: i.alt_ar, option_match: i.option_match ?? null }))}
+        images={(imgs.data ?? []).map((i) => ({ id: i.id, storage_path: i.storage_path, thumb_path: i.thumb_path ?? null, is_primary: i.is_primary, needs_hires: i.needs_hires, sort_order: i.sort_order, alt_en: i.alt_en, alt_ar: i.alt_ar, option_match: i.option_match ?? null,
+          source: i.source ?? "upload", kind: i.kind ?? "photo", width: i.width ?? null, height: i.height ?? null, bytes: i.bytes ?? null, original_name: i.original_name ?? null, previous_path: i.previous_path ?? null, replaced_at: i.replaced_at ?? null }))}
+        placeholder={{ kind: p.placeholder_kind ?? null, auto: placeholderKind({ name_en: p.name_en, category_slug: (cats.data ?? []).find((c) => c.id === p.category_id)?.slug }) }}
         docs={(docs.data ?? []).map((d) => ({ id: d.id, kind: d.kind, title: d.title, storage_path: d.storage_path, is_public: d.is_public, url: d.is_public ? publicUrl("product-docs", d.storage_path) : sUrl.get(d.storage_path) ?? null }))}
         certOptions={(allCerts.data ?? []).map((c) => ({ id: c.id, name: c.name_en, note: !c.is_active ? "Unpublished — hidden" : c.valid_until && c.valid_until < new Date().toISOString().slice(0, 10) ? "Expired — hidden" : c.issued_at && c.issued_at > new Date().toISOString().slice(0, 10) ? "Not valid yet — hidden" : null }))}
         assignments={(pcerts.data ?? []).map((a) => ({ certification_id: a.certification_id, status: a.status, reference_number: a.reference_number, document_path: a.document_path, verification_url: a.verification_url, scope_note: a.scope_note, variant_ids: a.variant_ids ?? [] }))}

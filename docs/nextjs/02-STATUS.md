@@ -14,7 +14,7 @@ What exists, how it was checked, and what is **not** done. Nothing here is claim
 **Not tested here (needs your real accounts):** actual Supabase Auth emails (confirmation, invite, reset), Supabase Storage policy enforcement in the hosted service (the policies themselves are tested in SQL), Vercel deployment, a payment gateway, and real browsers on phones. The setup guide’s Step 9 checklist covers these.
 
 ## Database tests (all pass)
-T1 anon sees only published products · T2 costs invisible · T3 internal stock function locked · T4 anon cannot order · T5 no self-promotion to admin · T6 profile isolation · T7 stock tables hidden · T8 order priced from the database (VAT 15%) · T9 **overselling blocked** · T10 cost snapshot hidden · T11 no direct order insert · T12 customers cannot read each other’s orders · T13–T15 reserve → ship (stock out) → cancel (release) · T16 invoice issued and immutable · T17 guest RFQ → quote → convert · T18 invalid RFQ rejected · T19 analytics counters · T20 dashboard staff-only · T21 search/filters/facets · T22 customer accepts a quotation (once) · T23 reports staff-only · T24 storage write policies · T25 RFQ spam throttle · T26 social links / contact widget / certifications (anon sees only active ones, expired certifications hidden, only staff can write, `http://` and `javascript:` URLs rejected) · T27 certifications: only administrators can write, the public sees only published, unexpired certifications and only **verified** product assignments of published products, bad status/URL/scope rejected, deleting a certification removes its assignments · T28 slug changes create (and flatten) redirects, anonymous visitors cannot write them, phone/datasheet events are recorded and unknown events ignored. · T35 search: words in any order, synonyms (sw → socket weld), 1 1/2" / 1½ inch, option values, zero-result searches logged, search report staff-only.
+T1 anon sees only published products · T2 costs invisible · T3 internal stock function locked · T4 anon cannot order · T5 no self-promotion to admin · T6 profile isolation · T7 stock tables hidden · T8 order priced from the database (VAT 15%) · T9 **overselling blocked** · T10 cost snapshot hidden · T11 no direct order insert · T12 customers cannot read each other’s orders · T13–T15 reserve → ship (stock out) → cancel (release) · T16 invoice issued and immutable · T17 guest RFQ → quote → convert · T18 invalid RFQ rejected · T19 analytics counters · T20 dashboard staff-only · T21 search/filters/facets · T22 customer accepts a quotation (once) · T23 reports staff-only · T24 storage write policies · T25 RFQ spam throttle · T26 social links / contact widget / certifications (anon sees only active ones, expired certifications hidden, only staff can write, `http://` and `javascript:` URLs rejected) · T27 certifications: only administrators can write, the public sees only published, unexpired certifications and only **verified** product assignments of published products, bad status/URL/scope rejected, deleting a certification removes its assignments · T28 slug changes create (and flatten) redirects, anonymous visitors cannot write them, phone/datasheet events are recorded and unknown events ignored. · T35 search: words in any order, synonyms (sw → socket weld), 1 1/2" / 1½ inch, option values, zero-result searches logged, search report staff-only. · T36 images: file names matched by SKU / variant SKU / manufacturer code / slug (separators and one view suffix like _2 or (3) handled, 2 products = ambiguous), staff only; replacing keeps the image row (main flag, alt text, options), moves the social / family image, keeps the previous file, never reports a shared catalogue drawing as deletable, enforces the product folder.
 
 ## Phase checklist
 
@@ -107,6 +107,23 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
 - Spiral wound gasket: interactive layered SVG (exploded / assembled, flange-joint view) and an optional 3D view loaded only on request; dimensions only from the catalogue tables, labelled "Illustrative — not to scale".
 - Admin: Technical tab → "Product page overview and visual".
 - Verified locally: product-page browser checks (desktop / phone / Arabic, axe, reduced motion, no WebGL, enquiry contents, admin save) + T35; all earlier suites re-run. Not live until 0019 is run and the site redeployed.
+
+## Added later: product images (migration 0020) — see `09-PRODUCT-IMAGES.md`
+- Catalogue imports never wait for photos. Each product gets, in order of preference:
+  1. its own catalogue picture, credited "Image from the manufacturer's catalogue";
+  2. otherwise its dimensional drawing;
+  3. otherwise a labelled "Photo coming soon" placeholder drawing of its product type (never an unrelated picture).
+- Images are stored separately from products. "Upload / Replace product image" is on every product (Images tab and product list row):
+  - replacing keeps the image row and all product data;
+  - the previous file can be restored;
+  - the new image is live immediately on listings, the product page, search suggestions, the quote list and structured data.
+- Bulk upload (Products → Product images): files are matched by SKU, variant SKU, manufacturer code / reference, slug or name. You can choose main or extra image, limit an image to one configuration, or assign unmatched files by hand.
+- Photos are optimised in the browser before storage: upright, ≤ 2000 px, WebP, plus a 600 px thumbnail. For example, a 4.1 MB camera JPEG is stored as 858 KB, with a 10 KB thumbnail.
+- Verified locally:
+  - 69 browser checks (`images.mjs`): placeholder EN/AR, catalogue credit, upload / replace / restore, product data unchanged (variants, stock, attributes, materials), storefront refresh, shared drawings kept, placeholder override, list filter, bulk matching and upload, axe, mobile;
+  - SQL test T36;
+  - catalogue import re-run, including the drawing fallback.
+- Not live until 0020 is run and the site redeployed.
 
 ## Known limitations (honest list)
 1. **No prices, SKUs, stock, certifications or availability were invented.** Every imported product is a *draft, quote-only family*. You must add real data.

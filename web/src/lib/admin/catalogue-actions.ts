@@ -176,13 +176,35 @@ async function cropTo(sb: SupabaseClient, sourceId: string, pageNo: number, bbox
   const [x0, y0, x1, y1] = bbox; const left = Math.max(0, Math.floor(x0 * W)), top = Math.max(0, Math.floor(y0 * H));
   const width = Math.min(W - left, Math.ceil((x1 - x0) * W)), height = Math.min(H - top, Math.ceil((y1 - y0) * H));
   if (width < 24 || height < 24) throw new Error(`Image area on page ${pageNo} is too small.`);
-  const out = await sharp(png).extract({ left, top, width, height }).resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true }).webp({ quality: 86 }).toBuffer();
+  const crop = sharp(png).extract({ left, top, width, height });
+  const { data: out, info } = await crop.clone().resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true }).webp({ quality: 86 }).toBuffer({ resolveWithObject: true });
   const { error } = await sb.storage.from("product-images").upload(dest, out, { contentType: "image/webp", upsert: true });
   if (error) throw new Error(error.message);
-  return { path: dest, small: width < 400 && height < 400 };
+  // listing thumbnail (only when the crop is larger than one)
+  let thumb: string | null = null;
+  if (Math.max(info.width, info.height) > 600) {
+    thumb = dest.replace(/\.webp$/, "-thumb.webp");
+    const t = await crop.clone().resize({ width: 600, height: 600, fit: "inside" }).webp({ quality: 80 }).toBuffer();
+    const { error: te } = await sb.storage.from("product-images").upload(thumb, t, { contentType: "image/webp", upsert: true });
+    if (te) thumb = null;
+  }
+  return { path: dest, thumb, small: width < 400 && height < 400, width: info.width, height: info.height, bytes: out.length };
 }
 
-export async function importApproved(sourceId: string, ids: string[]): Promise<Result<{ imported: number; failed: { id: string; name: string; error: string }[] }>> {
+type ImportImage = { storage_path: string; thumb_path: string | null; alt_en: string; alt_ar: string | null; is_primary: boolean; sort_order: number; needs_hires: boolean;
+  source: "catalogue"; kind: "photo" | "drawing"; width: number; height: number; bytes: number; source_note: string };
+
+/**
+ * Temporary images for an imported product, best first: the manufacturer's own product pictures from the catalogue, then — when the
+ * catalogue has no picture of it — the product's dimensional drawing from the same catalogue. Nothing from another product or
+ * manufacturer is ever used; with neither, the website shows the labelled placeholder until a photo is uploaded.
+ */
+function orderImages(images: Omit<ImportImage, "is_primary" | "sort_order">[]): ImportImage[] {
+  const sorted = [...images.filter((i) => i.kind === "photo"), ...images.filter((i) => i.kind === "drawing")];
+  return sorted.map((i, n) => ({ ...i, is_primary: n === 0, sort_order: n }));
+}
+
+export async function importApproved(sourceId: string, ids: string[]): Promise<Result<{ imported: number; failed: { id: string; name: string; error: string }[]; images: { photo: number; drawing: number; none: number } }>> {
   const user = await requireStaff(); const sb = await createClient();
   const [{ data: src }, { data: rows }, { data: cats }] = await Promise.all([
     sb.from("catalogue_sources").select("id, title, brand_id, brands(slug, name)").eq("id", sourceId).single(),
@@ -193,6 +215,7 @@ export async function importApproved(sourceId: string, ids: string[]): Promise<R
   const brand = (Array.isArray(src.brands) ? src.brands[0] : src.brands) as { slug: string; name: string } | null;
   const catId = new Map((cats ?? []).map((c) => [c.slug, c.id]));
   const imported: string[] = []; const failed: { id: string; name: string; error: string }[] = []; const cache = new Map<number, Buffer>();
+  const imageKinds = { photo: 0, drawing: 0, none: 0 };   // what each imported product shows until a photo is uploaded
   for (const r of rows ?? []) {
     const parsed = ExtractedProductSchema.safeParse(r.data);
     if (!parsed.success) { failed.push({ id: r.id, name: "?", error: "Invalid data" }); continue; }
@@ -203,13 +226,20 @@ export async function importApproved(sourceId: string, ids: string[]): Promise<R
       const code = brandCode(p.manufacturer);
       const { data: skus } = await sb.from("product_variants").select("sku").ilike("sku", `${code}-%`);
       const variants = buildVariants(p, new Set((skus ?? []).map((s) => s.sku.toLowerCase())));
-      const images: { storage_path: string; alt_en: string; alt_ar: string | null; is_primary: boolean; sort_order: number; needs_hires: boolean }[] = [];
-      for (const [n, im] of p.images.entries()) { const c = await cropTo(sb, sourceId, im.page, im.bbox, `catalogue/${slug}/${n + 1}-${randomUUID().slice(0, 8)}.webp`, cache); images.push({ storage_path: c.path, alt_en: im.alt_en, alt_ar: im.alt_ar ?? null, is_primary: n === 0, sort_order: n, needs_hires: c.small }); }
-      const tables = [];
-      for (const [n, t] of p.dimension_tables.entries()) {
-        const drawing = t.drawing ? (await cropTo(sb, sourceId, t.drawing.page, t.drawing.bbox, `catalogue/${slug}/drawing-${n + 1}-${randomUUID().slice(0, 8)}.webp`, cache)).path : null;
-        tables.push({ title_en: t.title_en, title_ar: t.title_ar ?? null, columns: t.columns, applies: t.applies, rows: t.rows, notes: t.notes, source_page: t.page, drawing_path: drawing });
+      const note = (pg: number) => `${src.title}, page ${pg}`.slice(0, 300);
+      const found: Omit<ImportImage, "is_primary" | "sort_order">[] = [];
+      for (const [n, im] of p.images.entries()) {
+        const c = await cropTo(sb, sourceId, im.page, im.bbox, `catalogue/${slug}/${n + 1}-${randomUUID().slice(0, 8)}.webp`, cache);
+        found.push({ storage_path: c.path, thumb_path: c.thumb, alt_en: im.alt_en, alt_ar: im.alt_ar ?? null, needs_hires: c.small, source: "catalogue", kind: im.kind, width: c.width, height: c.height, bytes: c.bytes, source_note: note(im.page) });
       }
+      const tables = []; const tableDrawings: typeof found = [];
+      for (const [n, t] of p.dimension_tables.entries()) {
+        const c = t.drawing ? await cropTo(sb, sourceId, t.drawing.page, t.drawing.bbox, `catalogue/${slug}/drawing-${n + 1}-${randomUUID().slice(0, 8)}.webp`, cache) : null;
+        if (c) tableDrawings.push({ storage_path: c.path, thumb_path: c.thumb, alt_en: `${p.name_en} — ${t.title_en}`.slice(0, 200), alt_ar: null, needs_hires: c.small, source: "catalogue", kind: "drawing", width: c.width, height: c.height, bytes: c.bytes, source_note: note(t.drawing!.page) });
+        tables.push({ title_en: t.title_en, title_ar: t.title_ar ?? null, columns: t.columns, applies: t.applies, rows: t.rows, notes: t.notes, source_page: t.page, drawing_path: c?.path ?? null });
+      }
+      // no picture of the product in the catalogue: its own dimensional drawing is the temporary image (the file is shared with the table)
+      const images = orderImages(found.length ? found : tableDrawings.slice(0, 1));
       const text = describe(p);
       const payload = {
         family: { slug: p.family.key, name_en: p.family.name_en, name_ar: p.family.name_ar ?? null, product_type: p.family.type ?? null, category_id: p.category_slug ? catId.get(p.category_slug) ?? null : null },
@@ -224,13 +254,16 @@ export async function importApproved(sourceId: string, ids: string[]): Promise<R
       };
       const { data: pid, error } = await sb.rpc("catalogue_import_product", { p_extracted: r.id, p: payload });
       if (error) throw new Error(error.message);
+      // where each image came from, its thumbnail and size (kept separately from the product, replaceable later)
+      if (images.length) { const { error: ie } = await sb.rpc("catalogue_import_images", { p_product: pid, p: images }); if (ie) throw new Error(ie.message); }
+      imageKinds[images[0]?.kind ?? "none"]++;
       imported.push(pid as string);
     } catch (e) { failed.push({ id: r.id, name: p.name_en, error: (e as Error).message }); }
   }
   // classify the new products' materials straight away (same rules as Admin → Materials; never touches admin decisions)
   if (imported.length) { try { const { runDetection } = await import("@/lib/materials/run"); await runDetection(sb, { dryRun: false, productIds: imported }); } catch { /* detection can be re-run from Admin → Materials */ } }
-  await sb.from("catalogue_import_runs").insert({ source_id: sourceId, created_by: user.id, summary: { imported: imported.length, failed, product_ids: imported } });
+  await sb.from("catalogue_import_runs").insert({ source_id: sourceId, created_by: user.id, summary: { imported: imported.length, failed, product_ids: imported, images: imageKinds } });
   await audit(sb, user.id, "catalogue.import", "catalogue_sources", sourceId, { imported: imported.length, failed: failed.length });
   refreshStorefront(); done(sourceId); revalidatePath("/admin/products");
-  return ok({ imported: imported.length, failed });
+  return ok({ imported: imported.length, failed, images: imageKinds });
 }

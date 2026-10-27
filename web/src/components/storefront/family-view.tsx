@@ -6,6 +6,8 @@ import { settle, type SelOption } from "./option-selector";
 import { DimensionsPanel } from "./dimensions-panel";
 import { ProductTabs } from "./product-tabs";
 import { Gallery, type GalleryLabels } from "./gallery";
+import { ProductPlaceholder } from "./product-placeholder";
+import type { PlaceholderKind } from "@/lib/images/placeholder";
 import { ApprovalsSection, type ApprovalLabels } from "./approvals";
 import { track } from "@/lib/track";
 import { cn } from "@/lib/utils";
@@ -18,7 +20,7 @@ export interface Offer {
   id: string; slug: string; name: string; unit: string; quoteOnly: boolean; basePrice: number | null; minQty: number; cartImage: string | null;
   brand: { slug: string; name: string; logo: string | null };
   options: SelOption[]; variants: (BuyVariant & { weight: number | null; code: string | null })[]; optionLabels: Record<string, Record<string, string>>;
-  tables: DimensionTableRow[]; tableDrawings: Record<string, string | null>; drawings: { url: string; alt: string }[];
+  tables: DimensionTableRow[]; tableDrawings: Record<string, string | null>; drawings: { url: string; thumb?: string | null; alt: string; note?: string | null }[];
   specRows: [string, string][]; standards: { code: string; scope: string }[]; materials: { type: string; grades: string[] }[]; notes: string[];
   documents: { id: string; title: string }[]; sourceNote: string | null; approvals: Approval[];
   /** Verified / auto-detected materials of this manufacturer's offering (with its exact grades). */
@@ -69,8 +71,8 @@ function carry(prev: Record<string, string>, from: Offer | undefined, to: Offer,
   return { sel, notice: items.length ? t.changed(to.brand.name, items) : null };
 }
 
-export function FamilyView({ name, shortDesc, familyImage, offers, common, galleryLabels, approvalLabels }: {
-  name: string; shortDesc: string | null; familyImage: string | null; offers: Offer[]; common: Common; galleryLabels: GalleryLabels; approvalLabels: ApprovalLabels;
+export function FamilyView({ name, shortDesc, familyImage, offers, common, galleryLabels, approvalLabels, placeholder }: {
+  name: string; shortDesc: string | null; familyImage: string | null; offers: Offer[]; common: Common; galleryLabels: GalleryLabels; approvalLabels: ApprovalLabels; placeholder: PlaceholderKind;
 }) {
   const lang = common.lang as "en" | "ar"; const t = T[lang];
   const [brand, setBrand] = React.useState(offers[0].brand.slug);
@@ -149,7 +151,8 @@ export function FamilyView({ name, shortDesc, familyImage, offers, common, galle
   return (
     <>
       <div className="grid gap-8 lg:grid-cols-[1fr_460px]">
-        <Gallery key={familyImage ? "family" : offer.brand.slug} images={images} alt={name} labels={galleryLabels} />
+        <Gallery key={familyImage ? "family" : offer.brand.slug} images={images} alt={name} labels={galleryLabels}
+          empty={<ProductPlaceholder kind={placeholder} lang={lang} alt={name} className="aspect-square w-full rounded-xl border" />} />
         <div>
           <h1 className="text-2xl font-bold leading-tight sm:text-3xl">{name}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{offers.map((o) => o.brand.name).join(" · ")}</p>
