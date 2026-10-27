@@ -1,6 +1,7 @@
 import "server-only";
 import { createPublicClient } from "@/lib/supabase/public";
 import { cardPrice } from "@/lib/types";
+import { mainImage, thumbOf } from "@/lib/images/display";
 import type { Banner, Brand, Category, HomepageSection, MenuLink, Announcement, Product, ProductCard, Variant, AttributeDef, ProductDocument, ProductImage } from "@/lib/types";
 
 /** All public reads degrade to empty data if Supabase is not configured, so the site still renders during setup. */
@@ -39,7 +40,7 @@ export async function getBrandBySlug(slug: string) {
   return (data as { id: string; slug: string; name: string; name_ar: string | null; logo_path: string | null } | null) ?? null;
 }
 
-const CARD_SELECT = "*, product_images(storage_path,is_primary,sort_order), brands(name,name_ar), product_variants(price,is_active)";
+const CARD_SELECT = "*, product_images(storage_path,thumb_path,is_primary,sort_order,option_match), categories(slug), brands(name,name_ar), product_variants(price,is_active)";
 
 export async function getProductCardsByIds(ids: string[]): Promise<ProductCard[]> {
   const c = sb(); if (!c || !ids.length) return [];
@@ -87,9 +88,9 @@ async function groupFamilies(cards: ProductCard[]): Promise<ProductCard[]> {
   const famIds = [...new Set(cards.filter((p) => p.family_id && p.family_link === "confirmed").map((p) => p.family_id!))];
   if (!famIds.length) return cards;
   const [fams, members] = await Promise.all([
-    safe(() => c.from("product_families").select("id, slug, name_en, name_ar, image_path").in("id", famIds), [] as { id: string; slug: string; name_en: string; name_ar: string | null; image_path: string | null }[]),   // RLS: published only
-    safe(() => c.from("products").select("id, family_id, family_sort, base_price, is_quote_only, brands(name,name_ar), product_variants(price,is_active), product_images(storage_path,is_primary,sort_order)").in("family_id", famIds).eq("family_link", "confirmed").eq("status", "published").order("family_sort").order("name_en"),
-      [] as { id: string; family_id: string; family_sort: number; base_price: number | null; is_quote_only: boolean; brands: { name: string; name_ar: string | null }[]; product_variants: { price: number | null; is_active: boolean }[]; product_images: { storage_path: string; is_primary: boolean; sort_order: number }[] }[]),
+    safe(() => c.from("product_families").select("id, slug, name_en, name_ar, image_path, product_type").in("id", famIds), [] as { id: string; slug: string; name_en: string; name_ar: string | null; image_path: string | null; product_type: string | null }[]),   // RLS: published only
+    safe(() => c.from("products").select("id, family_id, family_sort, base_price, is_quote_only, brands(name,name_ar), product_variants(price,is_active), product_images(storage_path,thumb_path,is_primary,sort_order,option_match)").in("family_id", famIds).eq("family_link", "confirmed").eq("status", "published").order("family_sort").order("name_en"),
+      [] as { id: string; family_id: string; family_sort: number; base_price: number | null; is_quote_only: boolean; brands: { name: string; name_ar: string | null }[]; product_variants: { price: number | null; is_active: boolean }[]; product_images: { storage_path: string; thumb_path: string | null; is_primary: boolean; sort_order: number; option_match: Record<string, string> | null }[] }[]),
   ]);
   const famMap = new Map(fams.map((f) => [f.id, f]));
   const seen = new Set<string>(); const out: ProductCard[] = [];
@@ -101,8 +102,8 @@ async function groupFamilies(cards: ProductCard[]): Promise<ProductCard[]> {
     const ms = members.filter((m) => m.family_id === f.id);
     const prices = ms.map((m) => cardPrice(m as unknown as ProductCard)).filter((x): x is number => x != null);
     // family photo first; otherwise the first manufacturer (in admin order) that has a picture
-    const firstImg = ms.map((m) => [...(m.product_images ?? [])].sort((x, y) => Number(y.is_primary) - Number(x.is_primary) || x.sort_order - y.sort_order)[0]?.storage_path).find(Boolean) ?? null;
-    out.push({ ...p, family: { slug: f.slug, name_en: f.name_en, name_ar: f.name_ar, image_path: f.image_path ?? firstImg, price: prices.length ? Math.min(...prices) : null, memberIds: ms.map((m) => m.id),
+    const firstImg = ms.map((m) => thumbOf(mainImage(m.product_images))).find(Boolean) ?? null;
+    out.push({ ...p, family: { slug: f.slug, name_en: f.name_en, name_ar: f.name_ar, image_path: f.image_path ?? firstImg, product_type: f.product_type, price: prices.length ? Math.min(...prices) : null, memberIds: ms.map((m) => m.id),
       brands: ms.map((m) => (Array.isArray(m.brands) ? m.brands[0] : m.brands)).filter((b): b is { name: string; name_ar: string | null } => !!b) } });
   }
   return out;

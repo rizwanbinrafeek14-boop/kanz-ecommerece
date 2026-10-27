@@ -1,5 +1,7 @@
 "use client";
 import * as React from "react";
+import { ProductPlaceholder } from "@/components/storefront/product-placeholder";
+import { placeholderKind } from "@/lib/images/placeholder";
 import Link from "next/link";
 import { Trash2, ClipboardList } from "lucide-react";
 import { useCart } from "./cart-provider";
@@ -62,7 +64,7 @@ export function CartView({ lang, dict, vatRate }: { lang: Locale; dict: Dictiona
           <ul className="divide-y rounded-xl border">
             {priced.map(({ l, price, bad, lv }) => (
               <li key={l.key} className="flex gap-4 p-4">
-                <div className="size-20 shrink-0 overflow-hidden rounded-lg border bg-white">{l.image && <img src={publicUrl("product-images", l.image)!} alt="" className="size-full object-contain p-1" />}</div>
+                <div className="size-20 shrink-0 overflow-hidden rounded-lg border bg-white">{l.image ? <img src={publicUrl("product-images", l.image)!} alt="" className="size-full object-contain p-1" /> : <ProductPlaceholder kind={placeholderKind({ name_en: l.name })} compact className="size-full" />}</div>
                 <div className="min-w-0 flex-1">
                   <Link href={`/${lang}/product/${l.slug}`} className="font-semibold hover:text-primary">{l.name}</Link>
                   <p className="text-xs text-muted-foreground">{[l.sku, l.spec].filter(Boolean).join(" · ")}</p>

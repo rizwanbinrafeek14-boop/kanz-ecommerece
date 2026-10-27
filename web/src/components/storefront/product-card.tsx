@@ -4,6 +4,8 @@ import { loc, type Locale } from "@/lib/i18n/config";
 import { formatSAR } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { ProductImage } from "./product-image";
+import { mainImage, thumbOf } from "@/lib/images/display";
+import { placeholderKind } from "@/lib/images/placeholder";
 import { QuickAddQuote } from "./quick-add";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
@@ -30,14 +32,14 @@ const withMaterial = (href: string, p: PC, active?: string[]) => { const m = act
 function FamilyCard({ p, lang, dict, active }: { p: PC; lang: Locale; dict: Dictionary; active?: string[] }) {
   const f = p.family!; const ar = lang === "ar";
   const name = (ar && f.name_ar) || f.name_en;
-  const img = f.image_path ?? [...(p.product_images ?? [])].sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order)[0]?.storage_path;
+  const img = f.image_path ?? thumbOf(mainImage(p.product_images));
   const brands = f.brands.map((b) => (ar && b.name_ar) || b.name);
   const href = withMaterial(`/${lang}/product/${f.slug}`, p, active);
   const n = brands.length;
   return (
     <article data-family={f.slug} className="group flex flex-col overflow-hidden rounded-md border border-steel-200 bg-card transition duration-300 hover:-translate-y-0.5 hover:border-steel-700 hover:shadow-[6px_6px_0_0_var(--steel-200)] motion-reduce:transform-none">
       <Link href={href} className="relative block" tabIndex={-1} aria-hidden="true">
-        <ProductImage path={img} alt="" className="aspect-square w-full bg-steel-50 p-3 transition duration-500 group-hover:scale-[1.06]" />
+        <ProductImage path={img} alt="" lang={lang} placeholder={placeholderKind({ name_en: f.name_en, product_type: f.product_type, category_slug: p.categories?.slug })} className="aspect-square w-full bg-steel-50 p-3 transition duration-500 group-hover:scale-[1.06]" />
         {n > 1 && <span className="absolute end-2 top-2 rounded bg-ink px-2 py-0.5 text-xs font-semibold text-white">{ar ? `${n} علامات` : `${n} brands`}</span>}
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-4">
@@ -57,14 +59,14 @@ function FamilyCard({ p, lang, dict, active }: { p: PC; lang: Locale; dict: Dict
 export function ProductCard({ p, lang, dict, activeMaterials }: { p: PC; lang: Locale; dict: Dictionary; activeMaterials?: string[] }) {
   if (p.family) return <FamilyCard p={p} lang={lang} dict={dict} active={activeMaterials} />;
   const href = withMaterial(`/${lang}/product/${p.slug}`, p, activeMaterials);
-  const img = [...(p.product_images ?? [])].sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order)[0];
+  const img = thumbOf(mainImage(p.product_images));
   const name = loc(p, "name", lang);
   const price = cardPrice(p);
   const hasVariants = (p.product_variants ?? []).filter((v) => v.is_active && v.price != null).length > 1 && p.base_price == null;
   return (
     <article className="group flex flex-col overflow-hidden rounded-md border border-steel-200 bg-card transition duration-300 hover:-translate-y-0.5 hover:border-steel-700 hover:shadow-[6px_6px_0_0_var(--steel-200)] motion-reduce:transform-none">
       <Link href={href} className="relative block">
-        <ProductImage path={img?.storage_path} alt={name} className="aspect-square w-full bg-steel-50 p-3 transition duration-500 group-hover:scale-[1.06]" />
+        <ProductImage path={img} alt={name} lang={lang} placeholder={placeholderKind({ placeholder_kind: p.placeholder_kind, name_en: p.name_en, category_slug: p.categories?.slug })} className="aspect-square w-full bg-steel-50 p-3 transition duration-500 group-hover:scale-[1.06]" />
         <div className="absolute start-2 top-2 flex flex-col gap-1">
           {p.is_special_offer && <Badge>{loc(p, "offer_label", lang) || dict.product.offer}</Badge>}
           {p.is_new_arrival && <Badge variant="dark">{dict.product.new}</Badge>}
@@ -85,7 +87,7 @@ export function ProductCard({ p, lang, dict, activeMaterials }: { p: PC; lang: L
         {/* products that need configuration choices (material, thickness …) are configured on their page so the enquiry is complete */}
         {p.specs?.choices?.some((c) => c.required)
           ? <Link href={href} className="flex min-h-10 items-center justify-center rounded-md border border-steel-300 text-sm font-semibold hover:border-ink hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{lang === "ar" ? "اختر المواصفات" : "Choose options"}<span className="sr-only">: {name}</span></Link>
-          : <QuickAddQuote product={{ id: p.id, slug: p.slug, name, image: img?.storage_path ?? null, unit: p.unit }} label={dict.product.addToQuote} addedLabel={dict.product.added} />}
+          : <QuickAddQuote product={{ id: p.id, slug: p.slug, name, image: img, unit: p.unit }} label={dict.product.addToQuote} addedLabel={dict.product.added} />}
       </div>
     </article>
   );

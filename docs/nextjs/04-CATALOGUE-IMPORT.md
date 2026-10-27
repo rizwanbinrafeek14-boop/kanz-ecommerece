@@ -25,6 +25,14 @@ A reusable workflow for turning a manufacturer's PDF catalogue into products wit
 * Materials and grades are only those the catalogue lists explicitly.
 * Manufacturer photos are not used as product photos; only dimension drawings are cropped, and only from catalogues you are allowed to use.
 
+## 3b. Images: import first, photos later
+Missing photos never hold up an import. Each imported product shows the best temporary image that belongs to it:
+1. its picture cropped from its own catalogue page;
+2. otherwise its dimensional drawing;
+3. otherwise a placeholder captioned "Photo coming soon".
+
+The website credits catalogue images ("Image from the manufacturer's catalogue"). Upload your own photos later, per product or in bulk by SKU / code / file name: see `09-PRODUCT-IMAGES.md`.
+
 ## 4. Claude extraction cost
 Claude Opus 5.5 is priced at US$4 per million input tokens and US$20 per million output tokens. One rendered page is about 1,600 image tokens plus the instructions. A dense dimension-table page produces several thousand output tokens. Expect **about US$0.10–0.25 per page**, i.e. US$10–25 for a 100-page catalogue. The admin shows the running cost and lets you stop after the current page. Re-extracting a page costs again, so review rather than re-run.
 

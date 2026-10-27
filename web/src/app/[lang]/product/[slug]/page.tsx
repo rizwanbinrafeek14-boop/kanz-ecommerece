@@ -15,6 +15,9 @@ import { publicUrl } from "@/lib/format";
 import { BuyBox } from "@/components/storefront/product-buybox";
 import { ProductGrid } from "@/components/storefront/product-card";
 import { VariantGallery } from "@/components/storefront/variant-gallery";
+import { ProductPlaceholder } from "@/components/storefront/product-placeholder";
+import { placeholderKind } from "@/lib/images/placeholder";
+import { imageNote, thumbOf } from "@/lib/images/display";
 import { SelectionPanel } from "@/components/storefront/selection-panel";
 import { GasketExplorer } from "@/components/storefront/visual/gasket-explorer";
 import { ProductViewTracker } from "@/components/storefront/page-tracker";
@@ -71,7 +74,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
   const approvalLabels: ApprovalLabels = { heading: dict.product.approvals, none: dict.product.approvalsNone, view: dict.product.viewCert, opensNew: dict.product.opensNew, number: dict.product.certNumber, scope: dict.product.certScope, validUntil: dict.product.certValid, issuer: dict.product.certIssuer };
   const name = loc(p, "name", lang);
   const url = abs(`/${lang}/product/${slug}`);
-  const images = d.images.map((i, n) => ({ url: publicUrl("product-images", i.storage_path)!, needsHires: i.needs_hires, match: i.option_match ?? null, alt: (lang === "ar" ? i.alt_ar || i.alt_en : i.alt_en) || `${name}${d.images.length > 1 ? ` — ${lang === "ar" ? "صورة" : "image"} ${n + 1}` : ""}` }));
+  const images = d.images.map((i, n) => ({ url: publicUrl("product-images", i.storage_path)!, thumb: publicUrl("product-images", i.thumb_path), note: imageNote(i, lang), needsHires: i.needs_hires, match: i.option_match ?? null, alt: (lang === "ar" ? i.alt_ar || i.alt_en : i.alt_en) || `${name}${d.images.length > 1 ? ` — ${lang === "ar" ? "صورة" : "image"} ${n + 1}` : ""}` }));
 
   const input = seoInput(d, lang);
   const prices = p.is_quote_only ? [] : [p.base_price, ...d.variants.map((v) => v.price)].filter((x): x is number => x != null && x > 0);
@@ -164,7 +167,9 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
 
       <div className="grid gap-8 lg:grid-cols-[1fr_440px]">
         <div className="min-w-0 space-y-4 lg:sticky lg:top-32 lg:self-start">
-          <VariantGallery images={images} variants={d.variants.map((v) => ({ id: v.id, options: v.options }))} alt={name} labels={{ enlarge: dict.product.enlarge, zoomIn: dict.product.zoom, zoomOut: dict.product.zoomOut, close: dict.common.close, prev: dict.product.prevImg, next: dict.product.nextImg, image: lang === "ar" ? "صورة" : "Image" }} />
+          <VariantGallery images={images} variants={d.variants.map((v) => ({ id: v.id, options: v.options }))} alt={name}
+            empty={<ProductPlaceholder kind={placeholderKind({ placeholder_kind: p.placeholder_kind, name_en: p.name_en, category_slug: d.category?.slug })} lang={lang} alt={name} className="aspect-square w-full rounded-xl border" />}
+            labels={{ enlarge: dict.product.enlarge, zoomIn: dict.product.zoom, zoomOut: dict.product.zoomOut, close: dict.common.close, prev: dict.product.prevImg, next: dict.product.nextImg, image: lang === "ar" ? "صورة" : "Image" }} />
           {d.dimensionTables.length > 0 && <SelectionPanel tables={d.dimensionTables} lang={lang} source={sourceShort}
             variants={d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: (v.options && vLabel(v.options)) || loc(v, "label", lang) || v.sku }))} />}
         </div>
@@ -183,7 +188,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
           {facts.length > 0 && <dl className="mt-4 grid grid-cols-2 gap-2 text-sm" data-key-facts>{facts.map(([k, v]) => <div key={k} className="rounded-md border border-steel-200 bg-steel-50/60 px-3 py-2"><dt className="text-[11px] uppercase tracking-wide text-steel-600">{k}</dt><dd className="font-medium" dir="auto">{v}</dd></div>)}</dl>}
           <div className="mt-5">
             <BuyBox approvals={certs} approvalLabels={approvalLabels} lang={lang} dict={dict} url={url} vatRate={vatRateOf(settings)} whatsapp={whatsappNumber(widget, s(settings, "company_whatsapp"))} waGreeting={lang === "ar" ? (widget?.default_message_ar ?? dict.product.shareWhatsapp) : (widget?.default_message_en ?? dict.product.shareWhatsapp)}
-              product={{ id: p.id, slug: p.slug, name, unit: p.unit, quoteOnly: p.is_quote_only, basePrice: p.base_price, minQty: Number(p.min_order_qty), image: d.images[0]?.storage_path ?? null }}
+              product={{ id: p.id, slug: p.slug, name, unit: p.unit, quoteOnly: p.is_quote_only, basePrice: p.base_price, minQty: Number(p.min_order_qty), image: thumbOf(d.images[0]) }}
               datasheet={`/api/datasheet/${p.slug}`} options={d.options.map((o) => ({ key: o.key, name: (lang === "ar" && o.name_ar) || o.name_en, values: o.values.map((v) => ({ value: v.value, label: (lang === "ar" && v.label_ar) || v.label_en })) }))}
               variants={d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: loc(v, "label", lang) || [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), spec: d.options.length && v.options ? vLabel(v.options) || (loc(v, "label", lang) ?? "") : [v.size, v.grade, v.schedule, v.pressure_class].filter(Boolean).join(" / "), price: v.price, available: v.available, material: v.material_code ?? null }))}
               choices={p.specs?.choices ?? []}
@@ -234,7 +239,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
       {d.alternatives.length > 0 && <section className="mt-14"><h2 className="mb-5 border-s-4 border-primary ps-3 text-xl font-bold">{dict.product.alternatives}</h2><ProductGrid products={d.alternatives} lang={lang} dict={dict} /></section>}
       {d.related.length > 0 && <section className="mt-14"><h2 className="mb-5 border-s-4 border-primary ps-3 text-xl font-bold">{dict.product.related}</h2><ProductGrid products={d.related} lang={lang} dict={dict} /></section>}
 
-      <ProductViewTracker productId={p.id} recent={{ slug: p.slug, name_en: p.name_en, name_ar: p.name_ar, image: d.images[0]?.storage_path ?? null }} />
+      <ProductViewTracker productId={p.id} recent={{ slug: p.slug, name_en: p.name_en, name_ar: p.name_ar, image: thumbOf(d.images[0]) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumbLd(crumbs)]) }} />
     </div>
   );

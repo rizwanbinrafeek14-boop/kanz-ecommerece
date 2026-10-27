@@ -138,7 +138,8 @@ export async function publishImportItems(ids: string[]): Promise<Result<{ publis
       for (let n = 0; n < imgs.length; n++) {
         const dest = `${product.id}/${n}-${path.basename(imgs[n])}`;
         await copyObject(sb, { bucket: "import-staging", path: imgs[n] }, { bucket: "product-images", path: dest });
-        await sb.from("product_images").insert({ product_id: product.id, storage_path: dest, sort_order: n, is_primary: n === 0, needs_hires: (it.flags as string[]).includes("low_res"), alt_en: it.name_en });
+        await sb.from("product_images").insert({ product_id: product.id, storage_path: dest, sort_order: n, is_primary: n === 0, needs_hires: (it.flags as string[]).includes("low_res"), alt_en: it.name_en,
+          source: "catalogue", source_note: it.source_page ? `Catalogue page ${it.source_page}` : "Catalogue import" });   // a temporary catalogue picture until a photo is uploaded
       }
       const doc = it.extra?.document as { title: string; path: string } | null;
       if (doc?.path) {

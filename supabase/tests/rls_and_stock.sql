@@ -370,3 +370,38 @@ select count(*) as logged_zero from analytics_events where query = 'zzsrch nothi
 set role anon; select pg_temp.as_user(null);
 select * from admin_search_terms(30, true, 5);
 reset role;
+
+\echo '--- T36 images: file names matched by SKU / variant SKU / code / slug (suffixes like _2 or (3) ignored), staff only; replacing keeps the row and moves references; shared files are never reported as deletable (expect 1 / 1 / 1 / 1 / 0 / 2 / ZZI-WN-4-150.jpg=true ZZI-WN-4-150_2.jpg=false / error / t / 1 / 0 / 1 / (empty: the catalogue file is still a table drawing) / error)'
+reset role;
+insert into products (id, slug, name_en, sku, status, published_at, manufacturer_ref) values
+  ('56000000-0000-0000-0000-0000000000a1','img-weld-neck','ZZImg Weld Neck Flange','ZZI-WN','published',now(),'WN-77'),
+  ('56000000-0000-0000-0000-0000000000a2','img-blind','ZZImg Blind Flange','ZZI-BL','published',now(), null);
+insert into product_variants (id, product_id, sku, manufacturer_code, options) values
+  ('56000000-0000-0000-0000-0000000000b1','56000000-0000-0000-0000-0000000000a1','ZZI-WN-4-150','M-4150','{"size":"4","class":"150"}'),
+  ('56000000-0000-0000-0000-0000000000b2','56000000-0000-0000-0000-0000000000a2','ZZI-BL-4','WN-77','{"size":"4"}');
+insert into product_images (id, product_id, storage_path, is_primary, alt_en, option_match, sort_order) values
+  ('56000000-0000-0000-0000-0000000000c1','56000000-0000-0000-0000-0000000000a1','catalogue/zz/wn.webp', true, 'Weld neck flange', '{"size":"4"}', 3);
+insert into dimension_tables (product_id, title_en, columns, drawing_path) values ('56000000-0000-0000-0000-0000000000a2','ZZ table','[{"key":"A","label_en":"A"}]','catalogue/zz/wn.webp');
+update products set og_image_path = 'catalogue/zz/wn.webp' where id = '56000000-0000-0000-0000-0000000000a1';
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+select count(*) as by_sku from match_image_files(array['zzi-wn.JPG']) where product_id = '56000000-0000-0000-0000-0000000000a1' and matched_by = 'product SKU';
+select count(*) as by_variant_suffix from match_image_files(array['ZZI WN 4 150_2.png']) where variant_id = '56000000-0000-0000-0000-0000000000b1';
+select count(*) as by_code_paren from match_image_files(array['M-4150 (3).webp']) where matched_by = 'manufacturer code';
+select count(*) as by_slug from match_image_files(array['photos/img-blind.jpg']) where product_id = '56000000-0000-0000-0000-0000000000a2';
+select count(*) as no_match from match_image_files(array['holiday.jpg']);
+select count(*) as ambiguous from match_image_files(array['WN-77.jpg']);
+-- "_2" = second photo of ZZI-WN-4-150 (not read as a code ending in "1502"); only the plain name counts as the exact name
+select string_agg(name || '=' || exact, ' ' order by name) as exact_names from match_image_files(array['ZZI-WN-4-150.jpg', 'ZZI-WN-4-150_2.jpg']);
+reset role; set role anon; select pg_temp.as_user(null);
+select count(*) from match_image_files(array['zzi-wn.jpg']);
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+select replace_product_image('56000000-0000-0000-0000-0000000000c1', '56000000-0000-0000-0000-0000000000a1/new.webp', '56000000-0000-0000-0000-0000000000a1/new-thumb.webp', '{"width":1600,"height":1200,"bytes":180000,"original_name":"zzi-wn.jpg"}') = '{}' as nothing_to_delete_yet;
+select count(*) as row_kept from product_images where id = '56000000-0000-0000-0000-0000000000c1' and is_primary and alt_en = 'Weld neck flange' and option_match = '{"size":"4"}' and sort_order = 3
+   and source = 'upload' and previous_path = 'catalogue/zz/wn.webp' and width = 1600;
+select count(*) as og_still_old from products where id = '56000000-0000-0000-0000-0000000000a1' and og_image_path = 'catalogue/zz/wn.webp';
+select count(*) as og_moved from products where id = '56000000-0000-0000-0000-0000000000a1' and og_image_path like '%/new.webp';
+-- second replacement drops the catalogue file from the image, but it is still a table drawing, so nothing may be deleted
+select array_to_string(replace_product_image('56000000-0000-0000-0000-0000000000c1', '56000000-0000-0000-0000-0000000000a1/newer.webp', null, '{}'), ',') as deletable;
+select replace_product_image('56000000-0000-0000-0000-0000000000c1', 'other-folder/x.webp', null, '{}');
+reset role;

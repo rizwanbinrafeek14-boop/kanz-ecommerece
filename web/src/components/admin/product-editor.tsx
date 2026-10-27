@@ -14,6 +14,7 @@ import { formatSAR } from "@/lib/format";
 import { ProductVariants, type VariantRow } from "./product-variants";
 import { ProductAttributes, type AttrDef, type AttrValue } from "./product-attributes";
 import { ProductImages, ProductDocs, type ImageRow, type DocRow } from "./product-media";
+import type { PlaceholderKind } from "@/lib/images/placeholder";
 import { SeoTab } from "./product-seo";
 import { ProductCerts, type CertOption, type VariantOption } from "./product-certs";
 import type { Assignment } from "@/lib/admin/cert-actions";
@@ -29,7 +30,7 @@ export interface ProductFull {
 interface Opt { id: string; name: string; parent_id?: string | null }
 
 export function ProductEditor(props: {
-  product: ProductFull | null; categories: Opt[]; brands: Opt[]; variants: VariantRow[]; attrDefs: AttrDef[]; attrValues: AttrValue[]; images: ImageRow[]; docs: DocRow[]; related: RelRow[]; alternatives: RelRow[]; isAdmin: boolean; certOptions: CertOption[]; assignments: Assignment[]; variantOptions: VariantOption[];
+  product: ProductFull | null; categories: Opt[]; brands: Opt[]; variants: VariantRow[]; attrDefs: AttrDef[]; attrValues: AttrValue[]; images: ImageRow[]; placeholder: { kind: string | null; auto: PlaceholderKind }; docs: DocRow[]; related: RelRow[]; alternatives: RelRow[]; isAdmin: boolean; certOptions: CertOption[]; assignments: Assignment[]; variantOptions: VariantOption[];
   materials?: MaterialRow[]; materialTypes?: MaterialType[]; variantMaterials?: { id: string; label: string; material_code: string | null }[]; initialTab?: string;
   techSpecs?: TechSpecs; techTables?: TechTable[]; review?: { items: string[]; matches: string | null; supplierNote?: string | null };
 }) {
@@ -128,7 +129,7 @@ export function ProductEditor(props: {
           <TabsContent value="attributes"><ProductAttributes productId={p.id} defs={props.attrDefs} values={props.attrValues} /></TabsContent>
           <TabsContent value="technical">{props.techSpecs && <TechDataEditor productId={p.id} specs={props.techSpecs} tables={props.techTables ?? []} />}</TabsContent>
           <TabsContent value="materials"><ProductMaterials productId={p.id} rows={props.materials ?? []} types={props.materialTypes ?? []} variants={props.variantMaterials ?? []} /></TabsContent>
-          <TabsContent value="images"><ProductImages productId={p.id} rows={props.images} /></TabsContent>
+          <TabsContent value="images"><ProductImages productId={p.id} productName={p.name_en} rows={props.images} placeholder={props.placeholder} /></TabsContent>
           <TabsContent value="documents"><ProductDocs productId={p.id} rows={props.docs} /></TabsContent>
           <TabsContent value="certifications"><ProductCerts productId={p.id} certs={props.certOptions} initial={props.assignments} variants={props.variantOptions} isAdmin={props.isAdmin} /></TabsContent>
           <TabsContent value="related"><ProductRelations productId={p.id} related={props.related} alternatives={props.alternatives} /></TabsContent>

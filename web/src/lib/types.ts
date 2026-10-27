@@ -9,7 +9,10 @@ export interface Category {
   seo_noindex: boolean; buying_guide_en: string | null; buying_guide_ar: string | null;
 }
 export interface Brand { id: string; slug: string; name: string; name_ar: string | null; logo_path: string | null; website: string | null; sort_order: number; is_active: boolean; show_on_homepage: boolean }
-export interface ProductImage { id: string; product_id: string; storage_path: string; alt_en: string | null; alt_ar: string | null; sort_order: number; is_primary: boolean; needs_hires: boolean; option_match?: Record<string, string> | null }
+export interface ProductImage { id: string; product_id: string; storage_path: string; alt_en: string | null; alt_ar: string | null; sort_order: number; is_primary: boolean; needs_hires: boolean; option_match?: Record<string, string> | null;
+  /** upload = KANZ's own photo; catalogue = cropped from / drawn in the manufacturer's catalogue; manufacturer = an image supplied by the manufacturer */
+  source?: "upload" | "catalogue" | "manufacturer"; kind?: "photo" | "drawing"; thumb_path?: string | null; width?: number | null; height?: number | null; bytes?: number | null;
+  original_name?: string | null; source_note?: string | null; previous_path?: string | null; replaced_at?: string | null }
 export interface ProductDocument { id: string; product_id: string; kind: "datasheet" | "mtc" | "certificate" | "other"; title: string; storage_path: string; is_public: boolean }
 export interface AttributeDef { id: string; key: string; name_en: string; name_ar: string | null; is_filterable: boolean; show_in_specs: boolean; sort_order: number }
 export interface AttributeValue { product_id: string; attribute_id: string; value_en: string; value_ar: string | null; sort_order: number }
@@ -28,6 +31,8 @@ export interface Product {
   source_page: number | null; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null;
   og_title_en: string | null; og_title_ar: string | null; og_desc_en: string | null; og_desc_ar: string | null; og_image_path: string | null; seo_noindex: boolean;
   published_at: string | null; created_at: string; updated_at: string;
+  /** Placeholder drawing while the product has no image (null = detected from name / category). */
+  placeholder_kind?: string | null;
   manufacturer_ref?: string | null; country_of_origin?: string | null; applications_en?: string | null; applications_ar?: string | null;
   specs?: { standards?: { code: string; scope: "product" | "general"; note?: string | null }[]; materials?: { type: string; grades: string[] }[]; notes?: string[]; choices?: ConfigChoice[]; properties?: { label_en: string; label_ar?: string | null; value_en: string; value_ar?: string | null }[];
     /** Product-page overview: what it seals / connects to, and what the customer must confirm before ordering. */
@@ -47,11 +52,12 @@ export interface ConfigChoice {
   requires?: Record<string, string[]>; requires_choice?: Record<string, string[]>; hint_en?: string; hint_ar?: string; min?: number; max?: number; step?: number; unit?: string; maxlength?: number;
 }
 export interface ProductCard extends Product {
-  product_images: Pick<ProductImage, "storage_path" | "is_primary" | "sort_order">[];
+  product_images: Pick<ProductImage, "storage_path" | "thumb_path" | "is_primary" | "sort_order" | "option_match">[];
+  categories?: { slug: string } | null;
   brands: Pick<Brand, "name" | "name_ar"> | null;
   product_variants?: { price: number | null; is_active: boolean }[];
   /** Set when this card stands for a whole product family (one card per family, several manufacturers inside). */
-  family?: { slug: string; name_en: string; name_ar: string | null; image_path: string | null; brands: { name: string; name_ar: string | null }[]; price: number | null; memberIds?: string[] };
+  family?: { slug: string; name_en: string; name_ar: string | null; image_path: string | null; product_type?: string | null; brands: { name: string; name_ar: string | null }[]; price: number | null; memberIds?: string[] };
   /** Shown materials (codes, in material order) of this product, or of all manufacturers of a family card. */
   materials?: { code: string; name_en: string; name_ar: string | null }[];
 }

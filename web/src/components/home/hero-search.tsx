@@ -1,5 +1,7 @@
 "use client";
 import * as React from "react";
+import { ProductPlaceholder } from "@/components/storefront/product-placeholder";
+import { placeholderKind } from "@/lib/images/placeholder";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Folder, Loader2, Search } from "lucide-react";
@@ -120,7 +122,7 @@ export function HeroSearch({ lang, categories, facets, t }: HeroSearchProps) {
             return (
               <li key={s.kind + s.id} id={`${id}-opt-${i}`} role="option" aria-selected={i === active}>
                 <Link href={href} onClick={() => setOpen(false)} className={cn("flex min-h-11 items-center gap-3 px-3 py-2 text-sm hover:bg-steel-50", i === active && "bg-steel-100")}>
-                  {img ? <img src={img} alt="" className="size-8 bg-steel-50 object-contain" /> : <Folder className="size-4 text-steel-500" aria-hidden="true" />}
+                  {img ? <img src={img} alt="" className="size-8 bg-steel-50 object-contain" /> : s.kind !== "category" ? <ProductPlaceholder kind={placeholderKind({ name_en: s.name_en })} compact className="size-8 shrink-0" /> : <Folder className="size-4 text-steel-500" aria-hidden="true" />}
                   <span className="flex-1">{name}</span>{s.kind === "category" && <span className="spec-label text-steel-500">{t.categoryWord}</span>}
                 </Link>
               </li>);
