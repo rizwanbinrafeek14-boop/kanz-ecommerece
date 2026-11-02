@@ -180,6 +180,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
             {p.is_quote_only && <Badge variant="secondary">{dict.product.productFamily}</Badge>}
           </div>
           <h1 className="text-2xl font-bold leading-tight sm:text-3xl">{name}</h1>
+          {p.catalogue_only && <p className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-steel-300 bg-steel-50 px-2.5 py-1 text-sm font-medium text-steel-800" data-catalogue-item>{lang === "ar" ? "منتج من كتالوج الشركة المصنعة — اطلب عرض سعر" : "Catalogue item — request a quotation"}</p>}
           <p className="mt-2 text-sm text-muted-foreground">
             {d.brand && <>{dict.common.brand}: <span className="font-medium text-foreground">{lang === "ar" && d.brand.name_ar ? d.brand.name_ar : d.brand.name}</span>{p.sku ? " · " : ""}</>}
             {p.sku && <>{dict.common.sku}: <span dir="ltr" className="font-mono text-foreground">{p.sku}</span></>}

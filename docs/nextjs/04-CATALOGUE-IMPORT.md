@@ -25,6 +25,9 @@ A reusable workflow for turning a manufacturer's PDF catalogue into products wit
 * Materials and grades are only those the catalogue lists explicitly.
 * Manufacturer photos are not used as product photos; only dimension drawings are cropped, and only from catalogues you are allowed to use.
 
+## 3a. Manufacturer websites
+Catalogues published as web pages rather than PDFs are imported through the same review and approval flow, starting from a website crawl. See `10-WEBSITE-IMPORT.md`.
+
 ## 3b. Images: import first, photos later
 Missing photos never hold up an import. Each imported product shows the best temporary image that belongs to it:
 1. its picture cropped from its own catalogue page;

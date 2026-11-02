@@ -122,6 +122,9 @@ Run `supabase/migrations/0020_product_images.sql` (contents) and redeploy. The m
 
 See `docs/nextjs/09-PRODUCT-IMAGES.md`.
 
+## Step 8j — Manufacturer website import (e.g. GALA)
+Run `supabase/migrations/0021_web_catalogue.sql` (contents) and redeploy. It only adds things and is safe to run again. The import uses the same `ANTHROPIC_API_KEY` as PDF extraction; no new environment variable is needed. Then use Admin → Catalogue → **Import from a manufacturer website**. See `docs/nextjs/10-WEBSITE-IMPORT.md`. Leave image / document copying off unless you have the manufacturer's permission.
+
 ## Step 8c — New homepage
 Run `supabase/migrations/0013_homepage_sections.sql` (contents, not the file name) and redeploy. The new homepage blocks appear in Admin → Content & settings → Homepage sections, where you can reorder or disable them. Blocks without real data (featured products, brands, certificates, material/standard chips) stay hidden automatically.
 

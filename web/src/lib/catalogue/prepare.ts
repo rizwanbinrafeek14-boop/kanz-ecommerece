@@ -32,31 +32,36 @@ export function describe(p: ExtractedProduct) {
   const prodStd = p.standards.filter((s) => s.scope === "product").map((s) => s.code);
   const mats = p.materials.map((m) => (m.grades.length ? `${m.type} (${m.grades.join(", ")})` : m.type));
   const pages = list(p.pages.map(String)).join(", ");
+  // where the data comes from: catalogue pages, or the manufacturer's web page and the date it was read
+  const sourceEn = p.source_url ? `Source: ${p.manufacturer} website (${p.source_url})${p.retrieved_at ? `, retrieved ${p.retrieved_at}` : ""}.` : `Source: ${p.manufacturer} catalogue, page ${pages}.`;
+  const sourceAr = p.source_url ? `المصدر: موقع ${p.manufacturer} (${p.source_url})${p.retrieved_at ? `، بتاريخ ${p.retrieved_at}` : ""}.` : `المصدر: كتالوج ${p.manufacturer}، صفحة ${pages}.`;
   const sizeRange = sizes.length ? (sizes.length > 2 ? `${sizes[0]} to ${sizes[sizes.length - 1]}` : sizes.join(" and ")) : "";
   const shortEn = [`${p.manufacturer} ${p.family.name_en}`, conns.length && `${conns.join(" / ")}`, classes.length && prefixed(classes, /class/i, "class ").join(", "), sizeRange && `sizes ${sizeRange}`, prodStd.length && `to ${prodStd.join(", ")}`].filter(Boolean).join(" · ");
   const en = [
-    `${p.name_en} as listed in the ${p.manufacturer} catalogue.`,
+    `${p.name_en} as listed ${p.source_url ? "on the" : "in the"} ${p.manufacturer} ${p.source_url ? "website" : "catalogue"}.`,
     conns.length ? `Connections: ${conns.join(", ")}.` : "",
     classes.length ? `Pressure classes: ${classes.join(", ")}.` : "",
     sizes.length ? `Sizes: ${sizes.join(", ")}.` : "",
     prodStd.length ? `Standards: ${prodStd.join(", ")}.` : "",
     mats.length ? `Materials: ${mats.join("; ")}.` : "",
     p.dimension_tables.length ? "Dimensions for each size and class are shown in the Dimensions tab." : "",
-    `Source: ${p.manufacturer} catalogue, page ${pages}. Please confirm the exact specification in your request for quotation.`,
+    `${sourceEn} Please confirm the exact specification in your request for quotation.`,
   ].filter(Boolean).join(" ");
   const nameAr = p.name_ar ?? null;
   const connsAr = lbl("connection", true);
   const shortAr = nameAr ? [nameAr, connsAr.length && connsAr.join(" / "), classesAr.length && prefixed(classesAr, /فئة/, "فئة ").join("، "), sizeRange && `المقاسات ${sizes[0]}${sizes.length > 1 ? ` إلى ${sizes[sizes.length - 1]}` : ""}`, prodStd.length && `حسب ${prodStd.join("، ")}`].filter(Boolean).join(" · ") : null;
   const ar = nameAr ? [
-    `${nameAr} كما ورد في كتالوج ${p.manufacturer}.`,
+    `${nameAr} كما ورد في ${p.source_url ? "موقع" : "كتالوج"} ${p.manufacturer}.`,
     connsAr.length ? `أنواع التوصيل: ${connsAr.join("، ")}.` : "",
     classesAr.length ? `فئات الضغط: ${classesAr.join("، ")}.` : "",
     sizes.length ? `المقاسات: ${sizes.join("، ")}.` : "",
     prodStd.length ? `المواصفات: ${prodStd.join("، ")}.` : "",
     p.dimension_tables.length ? "الأبعاد لكل مقاس وفئة موضحة في تبويب الأبعاد." : "",
-    `المصدر: كتالوج ${p.manufacturer}، صفحة ${pages}. يرجى تأكيد المواصفة المطلوبة في طلب عرض السعر.`,
+    `${sourceAr} يرجى تأكيد المواصفة المطلوبة في طلب عرض السعر.`,
   ].filter(Boolean).join(" ") : null;
-  return { short_desc_en: (p.short_en || shortEn).slice(0, 500), description_en: p.description_en || en, short_desc_ar: p.short_ar || shortAr, description_ar: p.description_ar || ar };
+  // a manufacturer's own description from a web page keeps its source line, so buyers and staff can always trace it back
+  const cite = (d: string | null | undefined, src: string) => (d && p.source_url ? `${d}\n\n${src}` : d);
+  return { short_desc_en: (p.short_en || shortEn).slice(0, 500), description_en: cite(p.description_en, sourceEn) || en, short_desc_ar: p.short_ar || shortAr, description_ar: cite(p.description_ar, sourceAr) || ar };
 }
 
 /** Fittings sized by a pair of options (tee run x outlet, reducer large x small) still get a plain size for search filters, e.g. 4" x 2". */

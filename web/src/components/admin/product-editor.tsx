@@ -24,7 +24,7 @@ import { ImportReview, TechDataEditor, type TechSpecs, type TechTable } from "./
 
 export interface ProductFull {
   id: string; slug: string; sku: string | null; barcode: string | null; name_en: string; name_ar: string | null; short_desc_en: string | null; short_desc_ar: string | null; description_en: string | null; description_ar: string | null;
-  category_id: string | null; brand_id: string | null; status: "draft" | "published" | "archived"; is_quote_only: boolean; is_featured: boolean; is_new_arrival: boolean; is_special_offer: boolean; offer_label_en: string | null; offer_label_ar: string | null;
+  category_id: string | null; brand_id: string | null; status: "draft" | "published" | "archived"; is_quote_only: boolean; catalogue_only?: boolean; is_featured: boolean; is_new_arrival: boolean; is_special_offer: boolean; offer_label_en: string | null; offer_label_ar: string | null;
   base_price: number | null; compare_at_price: number | null; unit: string; min_order_qty: number; seo_title_en: string | null; seo_title_ar: string | null; seo_desc_en: string | null; seo_desc_ar: string | null; og_title_en: string | null; og_title_ar: string | null; og_desc_en: string | null; og_desc_ar: string | null; og_image_path: string | null; seo_noindex: boolean; source_page: number | null; purchase_cost: number | null;
 }
 interface Opt { id: string; name: string; parent_id?: string | null }
@@ -43,7 +43,7 @@ export function ProductEditor(props: {
     seo_title_en: p?.seo_title_en ?? "", seo_title_ar: p?.seo_title_ar ?? "", seo_desc_en: p?.seo_desc_en ?? "", seo_desc_ar: p?.seo_desc_ar ?? "",
     og_title_en: p?.og_title_en ?? "", og_title_ar: p?.og_title_ar ?? "", og_desc_en: p?.og_desc_en ?? "", og_desc_ar: p?.og_desc_ar ?? "", og_image_path: p?.og_image_path ?? "", seo_noindex: p?.seo_noindex ?? false,
   });
-  const [pr, setPr] = React.useState({ quote: p?.is_quote_only ?? true, base: p?.base_price?.toString() ?? "", compare: p?.compare_at_price?.toString() ?? "", cost: p?.purchase_cost?.toString() ?? "" });
+  const [pr, setPr] = React.useState({ catalogue: !!p?.catalogue_only, quote: p?.is_quote_only ?? true, base: p?.base_price?.toString() ?? "", compare: p?.compare_at_price?.toString() ?? "", cost: p?.purchase_cost?.toString() ?? "" });
   const [busy, setBusy] = React.useState(false);
   const set = (k: keyof typeof g) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setG((x) => ({ ...x, [k]: e.target.value }));
   const chk = (k: "is_featured" | "is_new_arrival" | "is_special_offer") => (e: React.ChangeEvent<HTMLInputElement>) => setG((x) => ({ ...x, [k]: e.target.checked }));
@@ -62,7 +62,7 @@ export function ProductEditor(props: {
   }
   async function savePricing() {
     if (!p) return; setBusy(true);
-    const r = await run(saveProductPricing(p.id, { is_quote_only: pr.quote, base_price: n(pr.base), compare_at_price: n(pr.compare), purchase_cost: n(pr.cost) }), "Pricing saved");
+    const r = await run(saveProductPricing(p.id, { is_quote_only: pr.quote, catalogue_only: pr.catalogue, base_price: n(pr.base), compare_at_price: n(pr.compare), purchase_cost: n(pr.cost) }), "Pricing saved");
     setBusy(false); if (r !== undefined) router.refresh();
   }
   const margin = n(pr.base) != null && n(pr.cost) != null && Number(pr.base) > 0 ? ((Number(pr.base) - Number(pr.cost)) / Number(pr.base)) * 100 : null;
@@ -115,6 +115,7 @@ export function ProductEditor(props: {
 
         <TabsContent value="pricing"><Panel>
           <div className="grid max-w-xl gap-4">
+            <label className="flex items-start gap-3 rounded-lg border p-3 text-sm"><Checkbox checked={pr.catalogue} onChange={(e) => setPr({ ...pr, catalogue: e.target.checked })} className="mt-0.5" aria-label="Catalogue item" /><span><strong>Catalogue item (not stocked)</strong> — the product page and cards say “Catalogue item — request a quotation”. Turn off once you stock it.</span></label>
             <label className="flex items-start gap-3 rounded-lg border p-3 text-sm"><Checkbox checked={pr.quote} onChange={(e) => setPr({ ...pr, quote: e.target.checked })} className="mt-0.5" /><span><strong>Quote only</strong> — customers request a quotation instead of buying online. Keep this on until a real price (and stock) exists.</span></label>
             <Field label="Selling price (SAR, ex-VAT)" hint="Used when the product has no variants, or as the default for variants without their own price."><Input type="number" min="0" step="0.01" value={pr.base} onChange={(e) => setPr({ ...pr, base: e.target.value })} /></Field>
             <Field label="Compare-at price (SAR, optional)" hint="Shown as the old price for special offers."><Input type="number" min="0" step="0.01" value={pr.compare} onChange={(e) => setPr({ ...pr, compare: e.target.value })} /></Field>

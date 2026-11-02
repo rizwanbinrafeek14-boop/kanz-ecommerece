@@ -13,13 +13,38 @@ import { validateExtracted } from "@/lib/catalogue/validate";
 import { setExtractedStatus, updateExtracted } from "@/lib/admin/catalogue-actions";
 import { run } from "@/lib/admin/client";
 import { cn } from "@/lib/utils";
+import type { Change } from "@/lib/admin/catalogue-store";
+
+/** Review panel for a record extracted from a manufacturer web page: everything links back to the source for checking. */
+function WebSourceReview({ p, changes }: { p: ExtractedProduct; changes: Change[] | null }) {
+  return (
+    <div className="space-y-4 xl:sticky xl:top-4 xl:self-start" data-web-source>
+      <Panel title="Source web page">
+        <a href={p.source_url!} target="_blank" rel="noopener noreferrer" className="break-all text-sm text-primary underline">{p.source_url}</a>
+        <p className="mt-1 text-xs text-muted-foreground">Read {p.retrieved_at ?? "—"} · model {p.manufacturer_ref ?? <strong className="text-amber-700">not stated — verify</strong>}. Open the page and check every value before approving.</p>
+        {p.properties.length > 0 && <table className="mt-3 w-full text-xs" data-properties><tbody>{p.properties.map((x, i) => <tr key={i} className="border-t align-top"><th className="w-2/5 p-1.5 text-start font-medium text-muted-foreground">{x.label_en}</th><td className="p-1.5">{x.value_en}</td></tr>)}</tbody></table>}
+        <h3 className="mt-4 text-sm font-semibold">Images ({p.images.length})</h3>
+        {!p.images.length ? <p className="text-xs text-muted-foreground">None — the product shows a labelled placeholder until you upload a photo.</p>
+          : <ul className="mt-1 space-y-1 text-xs">{p.images.map((im, i) => <li key={i}><Badge variant="secondary">{im.kind}</Badge> <a href={im.url ?? "#"} target="_blank" rel="noopener noreferrer" className="break-all text-primary underline">{im.alt_en}</a></li>)}</ul>}
+        <h3 className="mt-4 text-sm font-semibold">Documents ({p.documents.length})</h3>
+        {!p.documents.length ? <p className="text-xs text-muted-foreground">None found on the page.</p>
+          : <ul className="mt-1 space-y-1 text-xs">{p.documents.map((d, i) => <li key={i}><Badge variant="secondary">{d.kind}</Badge> <a href={d.url} target="_blank" rel="noopener noreferrer" className="break-all text-primary underline">{d.title}</a></li>)}</ul>}
+      </Panel>
+      {changes && <Panel title="Already imported — changes if applied">
+        {!changes.length ? <p className="text-sm text-muted-foreground">No differences from the product on the site.</p> : (
+          <table className="w-full text-xs" data-changes><thead><tr className="text-muted-foreground"><th className="p-1 text-start">Field</th><th className="p-1 text-start">Now</th><th className="p-1 text-start">From the manufacturer</th></tr></thead>
+            <tbody>{changes.map((c) => <tr key={c.field} className={cn("border-t align-top", !c.applies && "text-muted-foreground")}><td className="p-1 font-medium">{c.label}</td><td className="max-w-[200px] break-words p-1">{c.current}</td><td className="max-w-[200px] break-words p-1">{c.proposed}</td></tr>)}</tbody></table>)}
+        <p className="mt-2 text-xs text-muted-foreground">Apply from the catalogue page with “Review updates”. Names, prices, stock, variants, images and the publication status are never changed by an update.</p>
+      </Panel>}
+    </div>);
+}
 
 type P = ExtractedProduct;
 const cell = "h-8 w-full min-w-16 rounded border border-input bg-background px-1.5 text-xs font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 const lines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
 
 /** Side-by-side review: the source page on the left, every extracted value editable on the right, live validation. */
-export function ItemEditor({ id, status, initial, duplicate, pages, categories }: { id: string; sourceId?: string; status: string; initial: P; duplicate: { kind?: string; message?: string } | null; pages: { page: number; url: string | null }[]; categories: { slug: string; name: string; child: boolean }[] }) {
+export function ItemEditor({ id, status, initial, duplicate, pages, categories, changes }: { id: string; sourceId?: string; status: string; initial: P; duplicate: { kind?: string; message?: string } | null; changes?: Change[] | null; pages: { page: number; url: string | null }[]; categories: { slug: string; name: string; child: boolean }[] }) {
   const router = useRouter();
   const [p, setP] = React.useState<P>(initial); const [busy, setBusy] = React.useState(false); const [dirty, setDirty] = React.useState(false);
   const [view, setView] = React.useState(initial.pages[0] ?? 1); const [json, setJson] = React.useState("");
@@ -35,15 +60,17 @@ export function ItemEditor({ id, status, initial, duplicate, pages, categories }
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-      {/* Source page with image areas */}
+      {/* Source: a website page (links, specification rows, update preview) or a rendered catalogue page with image areas */}
+      {p.source_url ? <WebSourceReview p={p} changes={changes ?? null} /> : (
       <div className="xl:sticky xl:top-4 xl:self-start">
         <Panel title="Source page" actions={<NativeSelect value={view} onChange={(e) => setView(Number(e.target.value))} className="h-8 w-32 text-xs" aria-label="Page">{pages.map((x) => <option key={x.page} value={x.page}>Page {x.page}{p.pages.includes(x.page) ? " •" : ""}</option>)}</NativeSelect>}>
-          {pageUrl ? <PageCanvas url={pageUrl} boxes={[...p.images.map((im, i) => ({ page: im.page, bbox: im.bbox, label: `${im.kind} ${i + 1}`, tone: "red" })), ...p.dimension_tables.flatMap((t, i) => (t.drawing ? [{ page: t.drawing.page, bbox: t.drawing.bbox, label: `drawing T${i + 1}`, tone: "blue" }] : []))].filter((b) => b.page === view)}
+          {pageUrl ? <PageCanvas url={pageUrl} boxes={[...p.images.flatMap((im, i) => (im.bbox && im.page !== undefined ? [{ page: im.page, bbox: im.bbox, label: `${im.kind} ${i + 1}`, tone: "red" }] : [])), ...p.dimension_tables.flatMap((t, i) => (t.drawing ? [{ page: t.drawing.page, bbox: t.drawing.bbox, label: `drawing T${i + 1}`, tone: "blue" }] : []))].filter((b) => b.page === view)}
             cropping={!!crop && !locked} onCrop={(bbox) => { if (!crop) return; up((d) => { if (crop.kind === "table" && crop.table != null) d.dimension_tables[crop.table].drawing = { page: view, bbox }; else d.images.push({ page: view, bbox, kind: crop.kind as "photo" | "drawing", alt_en: `${d.name_en}${crop.kind === "drawing" ? " — dimensional drawing" : ""}`, alt_ar: null }); }); setCrop(null); }} />
             : <p className="py-10 text-center text-sm text-muted-foreground">Page not rendered.</p>}
           {crop && <p className="mt-2 rounded bg-sky-50 p-2 text-xs text-sky-900">Drag a rectangle on the page to select the {crop.kind === "table" ? "table drawing" : crop.kind}. <button className="underline" onClick={() => setCrop(null)}>Cancel</button></p>}
         </Panel>
       </div>
+      )}
 
       <div className="space-y-4">
         <Panel title="Checks" actions={<div className="flex gap-2">

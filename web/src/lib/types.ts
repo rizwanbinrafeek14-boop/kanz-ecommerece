@@ -13,7 +13,7 @@ export interface ProductImage { id: string; product_id: string; storage_path: st
   /** upload = KANZ's own photo; catalogue = cropped from / drawn in the manufacturer's catalogue; manufacturer = an image supplied by the manufacturer */
   source?: "upload" | "catalogue" | "manufacturer"; kind?: "photo" | "drawing"; thumb_path?: string | null; width?: number | null; height?: number | null; bytes?: number | null;
   original_name?: string | null; source_note?: string | null; previous_path?: string | null; replaced_at?: string | null }
-export interface ProductDocument { id: string; product_id: string; kind: "datasheet" | "mtc" | "certificate" | "other"; title: string; storage_path: string; is_public: boolean }
+export interface ProductDocument { id: string; product_id: string; kind: "datasheet" | "mtc" | "certificate" | "other"; title: string; storage_path: string | null; is_public: boolean; external_url?: string | null; source_url?: string | null }
 export interface AttributeDef { id: string; key: string; name_en: string; name_ar: string | null; is_filterable: boolean; show_in_specs: boolean; sort_order: number }
 export interface AttributeValue { product_id: string; attribute_id: string; value_en: string; value_ar: string | null; sort_order: number }
 export interface Variant {
@@ -33,6 +33,8 @@ export interface Product {
   published_at: string | null; created_at: string; updated_at: string;
   /** Placeholder drawing while the product has no image (null = detected from name / category). */
   placeholder_kind?: string | null;
+  /** Manufacturer catalogue item that is not stocked: shown as "Catalogue item — request a quotation". */
+  catalogue_only?: boolean;
   manufacturer_ref?: string | null; country_of_origin?: string | null; applications_en?: string | null; applications_ar?: string | null;
   specs?: { standards?: { code: string; scope: "product" | "general"; note?: string | null }[]; materials?: { type: string; grades: string[] }[]; notes?: string[]; choices?: ConfigChoice[]; properties?: { label_en: string; label_ar?: string | null; value_en: string; value_ar?: string | null }[];
     /** Product-page overview: what it seals / connects to, and what the customer must confirm before ordering. */

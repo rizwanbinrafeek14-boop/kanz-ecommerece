@@ -405,3 +405,28 @@ select count(*) as og_moved from products where id = '56000000-0000-0000-0000-00
 select array_to_string(replace_product_image('56000000-0000-0000-0000-0000000000c1', '56000000-0000-0000-0000-0000000000a1/newer.webp', null, '{}'), ',') as deletable;
 select replace_product_image('56000000-0000-0000-0000-0000000000c1', 'other-folder/x.webp', null, '{}');
 reset role;
+
+\echo '--- T37 website catalogues: crawl manifest staff-only, one product per manufacturer + source key, external document links https only, website source needs a URL (expect error / 0 / 1 / error / 1 / error / error / 1 / 0)'
+reset role;
+insert into brands (id, name, slug) values ('57000000-0000-0000-0000-0000000000b1', 'ZZWeb Valves', 'zzweb-valves') on conflict do nothing;
+insert into catalogue_sources (id, title, brand_id, kind, start_url, allowed_host) values ('57000000-0000-0000-0000-0000000000c1', 'ZZWeb site', '57000000-0000-0000-0000-0000000000b1', 'website', 'https://valves.example/products/index.html', 'valves.example');
+insert into catalogue_web_pages (source_id, url, kind, status) values ('57000000-0000-0000-0000-0000000000c1', 'https://valves.example/products/index.html', 'listing', 'fetched');
+set role anon; select pg_temp.as_user(null);
+insert into catalogue_web_pages (source_id, url) values ('57000000-0000-0000-0000-0000000000c1', 'https://valves.example/x.html');
+select count(*) as anon_sees_manifest from catalogue_web_pages;
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+select count(*) as staff_sees_manifest from catalogue_web_pages where source_id = '57000000-0000-0000-0000-0000000000c1';
+reset role;
+insert into products (slug, name_en, brand_id, source_key, source_url, catalogue_only) values ('zzweb-bfv-1', 'ZZWeb BFV 100', '57000000-0000-0000-0000-0000000000b1', 'https://valves.example/p/bfv100#bfv-100', 'https://valves.example/p/bfv100', true);
+insert into products (slug, name_en, brand_id, source_key) values ('zzweb-bfv-2', 'ZZWeb BFV 100 again', '57000000-0000-0000-0000-0000000000b1', 'https://valves.example/p/bfv100#bfv-100');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+select count(*) as found_by_key from products_by_source_keys('57000000-0000-0000-0000-0000000000b1', array['https://valves.example/p/bfv100#bfv-100', 'https://valves.example/p/other#x']);
+reset role;
+insert into product_documents (product_id, kind, title, external_url) select id, 'datasheet', 'ZZ sheet', 'http://valves.example/a.pdf' from products where slug = 'zzweb-bfv-1';
+insert into catalogue_sources (title, kind) values ('ZZ no url', 'website');
+insert into product_documents (product_id, kind, title, external_url) select id, 'datasheet', 'ZZ sheet', 'https://valves.example/a.pdf' from products where slug = 'zzweb-bfv-1';
+select count(*) as external_doc from product_documents where external_url = 'https://valves.example/a.pdf' and storage_path is null;
+set role anon; select pg_temp.as_user(null);
+select count(*) as anon_sees_draft_doc from product_documents where title = 'ZZ sheet';
+reset role;

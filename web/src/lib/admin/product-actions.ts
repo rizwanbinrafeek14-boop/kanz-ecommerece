@@ -50,7 +50,7 @@ export async function saveProductGeneral(id: string | null, input: ProductGenera
   return ok({ id: data.id, slug });
 }
 
-const pricingSchema = z.object({ is_quote_only: z.boolean(), base_price: money, compare_at_price: money, purchase_cost: money });
+const pricingSchema = z.object({ is_quote_only: z.boolean(), catalogue_only: z.boolean().default(false), base_price: money, compare_at_price: money, purchase_cost: money });
 export async function saveProductPricing(id: string, input: z.input<typeof pricingSchema>): Promise<Result> {
   const user = await requireStaff();
   const parsed = pricingSchema.safeParse(input);
@@ -229,14 +229,14 @@ export async function addProductDocument(productId: string, input: { kind: "data
   revalidatePath(`/admin/products/${productId}`); refreshStorefront();
   return ok(null);
 }
-export async function deleteProductDocument(productId: string, docId: string, bucket: string, path: string): Promise<Result> {
+export async function deleteProductDocument(productId: string, docId: string, bucket: string, path: string | null): Promise<Result> {
   await requireStaff();
   const sb = await createClient();
   const { error } = await sb.from("product_documents").delete().eq("id", docId);
   if (error) return fail(error.message);
-  // A file can be shared by several products (e.g. an MTC bundle): only delete it when nothing else points at it.
-  const { count } = await sb.from("product_documents").select("id", { count: "exact", head: true }).eq("storage_path", path);
-  if (!count) await sb.storage.from(bucket === "product-mtc" ? "product-mtc" : "product-docs").remove([path]);
+  // A file can be shared by several products (e.g. an MTC bundle): only delete it when nothing else points at it. Links have no file.
+  const { count } = path ? await sb.from("product_documents").select("id", { count: "exact", head: true }).eq("storage_path", path) : { count: 1 };
+  if (!count && path) await sb.storage.from(bucket === "product-mtc" ? "product-mtc" : "product-docs").remove([path]);
   revalidatePath(`/admin/products/${productId}`); refreshStorefront();
   return ok(null);
 }

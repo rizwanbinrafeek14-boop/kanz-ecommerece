@@ -9,19 +9,23 @@ import { Badge } from "@/components/ui/badge";
 import { NativeSelect, Checkbox } from "@/components/ui/input";
 import { Panel, Stat } from "../ui";
 import { createClient } from "@/lib/supabase/browser";
-import { deleteSource, extractPageWithClaude, importApproved, loadExtractionFile, savePageRender, setExtractedStatus, setPageStatus } from "@/lib/admin/catalogue-actions";
+import { applyExtractedUpdates, deleteSource, extractPageWithClaude, importApproved, loadExtractionFile, savePageRender, setExtractedStatus, setPageStatus } from "@/lib/admin/catalogue-actions";
+import type { Change } from "@/lib/admin/catalogue-store";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { WebCrawlPanel, type WebInfo, type WebPageRow } from "./web-crawl-panel";
 import { run } from "@/lib/admin/client";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { openPdf, renderPage } from "./pdf";
 
 export interface PageRow { page_no: number; status: string; url: string | null; method: string | null; skip_reason: string | null; error: string | null; products_found: number }
-export interface ItemRow { id: string; status: string; confidence: number | null; pages: number[]; name: string; family: string; variants: number; tables: number; images: number; duplicate: { kind?: string; message?: string } | null; imported: string | null; errors: number; warnings: number }
+export interface ItemRow { id: string; status: string; confidence: number | null; pages: number[]; name: string; family: string; variants: number; tables: number; images: number; duplicate: { kind?: string; message?: string } | null; imported: string | null; errors: number; warnings: number;
+  model?: string | null; sourceUrl?: string | null; updateOf?: string | null; changes?: Change[] | null }
 const PAGE_TONE: Record<string, string> = { pending: "bg-muted text-muted-foreground", rendered: "bg-sky-100 text-sky-900", extracted: "bg-emerald-100 text-emerald-900", needs_review: "bg-amber-100 text-amber-900", skipped: "bg-zinc-200 text-zinc-700", failed: "bg-red-100 text-red-900" };
 // Claude Opus 5.5 list prices (USD per million tokens) used for the running cost estimate shown to the admin.
 const PRICE = { input: 4, output: 20 };
 
-export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, isAdmin }: { sourceId: string; pdfUrl: string | null; pages: PageRow[]; items: ItemRow[]; runs: { created_at: string; summary: { imported: number; failed: { name: string; error: string }[] } }[]; claude: boolean; isAdmin: boolean }) {
+export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, isAdmin, web }: { sourceId: string; pdfUrl: string | null; pages: PageRow[]; items: ItemRow[]; runs: { created_at: string; summary: { imported: number; failed: { name: string; error: string }[]; duplicates?: number; updatesWaiting?: number } }[]; claude: boolean; isAdmin: boolean; web?: { info: WebInfo; rows: WebPageRow[] } }) {
   const router = useRouter();
   const [busy, setBusy] = React.useState(""); const [progress, setProgress] = React.useState<{ done: number; total: number } | null>(null);
   const [spent, setSpent] = React.useState({ input: 0, output: 0 });
@@ -61,13 +65,20 @@ export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, 
     setBusy(""); setProgress(null); router.refresh();
   };
   const loadFile = async (f?: File) => { if (!f) return; setBusy("Loading extraction file…"); const r = await run(loadExtractionFile(sourceId, await f.text()), (d) => `${d.created} products added, ${d.merged} merged`); setBusy(""); if (r) router.refresh(); };
-  const shown = items.filter((i) => filter === "all" || i.status === filter || (filter === "errors" && i.errors > 0) || (filter === "duplicates" && i.duplicate?.kind === "duplicate"));
+  const shown = items.filter((i) => filter === "all" || i.status === filter || (filter === "errors" && i.errors > 0) || (filter === "duplicates" && i.duplicate?.kind === "duplicate") || (filter === "updates" && !!i.updateOf && i.status !== "imported"));
+  const [preview, setPreview] = React.useState<ItemRow[] | null>(null);
+  const updates = items.filter((i) => i.updateOf && i.status !== "imported" && (!sel.size || sel.has(i.id)));
+  const doApply = async () => {
+    if (!preview) return; setBusy("Applying updates…");
+    const r = await run(applyExtractedUpdates(sourceId, preview.map((i) => i.id)), (d) => `${d.updated} product(s) updated, ${d.unchanged} unchanged${d.failed.length ? `, ${d.failed.length} failed` : ""}`);
+    setBusy(""); setPreview(null); if (r) { setSel(new Set()); router.refresh(); }
+  };
   const bulk = async (status: "approved" | "rejected" | "pending") => { const r = await run(setExtractedStatus([...sel], status), (d) => `${d.changed} updated${d.blocked ? `, ${d.blocked} blocked (fix validation errors first)` : ""}`); if (r) { setSel(new Set()); router.refresh(); } };
   const doImport = async () => {
-    const ids = items.filter((i) => i.status === "approved" && (!sel.size || sel.has(i.id))).map((i) => i.id);
-    if (!ids.length) return toast.info("Approve records first.");
-    if (!confirm(`Import ${ids.length} approved product(s) as unpublished drafts?`)) return;
-    setBusy("Importing…"); const r = await run(importApproved(sourceId, ids), (d) => `${d.imported} imported${d.failed.length ? `, ${d.failed.length} failed` : ""}. Temporary images: ${d.images.photo} catalogue picture(s), ${d.images.drawing} drawing(s), ${d.images.none} placeholder(s) — upload your photos any time in Product images.`); setBusy("");
+    const ids = items.filter((i) => i.status === "approved" && !i.updateOf && (!sel.size || sel.has(i.id))).map((i) => i.id);
+    if (!ids.length) return toast.info("Approve new records first (records of products imported before are applied as updates).");
+    if (!confirm(`Import ${ids.length} approved product(s) as unpublished drafts?${web ? " They are marked “Catalogue item — request a quotation”; no prices or stock are set." : ""}`)) return;
+    setBusy("Importing…"); const r = await run(importApproved(sourceId, ids), (d) => `${d.imported} imported${d.duplicates ? `, ${d.duplicates} already imported (now shown as updates)` : ""}${d.failed.length ? `, ${d.failed.length} failed` : ""}. Images: ${d.images.photo} picture(s), ${d.images.drawing} drawing(s), ${d.images.none} placeholder(s)${web ? ` · ${d.files.imagesStored} image(s) copied, ${d.files.imagesLinkOnly} kept as links, ${d.files.docsStored} PDF(s) copied, ${d.files.docsLinked} linked${d.files.imagesFailed + d.files.docsFailed ? `, ${d.files.imagesFailed + d.files.docsFailed} file(s) failed (see the product's review notes)` : ""}` : ""} — upload your photos any time in Product images.`); setBusy("");
     if (r && (r as { failed: { name: string; error: string }[] }).failed.length) toast.error((r as { failed: { name: string; error: string }[] }).failed.map((f) => `${f.name}: ${f.error}`).join("\n"), { duration: 15000 });
     router.refresh();
   };
@@ -75,6 +86,7 @@ export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, 
 
   return (
     <div className="space-y-6">
+      {web ? <WebCrawlPanel sourceId={sourceId} info={web.info} rows={web.rows} claude={claude} /> : <>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
         <Stat label="Pages" value={pages.length} /><Stat label="Rendered" value={pages.filter((p) => p.url).length} /><Stat label="Extracted" value={count("extracted")} />
         <Stat label="Needs review" value={count("needs_review") + count("failed")} tone={count("needs_review") + count("failed") ? "warn" : undefined} /><Stat label="Skipped" value={count("skipped")} /><Stat label="Products" value={items.length} hint={`${items.filter((i) => i.status === "imported").length} imported`} />
@@ -106,11 +118,14 @@ export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, 
         </ul>
       </Panel>
 
-      <Panel title="2 · Extracted products" actions={<div className="flex flex-wrap items-center gap-2">
-        <NativeSelect value={filter} onChange={(e) => setFilter(e.target.value)} className="h-8 w-40 text-xs" aria-label="Filter"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="imported">Imported</option><option value="errors">With errors</option><option value="duplicates">Possible duplicates</option></NativeSelect>
+      </>}
+
+      <Panel title={web ? "3 · Review and import" : "2 · Extracted products"} actions={<div className="flex flex-wrap items-center gap-2">
+        <NativeSelect value={filter} onChange={(e) => setFilter(e.target.value)} className="h-8 w-40 text-xs" aria-label="Filter"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="imported">Imported</option><option value="errors">With errors</option><option value="duplicates">Possible duplicates</option><option value="updates">Updates to imported products</option></NativeSelect>
         <Button size="sm" variant="outline" disabled={!sel.size} onClick={() => bulk("approved")}><CheckCircle2 className="size-4" />Approve</Button>
         <Button size="sm" variant="outline" disabled={!sel.size} onClick={() => bulk("rejected")}><XCircle className="size-4" />Reject</Button>
-        <Button size="sm" disabled={!!busy || !items.some((i) => i.status === "approved")} onClick={doImport}>Import approved</Button>
+        <Button size="sm" disabled={!!busy || !items.some((i) => i.status === "approved" && !i.updateOf)} onClick={doImport}>Import approved</Button>
+        {items.some((i) => i.updateOf && i.status !== "imported") && <Button size="sm" variant="outline" disabled={!!busy || !updates.length} onClick={() => setPreview(updates)} data-review-updates>Review updates ({updates.length})</Button>}
       </div>}>
         {!items.length ? <p className="py-6 text-center text-sm text-muted-foreground">No products extracted yet. Render the pages, then extract with Claude or load an extraction file.</p> : (
           <div className="overflow-x-auto"><table className="w-full text-sm">
@@ -118,10 +133,10 @@ export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, 
             <tbody>{shown.map((i) => (
               <tr key={i.id} className="border-b last:border-0">
                 <td className="p-2"><Checkbox aria-label={`Select ${i.name}`} disabled={i.status === "imported"} checked={sel.has(i.id)} onChange={(e) => setSel((s) => { const n = new Set(s); if (e.target.checked) n.add(i.id); else n.delete(i.id); return n; })} /></td>
-                <td className="p-2"><Link href={`/admin/catalogue/${sourceId}/item/${i.id}`} className="font-medium hover:underline">{i.name}</Link><span className="block font-mono text-xs text-muted-foreground">{i.family}{i.confidence != null ? ` · confidence ${(i.confidence * 100).toFixed(0)}%` : ""}</span></td>
+                <td className="p-2"><Link href={`/admin/catalogue/${sourceId}/item/${i.id}`} className="font-medium hover:underline">{i.name}</Link><span className="block font-mono text-xs text-muted-foreground">{i.model ? `${i.model} · ` : ""}{i.family}{i.confidence != null ? ` · confidence ${(i.confidence * 100).toFixed(0)}%` : ""}</span></td>
                 <td className="p-2 text-end tabular-nums">{i.variants}</td><td className="p-2 text-end tabular-nums">{i.tables}</td><td className="p-2 text-end tabular-nums">{i.images}</td>
                 <td className="p-2 text-xs">{i.pages.join(", ")}</td>
-                <td className="p-2"><div className="flex flex-wrap gap-1">{i.errors > 0 && <Badge variant="destructive">{i.errors} {i.errors === 1 ? "error" : "errors"}</Badge>}{i.warnings > 0 && <Badge variant="warning">{i.warnings} {i.warnings === 1 ? "warning" : "warnings"}</Badge>}{i.duplicate?.kind === "duplicate" && <Badge variant="info" title={i.duplicate.message}>possible duplicate</Badge>}{i.duplicate?.kind === "family" && <Badge variant="secondary" title={i.duplicate.message}>shared family</Badge>}{!i.errors && !i.warnings && <Badge variant="success">ok</Badge>}</div></td>
+                <td className="p-2"><div className="flex flex-wrap gap-1">{i.errors > 0 && <Badge variant="destructive">{i.errors} {i.errors === 1 ? "error" : "errors"}</Badge>}{i.warnings > 0 && <Badge variant="warning">{i.warnings} {i.warnings === 1 ? "warning" : "warnings"}</Badge>}{i.duplicate?.kind === "duplicate" && <Badge variant="info" title={i.duplicate.message}>possible duplicate</Badge>}{i.duplicate?.kind === "family" && <Badge variant="secondary" title={i.duplicate.message}>shared family</Badge>}{i.updateOf && i.status !== "imported" && <Badge variant="warning" title={i.duplicate?.message}>{(i.changes ?? []).some((c) => c.applies) ? `update: ${(i.changes ?? []).filter((c) => c.applies).length} change(s)` : "already imported, no changes"}</Badge>}{!i.errors && !i.warnings && <Badge variant="success">ok</Badge>}</div></td>
                 <td className="p-2"><Badge variant={i.status === "approved" ? "success" : i.status === "rejected" ? "destructive" : i.status === "imported" ? "info" : "secondary"}>{i.status}</Badge>{i.imported && <Link href={`/admin/products/${i.imported}`} className="ms-2 text-xs underline">product</Link>}</td>
               </tr>))}</tbody>
           </table></div>)}
@@ -137,6 +152,20 @@ export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, 
           {isAdmin && <Button className="mt-4" size="sm" variant="ghost" onClick={async () => { if (confirm("Delete this catalogue, its pages and unimported records? Imported products are kept.") && (await run(deleteSource(sourceId), "Deleted"))) router.push("/admin/catalogue"); }}><Trash2 className="size-4" />Delete catalogue</Button>}
         </Panel>
       </div>
+      <Dialog open={!!preview} onOpenChange={(o) => { if (!o) setPreview(null); }}>
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+          <DialogHeader><DialogTitle>Apply updates to imported products</DialogTitle>
+            <DialogDescription>These products were imported from the same manufacturer pages before. Only the rows marked “will change” are written. Names, prices, stock, variants, images and the publication status are never changed by an update.</DialogDescription></DialogHeader>
+          <div className="space-y-4" data-update-preview>{(preview ?? []).map((i) => (
+            <section key={i.id} className="rounded-lg border p-3">
+              <p className="font-medium">{i.name}{i.updateOf && <Link href={`/admin/products/${i.updateOf}`} className="ms-2 text-xs text-primary underline">current product</Link>}</p>
+              {!(i.changes ?? []).length ? <p className="text-sm text-muted-foreground">No differences.</p> : (
+                <table className="mt-2 w-full text-xs"><thead><tr className="text-muted-foreground"><th className="p-1 text-start">Field</th><th className="p-1 text-start">Now</th><th className="p-1 text-start">From the manufacturer</th><th className="p-1 text-start" /></tr></thead>
+                  <tbody>{(i.changes ?? []).map((c) => <tr key={c.field} className="border-t align-top"><td className="p-1 font-medium">{c.label}</td><td className="max-w-[220px] whitespace-pre-wrap break-words p-1">{c.current}</td><td className="max-w-[220px] whitespace-pre-wrap break-words p-1">{c.proposed}</td><td className="p-1">{c.applies ? <Badge variant="warning">will change</Badge> : <Badge variant="secondary">not changed</Badge>}</td></tr>)}</tbody></table>)}
+            </section>))}</div>
+          <DialogFooter><Button variant="outline" onClick={() => setPreview(null)}>Cancel</Button><Button disabled={!!busy || !(preview ?? []).some((i) => (i.changes ?? []).some((c) => c.applies))} onClick={doApply} data-apply-updates>Apply {(preview ?? []).reduce((n, i) => n + (i.changes ?? []).filter((c) => c.applies).length, 0)} change(s)</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
