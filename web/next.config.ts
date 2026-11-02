@@ -23,6 +23,9 @@ const adminCsp = csp.replace("script-src 'self' 'unsafe-inline'", "script-src 's
 const nextConfig: NextConfig = {
   // Small hosts (e.g. Hostinger Node.js apps) limit processes/memory during build: keep the build single-worker.
   experimental: { cpus: 1, serverActions: { bodySizeLimit: "4mb" } },
+  // exceljs is loaded by Node at runtime instead of being bundled: its zip reader (unzipper) has an optional, never-used
+  // S3 source that requires @aws-sdk/client-s3 only when called, which the bundler would otherwise try to resolve.
+  serverExternalPackages: ["exceljs"],
   // Tailwind CSS v4 is compiled through this Turbopack rule (kept from the create-next-app scaffold).
   turbopack: { rules: { "*.css": { loaders: ["@tailwindcss/turbopack"], as: "*.css" } } },
   images: {
