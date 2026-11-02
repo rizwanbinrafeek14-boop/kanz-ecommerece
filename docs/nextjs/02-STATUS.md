@@ -138,6 +138,19 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
   - 73 browser checks against a fictional test site, with a stand-in for the Claude API;
   - SQL test T37.
 
+## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
+- `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.
+- **Patched with npm overrides in `web/package.json`** (no upstream releases with the fix exist yet):
+  - `minimatch` 11.0.4 for the TypeScript linter and `readdir-glob`;
+  - `glob` 14 for `archiver-utils`;
+  - `unzipper` 0.12 for `exceljs`, which removes the old `fstream` / `rimraf` / `glob@7` chain.
+- `exceljs` is now loaded by Node at runtime (`serverExternalPackages` in `next.config.ts`).
+- Tested: Excel export, re-import of the exported file, Excel streaming reader, archive globbing, lint and build.
+- **Remaining (development tools only, not shipped to the website):**
+  - `minimatch` 3.1.5 inside ESLint's React / import / accessibility plugins and `@eslint/eslintrc`. Their latest releases still require it, and it cannot be forced to 11 because they call the old API.
+  - That version does not contain the vulnerable code path (`firstPhasePreProcess`, only with `optimizationLevel` ≥ 2), and lint runs only on our own source files.
+  - Update when the plugins release a fix.
+
 ## Known limitations (honest list)
 1. **No prices, SKUs, stock, certifications or availability were invented.** Every imported product is a *draft, quote-only family*. You must add real data.
 2. **Catalogue images are 150–475 px crops** and are flagged *low-res*. Replace them with originals before launch.
