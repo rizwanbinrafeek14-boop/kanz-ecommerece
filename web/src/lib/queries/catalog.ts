@@ -124,15 +124,24 @@ export async function searchProducts(p: SearchParams): Promise<{ products: Produ
 }
 
 export interface Facet { key: string; name_en: string; name_ar: string | null; values: { value_en: string; label_en: string; value_ar: string | null; n: number }[] }
-/** Filter groups: Material, Brand, Size, Connection, Pressure class (from real variants), then other filterable attributes. Counts = listing entries (a family counts once). */
-export async function getFacets(q?: string, category?: string, brand?: string): Promise<Facet[]> {
+/**
+ * Filter groups: Material, Brand, Size, Connection, Pressure class (from real variants), then other filterable attributes.
+ * Counts = listing entries (a family counts once) with all OTHER active filters applied, so every number is what ticking that
+ * box would show. Selected values always stay listed (with 0 when nothing else matches) so they can be unticked.
+ */
+export async function getFacets(q?: string, category?: string, brand?: string, active: { filters?: Record<string, string[]>; availability?: string; flag?: string } = {}): Promise<Facet[]> {
   const c = sb(); if (!c) return [];
-  const rows = await safe(() => c.rpc("product_facets", { p_q: q || null, p_category: category || null, p_brand: brand || null }),
+  const filters = Object.fromEntries(Object.entries(active.filters ?? {}).filter(([, v]) => v.length));
+  const rows = await safe(() => c.rpc("product_facets", { p_q: q || null, p_category: category || null, p_brand: brand || null, p_filters: filters, p_availability: active.availability || null, p_flag: active.flag || null }),
     [] as { attr_key: string; attr_name_en: string; attr_name_ar: string | null; value_en: string; value_ar: string | null; n: number; label_en: string | null; sort_key: string | null }[]);
   const map = new Map<string, Facet>();
   for (const r of rows) {
     if (!map.has(r.attr_key)) map.set(r.attr_key, { key: r.attr_key, name_en: r.attr_name_en, name_ar: r.attr_name_ar, values: [] });
     map.get(r.attr_key)!.values.push({ value_en: r.value_en, label_en: r.label_en ?? r.value_en, value_ar: r.value_ar, n: Number(r.n) });
+  }
+  for (const [key, values] of Object.entries(filters)) for (const v of values) {
+    if (!map.has(key)) continue;   // unknown group: nothing to show it in
+    if (!map.get(key)!.values.some((x) => x.value_en === v)) map.get(key)!.values.push({ value_en: v, label_en: key === "size" ? `${v}"` : v, value_ar: null, n: 0 });
   }
   // sizes in numeric order (1/8", 1/4" … 1-1/2", 2" …), classes numerically
   const num = (v: string) => { const f = v.match(/^(?:(\d+)-)?(\d+)\/(\d+)/); if (f) return Number(f[1] ?? 0) + Number(f[2]) / Number(f[3]); const n = parseFloat(v); return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY; };

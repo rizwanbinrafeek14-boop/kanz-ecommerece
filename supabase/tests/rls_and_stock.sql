@@ -430,3 +430,21 @@ select count(*) as external_doc from product_documents where external_url = 'htt
 set role anon; select pg_temp.as_user(null);
 select count(*) as anon_sees_draft_doc from product_documents where title = 'ZZ sheet';
 reset role;
+
+\echo '--- T38 filter counts: each group counted with the OTHER active filters, not its own; search words match like the results (expect 2 / 1 / 1 / 1 / 1 / 0)'
+reset role;
+insert into products (id, slug, name_en, status, published_at) values
+  ('58000000-0000-0000-0000-0000000000a1','zzfacet-a','ZZFacet Socket Elbow','published',now()),
+  ('58000000-0000-0000-0000-0000000000a2','zzfacet-b','ZZFacet Socket Tee','published',now());
+insert into product_variants (product_id, sku, options) values
+  ('58000000-0000-0000-0000-0000000000a1','ZZF-A1','{"size":"1/2","class":"3000"}'),
+  ('58000000-0000-0000-0000-0000000000a1','ZZF-A2','{"size":"1","class":"3000"}'),
+  ('58000000-0000-0000-0000-0000000000a2','ZZF-B1','{"size":"1/2","class":"6000"}');
+set role anon; select pg_temp.as_user(null);
+select n as size_half_no_filter from product_facets('zzfacet') where attr_key = 'size' and value_en = '1/2';
+select n as size_half_class3000 from product_facets('zzfacet', null, null, '{"pressure_class":["3000"]}') where attr_key = 'size' and value_en = '1/2';
+select n as class6000_own_group from product_facets('zzfacet', null, null, '{"pressure_class":["3000"]}') where attr_key = 'pressure_class' and value_en = '6000';
+select n as size1_class3000 from product_facets('zzfacet', null, null, '{"pressure_class":["3000"]}') where attr_key = 'size' and value_en = '1';
+select count(*) as words_any_order from product_facets('socket zzfacet') where attr_key = 'size' and value_en = '1/2' and n = 2;
+select count(*) as class6000_size1 from product_facets('zzfacet', null, null, '{"size":["1"]}') where attr_key = 'pressure_class' and value_en = '6000';
+reset role;
