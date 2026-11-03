@@ -50,3 +50,7 @@ GitHub → the repository → **Settings** → **General** → scroll to **Dange
 
 ## 7. Extraction file format (`kanz-catalogue-extraction/1`)
 `{ format, manufacturer, source_title, page_count, pages:[{page,status,note,method}], products:[…] }`. Each product has `family`, `name_en/ar`, `category_slug`, `standards`, `materials`, `options` (e.g. connection / class / size with labels), `variants` (option values + weight + page), `dimension_tables` (columns with symbol and unit, `applies`, rows matched to variants, verbatim footnotes, drawing crop), `images` (page + crop box), `notes`, `warnings` and `pages`. The exact schema is in `web/src/lib/catalogue/schema.ts`.
+
+## Undoing an import
+Import history lists every run with an *Undo…* button. It opens a preview first; only drafts that were never published or edited, and are not used anywhere, are removed. Everything else is kept and listed with the reason. Removed products' records go back to "approved" so you can fix and import them again. See `02-STATUS.md`, item 9 of the improvement round.
+

@@ -138,7 +138,7 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
   - 73 browser checks against a fictional test site, with a stand-in for the Claude API;
   - SQL test T37.
 
-## Added later: improvement round (migrations 0022–0025)
+## Added later: improvement round (migrations 0022–0026)
 1. **Smoke checks fixed:** the site now has a real `favicon.ico` and `apple-icon.png`. The expected 404 on `/en/nonexistent` is no longer reported as an error.
 2. **All categories in the main menu.**
    - The desktop bar shows the first 3–4 categories plus **More** for the rest.
@@ -181,6 +181,14 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
    - **Quotations expiring within 7 days:** listed for follow-up.
    - **Acceptance rate:** the 30-day rate (accepted or converted / quoted).
    - **Tested locally:** 15 browser checks (`today.mjs`).
+9. **Undo a catalogue import** (Admin → Catalogue → a catalogue → Import history → *Undo…*, migration 0026).
+   - **Preview first:** shows which drafts would be removed and which are kept, with the reason.
+   - **Removed:** only products exactly as the import left them — never published, still a draft, not edited since (product, sizes, images, documents, materials, costs, certificates or the audit log), and not used in a quotation request, order, stock record or another product's links.
+   - **After undoing:**
+     - The extracted records return to "approved", so they can be imported again.
+     - Image and document files that nothing else uses are deleted.
+     - The run is marked as undone and cannot be undone twice. The action is in the audit log.
+   - **Tested locally:** 11 browser checks (`undo.mjs`) and SQL test T41.
 
 ## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
 - `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.

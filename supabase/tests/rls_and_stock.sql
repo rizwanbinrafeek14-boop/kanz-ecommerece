@@ -473,3 +473,18 @@ select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
 select count(*) from admin_data_quality();
 select count(*) as customer_sees_dismissals from data_quality_dismissed;
 reset role;
+
+\echo '--- T41 undo import: untouched draft removed, published one kept; customers refused; no second undo (expect 1 removed / 1 kept / ERROR staff only / ERROR already undone)'
+reset role;
+insert into catalogue_sources (id, title) values ('61000000-0000-0000-0000-000000000001', 'T41');
+insert into products (id, slug, name_en, status, updated_at) values
+  ('61000000-0000-0000-0000-0000000000a1', 'zzt41-a', 'T41 a', 'draft', now() - interval '1 minute'),
+  ('61000000-0000-0000-0000-0000000000a2', 'zzt41-b', 'T41 b', 'published', now() - interval '1 minute');
+insert into catalogue_import_runs (id, source_id, summary, created_at) values ('61000000-0000-0000-0000-0000000000f1', '61000000-0000-0000-0000-000000000001',
+  '{"imported": 2, "product_ids": ["61000000-0000-0000-0000-0000000000a1", "61000000-0000-0000-0000-0000000000a2"]}', now());
+set role authenticated; select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
+select catalogue_undo_import('61000000-0000-0000-0000-0000000000f1', false);
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+select jsonb_array_length(x->'remove') as removed, jsonb_array_length(x->'keep') as kept from (select catalogue_undo_import('61000000-0000-0000-0000-0000000000f1', false) x) s;
+select catalogue_undo_import('61000000-0000-0000-0000-0000000000f1', false);
+reset role;

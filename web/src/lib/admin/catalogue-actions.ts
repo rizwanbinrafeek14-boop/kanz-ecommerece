@@ -370,3 +370,33 @@ export async function applyExtractedUpdates(sourceId: string, ids: string[]): Pr
   refreshStorefront(); done(sourceId); revalidatePath("/admin/products");
   return ok({ updated, unchanged, failed });
 }
+
+type UndoPlan = { remove: { id: string; name: string }[]; keep: { id: string; name: string; reason: string }[]; files: { bucket: string; path: string }[] };
+/** Preview of undoing an import run: which drafts would be removed, which are kept and why (nothing changes). */
+export async function previewImportUndo(runId: string): Promise<Result<UndoPlan>> {
+  await requireStaff();
+  if (!z.string().uuid().safeParse(runId).success) return fail("Invalid import.");
+  const sb = await createClient();
+  const { data, error } = await sb.rpc("catalogue_undo_import", { p_run: runId, p_dry_run: true });
+  return error ? fail(error.message) : ok(data as UndoPlan);
+}
+/**
+ * Undo an import run: removes only drafts that are exactly as the import left them (see migration 0026), puts their
+ * extracted records back to "approved" so they can be imported again, and deletes the image / document files nothing else uses.
+ */
+export async function undoImport(runId: string): Promise<Result<{ removed: number; kept: number; filesLeft: number }>> {
+  const user = await requireStaff();
+  if (!z.string().uuid().safeParse(runId).success) return fail("Invalid import.");
+  const sb = await createClient();
+  const { data: run } = await sb.from("catalogue_import_runs").select("source_id").eq("id", runId).maybeSingle();
+  const { data, error } = await sb.rpc("catalogue_undo_import", { p_run: runId, p_dry_run: false });
+  if (error) return fail(error.message);
+  const plan = data as UndoPlan; let filesLeft = 0;
+  for (const bucket of [...new Set(plan.files.map((f) => f.bucket))]) {
+    const paths = plan.files.filter((f) => f.bucket === bucket).map((f) => f.path);
+    for (let i = 0; i < paths.length; i += 100) { const { error: re } = await sb.storage.from(bucket).remove(paths.slice(i, i + 100)); if (re) filesLeft += paths.slice(i, i + 100).length; }
+  }
+  await audit(sb, user.id, "catalogue.import_undo", "catalogue_sources", run?.source_id ?? undefined, { run: runId, removed: plan.remove.length, kept: plan.keep, filesLeft });
+  refreshStorefront(); revalidatePath("/admin/products"); if (run?.source_id) revalidatePath(`/admin/catalogue/${run.source_id}`);
+  return ok({ removed: plan.remove.length, kept: plan.keep.length, filesLeft });
+}
