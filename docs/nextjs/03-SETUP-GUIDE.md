@@ -132,6 +132,10 @@ Hostinger's "Connect from your Web App" provides `SUPABASE_URL` and `SUPABASE_AP
 - Admin features that invite staff need the service-role key: add it as `SUPABASE_SERVICE_ROLE_KEY` (never as a `NEXT_PUBLIC_…` variable).
 - Check the connection on the server with `npm run db:check` (runs `web/db.js`: prints `Connected` and one category, never a key).
 - Hostinger rebuilds after each push to the branch it deploys from.
+- **Hostinger's build servers are too old for Next.js's native compiler** (they have glibc < 2.29: "Attempted to load @next/swc-linux-x64-gnu … GLIBC_2.29 not found").
+  - The build uses the WebAssembly compiler `@next/swc-wasm-nodejs` instead. It is installed as an optional dependency and must stay on **the same version as `next`**: update both together.
+  - The config is plain JavaScript (`next.config.mjs`), because a TypeScript config cannot be compiled on such hosts.
+  - The "Attempted to load … swc" warnings in the build log are expected there and harmless.
 
 ## Step 8c — New homepage
 Run `supabase/migrations/0013_homepage_sections.sql` (contents, not the file name) and redeploy. The new homepage blocks appear in Admin → Content & settings → Homepage sections, where you can reorder or disable them. Blocks without real data (featured products, brands, certificates, material/standard chips) stay hidden automatically.

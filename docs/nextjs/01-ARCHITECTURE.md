@@ -153,7 +153,7 @@ Product page: gallery · family description · variant selector (size/grade/sche
 3. Row Level Security enforces the same rules in the database even if app code is wrong.
 4. All inputs validated server-side with Zod; privileged operations are RPCs that re-check `is_staff()`.
 5. The service-role key is used in exactly one server-only module (`lib/supabase/service.ts`), only for inviting staff, and never reaches the browser (no `NEXT_PUBLIC_` prefix).
-6. Security headers set in `next.config.ts`.
+6. Security headers set in `next.config.mjs`.
 
 ---
 
