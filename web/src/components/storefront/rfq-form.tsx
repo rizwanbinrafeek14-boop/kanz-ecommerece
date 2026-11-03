@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Trash2, ClipboardPaste, CheckCircle2 } from "lucide-react";
+import { Plus, Trash2, ClipboardPaste, CheckCircle2, Repeat2 } from "lucide-react";
 import { useCart } from "./cart-provider";
 import { submitRfqAction } from "@/app/[lang]/actions";
 import { getSessionId } from "@/lib/track";
@@ -14,13 +14,13 @@ import { FileResult, RfqFilePicker, uploadRfqFiles } from "./rfq-files";
 interface Line { product_id?: string; variant_id?: string; description: string; specification: string; quantity: string; unit: string }
 const blank = (): Line => ({ description: "", specification: "", quantity: "1", unit: "pcs" });
 
-export function RfqForm({ lang, dict, defaults }: { lang: Locale; dict: Dictionary; defaults: { name: string; email: string; phone: string; company: string; vat_number: string } }) {
+export function RfqForm({ lang, dict, defaults, repeat }: { lang: Locale; dict: Dictionary; defaults: { name: string; email: string; phone: string; company: string; vat_number: string }; repeat?: { number: string; lines: Line[]; unlisted: number } }) {
   const { quote, clear } = useCart();
   // Lines start from the saved quotation list; once the user edits, their edits take over.
   const seed = React.useMemo<Line[]>(() => (quote.length
     ? quote.map((q) => ({ product_id: q.productId, variant_id: q.variantId, description: q.name, specification: q.spec ?? "", quantity: String(q.qty), unit: q.unit }))
     : [blank()]), [quote]);
-  const [edited, setEdited] = React.useState<Line[] | null>(null);
+  const [edited, setEdited] = React.useState<Line[] | null>(repeat?.lines ?? null);   // a repeated request starts from its own lines
   const lines = edited ?? seed;
   const setLines = (fn: (ls: Line[]) => Line[]) => setEdited(fn(lines));
   const [paste, setPaste] = React.useState("");
@@ -61,7 +61,7 @@ export function RfqForm({ lang, dict, defaults }: { lang: Locale; dict: Dictiona
     if (!res.ok) { setBusy(false); setError(res.error); return; }
     // the request is saved first; files follow (a failed file never loses the request)
     if (files.length) { setUploading(true); setFileResult(await uploadRfqFiles(res.data.token, files).catch(() => ({ saved: [], rejected: [], error: dict.rfq.filesError }))); setUploading(false); }
-    setBusy(false); clear("quote"); setDone(res.data);
+    setBusy(false); if (!repeat) clear("quote"); setDone(res.data);   // repeating leaves the saved quotation list alone
   }
 
   if (done) {
@@ -99,6 +99,8 @@ export function RfqForm({ lang, dict, defaults }: { lang: Locale; dict: Dictiona
       </section>
 
       <section className="rounded-xl border bg-card p-5">
+        {repeat && <p className="mb-4 flex items-start gap-2 rounded-lg border bg-muted/50 p-3 text-sm" role="status" data-rfq-repeat><Repeat2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <span>{dict.rfq.repeatFrom.replace("{n}", repeat.number)}{repeat.unlisted > 0 && <> {dict.rfq.repeatUnlisted.replace("{n}", String(repeat.unlisted))}</>}</span></p>}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-semibold">{dict.rfq.items} ({lines.filter((l) => l.description).length})</h2>
           <Button type="button" size="sm" variant="outline" onClick={() => setLines((ls) => [...ls, blank()])}><Plus className="size-4" />{dict.rfq.addLine}</Button>

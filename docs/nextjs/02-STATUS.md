@@ -154,6 +154,12 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
    - **Where files appear:** in the RFQ history, on the customer's quotation page (download needs the RFQ link), and under Admin → RFQ → "Customer files" (links valid 10 minutes).
    - **Needs** `SUPABASE_SERVICE_ROLE_KEY` on the server.
    - **Tested locally:** 19 browser checks (`rfqfiles.mjs`).
+5. **Repeat this request** (signed-in customers): a *Repeat* button on My quotations and on the quotation page.
+   - It opens the RFQ form with the earlier lines, specifications and quantities, ready to edit.
+   - Products that are no longer published are kept as plain text (the customer is told how many). A size that is no longer offered is dropped from the line, but the product link stays.
+   - The customer's saved quotation list is not touched.
+   - Database permissions mean only the owner's own requests can be repeated; a guest or another customer gets an empty form.
+   - **Tested locally:** 13 browser checks (`repeat.mjs`).
 
 ## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
 - `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.

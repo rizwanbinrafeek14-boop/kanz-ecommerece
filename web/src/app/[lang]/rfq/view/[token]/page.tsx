@@ -10,7 +10,9 @@ import { QuoteActions } from "@/components/storefront/quote-actions";
 import { RfqAddFiles } from "@/components/storefront/rfq-files";
 import { createServiceClient } from "@/lib/supabase/service";
 import { RFQ_FILES, rfqFilesOpen } from "@/lib/rfq-files";
-import { Paperclip } from "lucide-react";
+import { Paperclip, Repeat2 } from "lucide-react";
+import Link from "next/link";
+import { getSessionUser } from "@/lib/auth";
 
 export const metadata = { title: "Quotation", robots: { index: false, follow: false } };
 
@@ -26,11 +28,16 @@ export default async function RfqViewPage({ params }: { params: Promise<{ lang: 
   // files the customer attached (the token above proves access); more can be added within an hour of sending
   const { data: files } = await Promise.resolve().then(() => createServiceClient().from("rfq_attachments").select("id, file_name, size_bytes").eq("rfq_id", rfq.id).order("created_at")).catch(() => ({ data: null }));   // no service key: no file list
   const canAdd = rfqFilesOpen(rfq.created_at);
+  // "Repeat this request" for the signed-in owner (RLS returns the row only for them)
+  const user = await getSessionUser();
+  const own = user ? (await sb.from("rfqs").select("id").eq("id", rfq.id).eq("user_id", user.id).maybeSingle()).data : null;
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div><p className="text-sm text-muted-foreground">{dict.rfq.title}</p><h1 className="font-mono text-2xl font-bold" dir="ltr">{rfq.rfq_number}</h1></div>
-        <Badge variant={rfq.status === "quoted" ? "info" : rfq.status === "accepted" ? "success" : "secondary"}>{dict.status[rfq.status as keyof typeof dict.status] ?? rfq.status}</Badge>
+        <div className="flex items-center gap-2">
+          {own && <Button asChild size="sm" variant="outline"><Link href={`/${lang}/rfq?repeat=${rfq.id}`} data-repeat-rfq><Repeat2 className="size-4" />{dict.rfq.repeat}</Link></Button>}
+          <Badge variant={rfq.status === "quoted" ? "info" : rfq.status === "accepted" ? "success" : "secondary"}>{dict.status[rfq.status as keyof typeof dict.status] ?? rfq.status}</Badge></div>
       </div>
       <div className="overflow-x-auto rounded-xl border">
         <table className="w-full text-sm">
