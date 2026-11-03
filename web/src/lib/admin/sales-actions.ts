@@ -99,3 +99,19 @@ export async function issueInvoice(orderId: string): Promise<Result<{ id: string
   refresh(`/admin/orders/${orderId}`);
   return ok({ id: data as string });
 }
+
+/** Set (or clear) the sales person who owns a quotation request. Recorded in the RFQ history. */
+export async function assignRfq(rfqId: string, ownerId: string | null): Promise<Result> {
+  const user = await requireStaff();
+  if (!uuid.safeParse(rfqId).success || (ownerId !== null && !uuid.safeParse(ownerId).success)) return fail("Invalid request.");
+  const sb = await createClient();
+  const { data: before } = await sb.from("rfqs").select("assigned_to").eq("id", rfqId).maybeSingle();
+  if (!before) return fail("Quotation request not found.");
+  if (before.assigned_to === ownerId) return ok(null);
+  const { error } = await sb.from("rfqs").update({ assigned_to: ownerId }).eq("id", rfqId);
+  if (error) return fail(error.code === "23514" ? "The owner must be an active staff member." : error.message);
+  const { data: who } = ownerId ? await sb.from("profiles").select("full_name").eq("id", ownerId).maybeSingle() : { data: null };
+  await sb.from("rfq_events").insert({ rfq_id: rfqId, event: ownerId ? "assigned" : "unassigned", detail: ownerId ? (who?.full_name || "staff member") : null, actor: user.id });
+  refresh(`/admin/rfqs/${rfqId}`); revalidatePath("/admin/rfqs");
+  return ok(null);
+}

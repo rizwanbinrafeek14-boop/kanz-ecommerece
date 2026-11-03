@@ -448,3 +448,15 @@ select n as size1_class3000 from product_facets('zzfacet', null, null, '{"pressu
 select count(*) as words_any_order from product_facets('socket zzfacet') where attr_key = 'size' and value_en = '1/2' and n = 2;
 select count(*) as class6000_size1 from product_facets('zzfacet', null, null, '{"size":["1"]}') where attr_key = 'pressure_class' and value_en = '6000';
 reset role;
+
+\echo '--- T39 RFQ owner: staff can be owner (assigned_at set), a customer cannot, a customer cannot set it (expect true / ERROR owner / 0 rows changed / null)'
+reset role;
+insert into rfqs (id, contact_name, contact_email, user_id) values ('59000000-0000-0000-0000-000000000001', 'Owner test', 'o@test', '00000000-0000-0000-0000-0000000000c1');
+set role authenticated; select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+update rfqs set assigned_to = '00000000-0000-0000-0000-0000000000a1' where id = '59000000-0000-0000-0000-000000000001';
+select assigned_at is not null as staff_owner_set from rfqs where id = '59000000-0000-0000-0000-000000000001';
+update rfqs set assigned_to = '00000000-0000-0000-0000-0000000000c2' where id = '59000000-0000-0000-0000-000000000001';
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
+with u as (update rfqs set assigned_to = null where id = '59000000-0000-0000-0000-000000000001' returning 1) select count(*) as customer_changed from u;
+reset role; update rfqs set assigned_to = null where id = '59000000-0000-0000-0000-000000000001';
+select assigned_at as cleared_assigned_at from rfqs where id = '59000000-0000-0000-0000-000000000001';

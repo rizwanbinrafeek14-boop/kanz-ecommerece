@@ -138,7 +138,7 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
   - 73 browser checks against a fictional test site, with a stand-in for the Claude API;
   - SQL test T37.
 
-## Added later: improvement round (migrations 0022–0023)
+## Added later: improvement round (migrations 0022–0024)
 1. **Smoke checks fixed:** the site now has a real `favicon.ico` and `apple-icon.png`. The expected 404 on `/en/nonexistent` is no longer reported as an error.
 2. **All categories in the main menu.**
    - The desktop bar shows the first 3–4 categories plus **More** for the rest.
@@ -160,6 +160,12 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
    - The customer's saved quotation list is not touched.
    - Database permissions mean only the owner's own requests can be repeated; a guest or another customer gets an empty form.
    - **Tested locally:** 13 browser checks (`repeat.mjs`).
+6. **Admin quotation list: owner, age, filters, export** (migration 0024):
+   - **Owner:** each request can have an owner (an active staff member). Set it with *Take* in the list or the *Owner* picker on the request page. Every change is recorded in the RFQ history.
+   - **Age:** open requests (submitted / under review) show how long they have waited, amber after 24 h and red after 48 h.
+   - **Filters:** owner (mine / unassigned / a person), status (including "Open"), "waiting over 24 h / 48 h / 7 days", and newest or oldest first.
+   - **Export:** *Excel* and *CSV* export exactly the filtered list (up to 5,000 rows), with waiting hours and owner. Customer-typed text that Excel would treat as a formula is neutralised. Staff only.
+   - **Tested locally:** 22 browser checks (`rfqadmin.mjs`) and SQL test T39 (only staff can be owners; customers cannot change it).
 
 ## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
 - `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.

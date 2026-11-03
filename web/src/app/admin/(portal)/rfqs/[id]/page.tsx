@@ -6,27 +6,32 @@ import { getSettings, vatRateOf } from "@/lib/settings";
 import { PageHeader, Panel } from "@/components/admin/ui";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { RfqWorkbench } from "@/components/admin/rfq-workbench";
+import { RfqOwner } from "@/components/admin/rfq-owner";
+import { requireStaff } from "@/lib/auth";
+import { staffList } from "@/lib/admin/rfq-list";
 
 export const metadata = { title: "Quotation" };
 
 export default async function RfqDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
-  const sb = await createClient();
+  const me = await requireStaff(); const sb = await createClient();
   const { data: rfq } = await sb.from("rfqs").select("*").eq("id", id).maybeSingle();
   if (!rfq) notFound();
-  const [{ data: items }, { data: events }, { data: notes }, st, { data: files }] = await Promise.all([
+  const [{ data: items }, { data: events }, { data: notes }, st, { data: files }, staff] = await Promise.all([
     sb.from("rfq_items").select("*, products(slug, name_en), product_variants(sku)").eq("rfq_id", id).order("line_no"),
     sb.from("rfq_events").select("id, event, detail, created_at, profiles(full_name)").eq("rfq_id", id).order("created_at", { ascending: false }),
     sb.from("internal_notes").select("id, note, created_at, profiles(full_name)").eq("entity", "rfq").eq("entity_id", id).order("created_at", { ascending: false }), getSettings(),
     sb.from("rfq_attachments").select("id, file_name, storage_path, size_bytes, content_type, created_at").eq("rfq_id", id).order("created_at"),
+    staffList(sb),
   ]);
   // files the customer attached: private bucket, so staff get short-lived download links
   const { data: signed } = files?.length ? await sb.storage.from("rfq-attachments").createSignedUrls(files.map((f) => f.storage_path), 600, { download: true }) : { data: [] };
   const fileUrl = new Map((signed ?? []).map((x) => [x.path, x.signedUrl]));
   return (<>
     <Link href="/admin/rfqs" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ChevronLeft className="size-4" />Quotations</Link>
-    <PageHeader title={rfq.rfq_number} description={<span className="inline-flex items-center gap-2"><StatusBadge status={rfq.status} /> Received {new Date(rfq.created_at).toLocaleString("en-GB", { timeZone: "Asia/Riyadh" })}</span>} />
+    <PageHeader title={rfq.rfq_number} description={<span className="inline-flex items-center gap-2"><StatusBadge status={rfq.status} /> Received {new Date(rfq.created_at).toLocaleString("en-GB", { timeZone: "Asia/Riyadh" })}</span>}
+      actions={<RfqOwner rfqId={rfq.id} owner={rfq.assigned_to ?? null} staff={staff} me={me.id} />} />
     {(files ?? []).length > 0 && (
       <Panel title={`Customer files (${files!.length})`} className="mb-6">
         <ul className="divide-y text-sm" data-admin-rfq-files>{files!.map((f) => (

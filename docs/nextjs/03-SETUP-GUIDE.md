@@ -126,9 +126,10 @@ See `docs/nextjs/09-PRODUCT-IMAGES.md`.
 Run `supabase/migrations/0021_web_catalogue.sql` (contents) and redeploy. It only adds things and is safe to run again. The import uses the same `ANTHROPIC_API_KEY` as PDF extraction; no new environment variable is needed. Then use Admin → Catalogue → **Import from a manufacturer website**. See `docs/nextjs/10-WEBSITE-IMPORT.md`. Leave image / document copying off unless you have the manufacturer's permission.
 
 ## Step 8k — Improvement round (filters, files on quotation requests)
-Run, in order, `supabase/migrations/0022_facets.sql` and `0023_rfq_attachments.sql` (contents), then redeploy. Both are safe to run again.
+Run, in order, `supabase/migrations/0022_facets.sql`, `0023_rfq_attachments.sql` and `0024_rfq_owner.sql` (contents), then redeploy. All are safe to run again.
 - 0022 replaces the filter-count function.
 - 0023 makes sure the `rfq-attachments` bucket is private, limits files to 10 MB of the allowed types, and adds size/type columns.
+- 0024 adds an owner to each quotation request (only active staff can be owners).
 
 Files on quotation requests need `SUPABASE_SERVICE_ROLE_KEY` set on the server (Hostinger: environment variables). Without it, the RFQ is still sent, but the files are not attached and the customer is told so.
 
