@@ -169,7 +169,7 @@ export interface ProductDetail {
   materials: { code: string; name_en: string; name_ar: string | null; grades: string[]; components: MaterialComponent[] }[];
 }
 export interface ProductOptionRow { key: string; name_en: string; name_ar: string | null; values: { value: string; label_en: string; label_ar: string | null }[] }
-export interface DimensionTableRow { id: string; title_en: string; title_ar: string | null; columns: { key: string; symbol?: string | null; label_en: string; label_ar?: string | null; unit?: string | null }[]; applies: Record<string, string>; notes: string[]; drawing_path: string | null; source_page: number | null; rows: { match: Record<string, string>; values: Record<string, string> }[] }
+export interface DimensionTableRow { id: string; title_en: string; title_ar: string | null; columns: { key: string; symbol?: string | null; label_en: string; label_ar?: string | null; unit?: string | null }[]; applies: Record<string, string>; notes: string[]; drawing_path: string | null; source_page: number | null; rows: { match: Record<string, string>; values: Record<string, string> }[]; /** full number of rows when `rows` was trimmed for the page */ rowCount?: number }
 
 export async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
   const c = sb(); if (!c) return null;
@@ -300,4 +300,13 @@ export async function countPublishedProducts(): Promise<number> {
   const c = sb(); if (!c) return 0;
   const n = await safe(() => c.rpc("listing_count"), 0 as number);   // product families count once
   return Number(n) || 0;
+}
+
+/** All dimension rows of a published product (fetched by the product page on demand). Only the public rows: RLS hides drafts. */
+export async function getDimensionRows(slug: string): Promise<{ id: string; rows: DimensionTableRow["rows"] }[] | null> {
+  const c = sb(); if (!c) return null;
+  const { data } = await c.from("products").select("id, dimension_tables(id, sort_order, dimension_rows(match, values, sort_order))").eq("slug", slug).eq("status", "published").maybeSingle();
+  if (!data) return null;
+  const ts = (data as unknown as { dimension_tables: { id: string; sort_order: number; dimension_rows: { match: Record<string, string>; values: Record<string, string>; sort_order: number }[] }[] }).dimension_tables ?? [];
+  return [...ts].sort((a, b) => a.sort_order - b.sort_order).map((t) => ({ id: t.id, rows: [...(t.dimension_rows ?? [])].sort((a, b) => a.sort_order - b.sort_order).map(({ match, values }) => ({ match, values })) }));
 }

@@ -27,8 +27,12 @@ import { getProductApprovals } from "@/lib/queries/certs";
 import { ApprovalsSection, type ApprovalLabels } from "@/components/storefront/approvals";
 import { ProductTabs } from "@/components/storefront/product-tabs";
 import { DimensionsPanel } from "@/components/storefront/dimensions-panel";
+import { ConfigTable } from "@/components/storefront/config-table";
+import { ProductDataProvider, type LightVariant } from "@/lib/product-data";
+import { fitsOptions } from "@/lib/options-match";
 
-const VARIANT_ROWS = 100;   // the full list stays selectable in the buy box; the page does not ship hundreds of table rows
+const VARIANT_ROWS = 100;   // products without configuration options: rows rendered on the server
+const DIM_ROWS = 20;        // dimension rows sent with the page per table (plus the default configuration's row); the rest load on demand
 export const revalidate = 60;
 // No pages are pre-rendered at build time; each product is generated on first visit, then cached and refreshed every 60s (and instantly when an admin saves).
 export async function generateStaticParams() { return []; }
@@ -134,7 +138,9 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
     { id: "specs", label: dict.product.specs, content: (
       <div className="space-y-8">
         {specRows.length > 0 && <div className="overflow-hidden rounded-md border border-steel-200"><table className="w-full text-sm"><tbody>{specRows.map(([k, v], i) => <tr key={i} className="border-b border-steel-100 last:border-0 odd:bg-steel-50/60"><th scope="row" className="w-1/3 p-3 text-start align-top font-semibold">{k}</th><td className="p-3">{v}</td></tr>)}</tbody></table></div>}
-        {d.variants.length > 0 && <details className="rounded-md border border-steel-200" data-all-configs>
+        {d.variants.length > 0 && d.options.length > 0 && <ConfigTable title={dict.product.variants} options={d.options.map((o) => ({ key: o.key, name: (ar && o.name_ar) || o.name_en }))} optionLabels={optLabel}
+          labels={{ sku: dict.common.sku, code: ar ? "رمز المصنع" : "Mfr code", weight: ar ? "الوزن (كجم)" : "Weight (kg)" }} showCodes={showCodes} showWeights={showWeights} />}
+        {d.variants.length > 0 && !d.options.length && <details className="rounded-md border border-steel-200" data-all-configs>
           <summary className="cursor-pointer p-3 text-sm font-semibold">{dict.product.variants} ({d.variants.length})</summary>
           <div className="overflow-x-auto rounded-md border border-steel-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" tabIndex={0} role="region" aria-label={dict.product.variants}><table className="w-full text-sm">
             <thead className="bg-steel-50 text-xs text-steel-700"><tr><th scope="col" className="p-2.5 text-start">{dict.common.sku}</th>{d.options.length ? d.options.map((o) => <th key={o.key} scope="col" className="p-2.5 text-start">{(ar && o.name_ar) || o.name_en}</th>) : ["size", "grade", "schedule", "pressure_class"].map((h) => <th key={h} scope="col" className="p-2.5 text-start">{dict.filters[h as "size"]}</th>)}{showCodes && <th scope="col" className="p-2.5 text-start">{ar ? "رمز المصنع" : "Mfr code"}</th>}{showWeights && <th scope="col" className="p-2.5 text-end">{ar ? "الوزن (كجم)" : "Weight (kg)"}</th>}</tr></thead>
@@ -143,11 +149,10 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
         {d.variants.length > VARIANT_ROWS && <p className="p-3 text-xs text-muted-foreground">{ar ? `يُعرض ${VARIANT_ROWS} من ${d.variants.length} تكويناً؛ جميع التكوينات قابلة للاختيار أعلاه.` : `Showing ${VARIANT_ROWS} of ${d.variants.length} configurations; every configuration can be selected above.`}</p>}</details>}
         {sourceNote && <p className="text-xs text-steel-500">{sourceNote}</p>}
       </div>) },
-    ...(d.dimensionTables.length ? [{ id: "dims", label: ar ? "الأبعاد" : "Dimensions", content: <DimensionsPanel tables={d.dimensionTables} optionLabels={optLabel}
-        variants={d.variants.filter((v) => v.options && Object.keys(v.options).length).map((v) => ({ id: v.id, options: v.options!, label: vLabel(v.options) }))}
+    ...(d.dimensionTables.length ? [{ id: "dims", label: ar ? "الأبعاد" : "Dimensions", content: <DimensionsPanel optionLabels={optLabel}
         drawings={Object.fromEntries(d.dimensionTables.map((t) => [t.id, publicUrl("product-images", t.drawing_path)]))}
-        labels={ar ? { selected: "المحدد", none: "لا توجد أبعاد منشورة لهذا الاختيار.", showAll: "عرض جميع المقاسات ({n})", showFewer: "عرض المقاس المحدد فقط", source: supplierCat ? "المصدر: كتالوج كنز كورنر للجوانات" : "المصدر: كتالوج الشركة المصنعة", drawing: "رسم الأبعاد", asPublished: supplierCat ? "رسم توضيحي من الكتالوج (ليس رسماً هندسياً معتمداً)." : "رسم الأبعاد كما نشرته الشركة المصنعة (ليس رسماً هندسياً معتمداً)." }
-          : { selected: "Selected", none: "No dimensions are published for this selection.", showAll: "Show all sizes ({n})", showFewer: "Show the selected size only", source: supplierCat ? "Source: Kanz Corner Trading gasket catalogue" : "Source: manufacturer catalogue", drawing: "Dimensional drawing", asPublished: supplierCat ? "Reference drawing from the catalogue (not a certified engineering drawing)." : "Dimensional drawing as published by the manufacturer (not a certified engineering drawing)." }} /> }] : []),
+        labels={ar ? { selected: "المحدد", none: "لا توجد أبعاد منشورة لهذا الاختيار.", showAll: "عرض جميع المقاسات ({n})", showFewer: "عرض المقاس المحدد فقط", loading: "جارٍ التحميل…", source: supplierCat ? "المصدر: كتالوج كنز كورنر للجوانات" : "المصدر: كتالوج الشركة المصنعة", drawing: "رسم الأبعاد", asPublished: supplierCat ? "رسم توضيحي من الكتالوج (ليس رسماً هندسياً معتمداً)." : "رسم الأبعاد كما نشرته الشركة المصنعة (ليس رسماً هندسياً معتمداً)." }
+          : { selected: "Selected", none: "No dimensions are published for this selection.", showAll: "Show all sizes ({n})", showFewer: "Show the selected size only", loading: "Loading…", source: supplierCat ? "Source: Kanz Corner Trading gasket catalogue" : "Source: manufacturer catalogue", drawing: "Dimensional drawing", asPublished: supplierCat ? "Reference drawing from the catalogue (not a certified engineering drawing)." : "Dimensional drawing as published by the manufacturer (not a certified engineering drawing)." }} /> }] : []),
     ...((p.specs?.materials?.length || p.specs?.standards?.length || p.specs?.notes?.length) ? [{ id: "materials", label: ar ? "المواد والمواصفات" : "Materials & standards", content: (
       <div className="space-y-6 text-sm">
         {!!p.specs?.materials?.length && <div><h3 className="mb-2 font-semibold">{ar ? "المواد" : "Materials"}</h3><ul className="space-y-1">{p.specs.materials.map((m, i) => <li key={i}><span className="font-medium">{m.type}</span>{m.grades.length ? <span className="font-mono text-steel-700"> — {m.grades.join(", ")}</span> : <span className="text-steel-500"> — {ar ? "الدرجات غير مذكورة في الكتالوج" : "grades not listed in the catalogue"}</span>}</li>)}</ul></div>}
@@ -157,7 +162,15 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
     ...((ar ? p.applications_ar || p.applications_en : p.applications_en) ? [{ id: "applications", label: ar ? "الاستخدامات" : "Applications", content: <ul className="list-disc space-y-1 ps-5 text-sm">{((ar ? p.applications_ar || p.applications_en : p.applications_en) ?? "").split("\n").filter(Boolean).map((x, i) => <li key={i}>{x}</li>)}</ul> }] : []),
   ];
 
+  // one light variant list for the gallery, selection, dimensions, explorer and configuration list
+  const light: LightVariant[] = d.variants.map((v) => ({ id: v.id, ...(v.options && Object.keys(v.options).length ? { options: v.options } : {}), sku: v.sku,
+    label: (v.options && vLabel(v.options)) || loc(v, "label", lang) || v.sku, ...(v.manufacturer_code ? { code: v.manufacturer_code } : {}), ...(v.weight_kg != null ? { weight: Number(v.weight_kg) } : {}) }));
+  // large dimension tables: the first rows and the default configuration's row; the rest is fetched when needed
+  const first = light.find((v) => v.options)?.options;
+  const pageTables = d.dimensionTables.map((t) => t.rows.length <= DIM_ROWS ? t
+    : { ...t, rowCount: t.rows.length, rows: t.rows.filter((r, i) => i < DIM_ROWS || (first && fitsOptions(t.applies, first) && fitsOptions(r.match, first))) });
   return (
+    <ProductDataProvider slug={p.slug} variants={light} tables={pageTables}>
     <div className="mx-auto max-w-7xl px-4 py-6 pb-28 lg:pb-6">
       <nav className="mb-5 flex flex-wrap items-center gap-1 text-sm text-muted-foreground" aria-label="Breadcrumb">
         <Link href={`/${lang}`} className="hover:text-primary">{dict.common.home}</Link><ChevronRight className="size-3.5 rtl:rotate-180" />
@@ -167,11 +180,10 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
 
       <div className="grid gap-8 lg:grid-cols-[1fr_440px]">
         <div className="min-w-0 space-y-4 lg:sticky lg:top-32 lg:self-start">
-          <VariantGallery images={images} variants={d.variants.map((v) => ({ id: v.id, options: v.options }))} alt={name}
+          <VariantGallery images={images} alt={name}
             empty={<ProductPlaceholder kind={placeholderKind({ placeholder_kind: p.placeholder_kind, name_en: p.name_en, category_slug: d.category?.slug })} lang={lang} alt={name} className="aspect-square w-full rounded-xl border" />}
             labels={{ enlarge: dict.product.enlarge, zoomIn: dict.product.zoom, zoomOut: dict.product.zoomOut, close: dict.common.close, prev: dict.product.prevImg, next: dict.product.nextImg, image: lang === "ar" ? "صورة" : "Image" }} />
-          {d.dimensionTables.length > 0 && <SelectionPanel tables={d.dimensionTables} lang={lang} source={sourceShort}
-            variants={d.variants.map((v) => ({ id: v.id, options: v.options, sku: v.sku, label: (v.options && vLabel(v.options)) || loc(v, "label", lang) || v.sku }))} />}
+          {d.dimensionTables.length > 0 && <SelectionPanel lang={lang} source={sourceShort} />}
         </div>
         <div>
           <div className="mb-2 flex flex-wrap gap-2">
@@ -206,8 +218,7 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
               {c.body}
             </div>))}
         </section>)}
-      {p.specs?.visual?.type === "spiral-wound-gasket" && <div className="mt-8"><GasketExplorer tables={d.dimensionTables} lang={lang} enable3d={!!p.specs.visual.enable_3d}
-        variants={d.variants.map((v) => ({ id: v.id, options: v.options, label: (v.options && vLabel(v.options)) || v.sku }))} /></div>}
+      {p.specs?.visual?.type === "spiral-wound-gasket" && <div className="mt-8"><GasketExplorer lang={lang} enable3d={!!p.specs.visual.enable_3d} /></div>}
       <div className="mt-12 grid gap-8 lg:grid-cols-3">
         <div className="min-w-0 space-y-10 lg:col-span-2 lg:row-start-1">
           <ProductTabs tabs={tabs} />
@@ -243,5 +254,6 @@ export default async function ProductPage({ params }: { params: Promise<{ lang: 
       <ProductViewTracker productId={p.id} recent={{ slug: p.slug, name_en: p.name_en, name_ar: p.name_ar, image: thumbOf(d.images[0]) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumbLd(crumbs)]) }} />
     </div>
+    </ProductDataProvider>
   );
 }

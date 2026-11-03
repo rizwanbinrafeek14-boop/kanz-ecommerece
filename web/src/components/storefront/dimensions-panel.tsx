@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useSelectedVariant } from "@/lib/variant-store";
+import { useProductData } from "@/lib/product-data";
 import type { DimensionTableRow } from "@/lib/queries/catalog";
 import { cn } from "@/lib/utils";
 
@@ -8,14 +9,19 @@ const fits = (want: Record<string, string>, have: Record<string, string>) => Obj
 
 /**
  * Dimension tables for the selected variant: only tables that apply to it are shown, and the exact row is highlighted and summarised.
- * Before a selection exists (e.g. for crawlers) every table is shown in full.
+ * Before a selection exists (e.g. for crawlers) every table is shown with the rows sent with the page.
+ * On the product page the tables and variants come from ProductDataProvider (large tables arrive trimmed and load in full on
+ * "Show all"); the family page passes them as props.
  */
-export function DimensionsPanel({ tables, variants, optionLabels, labels, drawings }: {
-  tables: DimensionTableRow[]; variants: { id: string; options: Record<string, string>; label: string }[]; optionLabels: Record<string, Record<string, string>>; drawings: Record<string, string | null>;
-  labels: { selected: string; none: string; showAll: string; showFewer: string; source: string; drawing: string; asPublished: string };
+export function DimensionsPanel({ tables: tablesProp, variants: variantsProp, optionLabels, labels, drawings }: {
+  tables?: DimensionTableRow[]; variants?: { id: string; options?: Record<string, string>; label: string }[]; optionLabels: Record<string, Record<string, string>>; drawings: Record<string, string | null>;
+  labels: { selected: string; none: string; showAll: string; showFewer: string; source: string; drawing: string; asPublished: string; loading?: string };
 }) {
-  const vid = useSelectedVariant(); const v = variants.find((x) => x.id === vid);
+  const ctx = useProductData(); const tables = ctx?.tables ?? tablesProp ?? []; const variants = ctx?.variants ?? variantsProp ?? [];
+  const vid = useSelectedVariant(); const found = variants.find((x) => x.id === vid);
+  const v = found?.options && Object.keys(found.options).length ? { ...found, options: found.options } : undefined;
   const [all, setAll] = React.useState<Record<string, boolean>>({});
+  const toggle = async (id: string, on: boolean) => { if (on && ctx && !ctx.complete) await ctx.load(); setAll((s) => ({ ...s, [id]: on })); };
   const visible = v ? tables.filter((t) => fits(t.applies, v.options)) : tables;
   if (!visible.length) return <p className="text-sm text-muted-foreground">{labels.none}</p>;
   return (
@@ -49,7 +55,10 @@ export function DimensionsPanel({ tables, variants, optionLabels, labels, drawin
                   </tr>; })}</tbody>
               </table>
             </div>
-            {v && hit && t.rows.length > 1 && <button type="button" className="mt-2 min-h-10 text-sm font-medium text-primary hover:underline" onClick={() => setAll((s) => ({ ...s, [t.id]: !s[t.id] }))}>{all[t.id] ? labels.showFewer : labels.showAll.replace("{n}", String(t.rows.length))}</button>}
+            {(() => { const total = t.rowCount ?? t.rows.length; const trimmed = total > t.rows.length;
+              if (v && hit && total > 1) return <button type="button" className="mt-2 min-h-10 text-sm font-medium text-primary hover:underline" disabled={ctx?.loading} data-dims-toggle onClick={() => toggle(t.id, !all[t.id])}>{ctx?.loading ? (labels.loading ?? "Loading…") : all[t.id] ? labels.showFewer : labels.showAll.replace("{n}", String(total))}</button>;
+              if (!v && trimmed) return <button type="button" className="mt-2 min-h-10 text-sm font-medium text-primary hover:underline" disabled={ctx?.loading} data-dims-more onClick={() => ctx?.load()}>{ctx?.loading ? (labels.loading ?? "Loading…") : labels.showAll.replace("{n}", String(total))}</button>;
+              return null; })()}
             {t.notes.length > 0 && <ol className="mt-3 list-decimal space-y-1 ps-5 text-xs text-steel-600">{t.notes.map((n, i) => <li key={i}>{n}</li>)}</ol>}
             <p className="mt-2 text-xs text-steel-500">{labels.source}{t.source_page ? ` p.${t.source_page}` : ""}</p>
           </section>);

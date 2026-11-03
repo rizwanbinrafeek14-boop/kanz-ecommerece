@@ -189,6 +189,14 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
      - Image and document files that nothing else uses are deleted.
      - The run is marked as undone and cannot be undone twice. The action is in the audit log.
    - **Tested locally:** 11 browser checks (`undo.mjs`) and SQL test T41.
+10. **Lighter product pages.** The largest pages (gasket families with 250–430 configurations) dropped from 0.8–1.2 MB of HTML to about 0.47–0.56 MB; the spiral wound page went from 1,142 KB to 533 KB.
+    - The variant list is sent once and shared by the gallery, *Your selection*, the dimension tables, the gasket explorer and the configurations list (it used to be sent four times).
+    - Dimension tables over 20 rows arrive with the first 20 rows plus the default configuration's row.
+      - The full table is fetched once from `/api/product/<slug>/dimensions` when needed: *Show all sizes*, or choosing a configuration whose row was not sent. That route serves published products only and is cached.
+      - Small products are unchanged.
+    - *Configurations (n)* is built in the browser and lists every configuration when opened.
+    - **Search engines** see the first 20 rows of each large table. The full tables remain in the datasheet PDF.
+    - **Tested locally:** 11 browser checks (`light.mjs`), plus the existing product-page, gasket and family suites.
 
 ## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
 - `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.
