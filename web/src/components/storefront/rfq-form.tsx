@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea, Label } from "@/components/ui/input";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/lib/i18n/config";
+import { FileResult, RfqFilePicker, uploadRfqFiles } from "./rfq-files";
 
 interface Line { product_id?: string; variant_id?: string; description: string; specification: string; quantity: string; unit: string }
 const blank = (): Line => ({ description: "", specification: "", quantity: "1", unit: "pcs" });
@@ -23,9 +24,12 @@ export function RfqForm({ lang, dict, defaults }: { lang: Locale; dict: Dictiona
   const lines = edited ?? seed;
   const setLines = (fn: (ls: Line[]) => Line[]) => setEdited(fn(lines));
   const [paste, setPaste] = React.useState("");
-  const [busy, setBusy] = React.useState(false);
+  const [busy, setBusy] = React.useState(false); const [uploading, setUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [done, setDone] = React.useState<{ number: string; token: string } | null>(null);
+  const [files, setFiles] = React.useState<File[]>([]);
+  const [fileResult, setFileResult] = React.useState<Awaited<ReturnType<typeof uploadRfqFiles>> | null>(null);
+  const fileLabels = { ...dict.rfq, remove: dict.common.remove };
 
   const upd = (i: number, patch: Partial<Line>) => setLines((ls) => ls.map((l, n) => (n === i ? { ...l, ...patch } : l)));
 
@@ -54,9 +58,10 @@ export function RfqForm({ lang, dict, defaults }: { lang: Locale; dict: Dictiona
       contact: { name: g("name") ?? "", email: g("email") ?? "", phone: g("phone"), company: g("company"), vat_number: g("vat_number"), city: g("city"), required_by: g("required_by"), notes: g("notes"), session_id: getSessionId() },
       items,
     });
-    setBusy(false);
-    if (!res.ok) { setError(res.error); return; }
-    clear("quote"); setDone(res.data);
+    if (!res.ok) { setBusy(false); setError(res.error); return; }
+    // the request is saved first; files follow (a failed file never loses the request)
+    if (files.length) { setUploading(true); setFileResult(await uploadRfqFiles(res.data.token, files).catch(() => ({ saved: [], rejected: [], error: dict.rfq.filesError }))); setUploading(false); }
+    setBusy(false); clear("quote"); setDone(res.data);
   }
 
   if (done) {
@@ -67,6 +72,7 @@ export function RfqForm({ lang, dict, defaults }: { lang: Locale; dict: Dictiona
         <p className="mt-3 text-sm text-muted-foreground">{dict.rfq.ref}</p>
         <p className="font-mono text-2xl font-bold" dir="ltr">{done.number}</p>
         <p className="mt-3 text-sm text-muted-foreground">{dict.rfq.successText}</p>
+        {fileResult && <div className="text-start"><FileResult r={fileResult} labels={fileLabels} /></div>}
         <Button asChild className="mt-5"><Link href={`/${lang}/rfq/view/${done.token}`}>{dict.rfq.viewQuote}</Link></Button>
       </div>
     );
@@ -116,8 +122,10 @@ export function RfqForm({ lang, dict, defaults }: { lang: Locale; dict: Dictiona
         </details>
       </section>
 
+      <section className="rounded-xl border bg-card p-5"><RfqFilePicker files={files} onChange={setFiles} labels={fileLabels} disabled={busy} /></section>
+
       {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
-      <Button size="lg" disabled={busy}>{busy ? dict.common.loading : dict.rfq.submit}</Button>
+      <Button size="lg" disabled={busy}>{uploading ? dict.rfq.filesUploading : busy ? dict.common.loading : dict.rfq.submit}</Button>
     </form>
   );
 }

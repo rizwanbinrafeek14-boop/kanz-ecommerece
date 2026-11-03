@@ -138,6 +138,23 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
   - 73 browser checks against a fictional test site, with a stand-in for the Claude API;
   - SQL test T37.
 
+## Added later: improvement round (migrations 0022–0023)
+1. **Smoke checks fixed:** the site now has a real `favicon.ico` and `apple-icon.png`. The expected 404 on `/en/nonexistent` is no longer reported as an error.
+2. **All categories in the main menu.**
+   - The desktop bar shows the first 3–4 categories plus **More** for the rest.
+   - Menus open by click, hover or keyboard and close with Escape.
+   - Mega menus with more than 8 children get a "View all" link. Mobile and Arabic are covered.
+3. **Facet counts respect other filters** (migration 0022, `product_facets` with filters).
+   - Each filter group is counted with every other active filter applied, but not its own, so choosing a value still shows how many products the alternatives would give.
+   - Selected values stay visible even at 0.
+4. **Files on quotation requests** (migration 0023):
+   - **Form:** customers can attach up to 5 drawings, datasheets or BOQs (PDF, JPG, PNG, WebP, Excel, CSV, Word; 10 MB each) to the RFQ form.
+   - **Adding later:** further files can be added on the quotation page for one hour after sending.
+   - **Upload and checks:** files go straight to the private `rfq-attachments` bucket via one-time signed upload links. The server then checks each file's size and that its content matches its type; a renamed web page or program is deleted and reported to the customer.
+   - **Where files appear:** in the RFQ history, on the customer's quotation page (download needs the RFQ link), and under Admin → RFQ → "Customer files" (links valid 10 minutes).
+   - **Needs** `SUPABASE_SERVICE_ROLE_KEY` on the server.
+   - **Tested locally:** 19 browser checks (`rfqfiles.mjs`).
+
 ## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
 - `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.
 - **Patched with npm overrides in `web/package.json`** (no upstream releases with the fix exist yet):

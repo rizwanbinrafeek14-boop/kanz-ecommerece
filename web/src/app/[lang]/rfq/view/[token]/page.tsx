@@ -7,6 +7,10 @@ import { formatDate, formatSAR } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { QuoteActions } from "@/components/storefront/quote-actions";
+import { RfqAddFiles } from "@/components/storefront/rfq-files";
+import { createServiceClient } from "@/lib/supabase/service";
+import { RFQ_FILES, rfqFilesOpen } from "@/lib/rfq-files";
+import { Paperclip } from "lucide-react";
 
 export const metadata = { title: "Quotation", robots: { index: false, follow: false } };
 
@@ -19,6 +23,9 @@ export default async function RfqViewPage({ params }: { params: Promise<{ lang: 
   if (!data) notFound();
   const { rfq, items } = data as { rfq: Record<string, any>; items: Record<string, any>[] };
   const quoted = rfq.quoted_at != null;
+  // files the customer attached (the token above proves access); more can be added within an hour of sending
+  const { data: files } = await Promise.resolve().then(() => createServiceClient().from("rfq_attachments").select("id, file_name, size_bytes").eq("rfq_id", rfq.id).order("created_at")).catch(() => ({ data: null }));   // no service key: no file list
+  const canAdd = rfqFilesOpen(rfq.created_at);
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
@@ -57,6 +64,15 @@ export default async function RfqViewPage({ params }: { params: Promise<{ lang: 
         {rfq.status === "quoted" && <QuoteActions token={token} labels={{ accept: lang === "ar" ? "قبول عرض السعر" : "Accept quotation", decline: lang === "ar" ? "رفض" : "Decline" }} />}
       </div>
       {!quoted && <p className="mt-6 text-sm text-muted-foreground">{dict.rfq.successText}</p>}
+      {((files ?? []).length > 0 || canAdd) && (
+        <section className="mt-8" data-rfq-attachments>
+          <h2 className="mb-2 font-semibold">{dict.rfq.filesAttached}</h2>
+          {(files ?? []).length > 0 && <ul className="space-y-1 text-sm">{(files ?? []).map((f) => (
+            <li key={f.id}><a href={`/api/rfq/${token}/file/${f.id}`} className="inline-flex items-center gap-1.5 text-primary hover:underline"><Paperclip className="size-4" aria-hidden="true" />{f.file_name}</a>
+              {f.size_bytes && <span className="ms-2 text-xs text-muted-foreground">{Math.max(1, Math.round(f.size_bytes / 1024))} KB</span>}</li>))}</ul>}
+          {canAdd && <><p className="mt-2 text-xs text-muted-foreground">{dict.rfq.filesLater}</p>
+            <RfqAddFiles token={token} remaining={RFQ_FILES.max - (files ?? []).length} labels={{ ...dict.rfq, remove: dict.common.remove }} /></>}
+        </section>)}
     </div>
   );
 }

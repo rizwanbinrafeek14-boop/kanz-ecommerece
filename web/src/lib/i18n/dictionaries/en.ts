@@ -80,6 +80,9 @@ const en = {
     addLine: "Add line", bulkPaste: "Paste lines from Excel", bulkHint: "One item per line: description, specification, quantity (tab- or comma-separated)", import: "Import lines",
     submit: "Submit RFQ", success: "Your request has been received", ref: "Your reference", successText: "We will review it and respond by email. Keep this reference for follow-up.",
     needItem: "Add at least one item.", viewQuote: "View quotation",
+    files: "Drawings, datasheets or bill of quantities (optional)", filesHint: "Up to 5 files, 10 MB each: PDF, JPG, PNG, WebP, Excel, CSV or Word.",
+    filesChoose: "Choose files", filesAttached: "Attached files", filesUploading: "Uploading files…", filesAdd: "Add files",
+    filesFailed: "Not attached", filesError: "Your request was sent, but the files could not be attached. Please send them by e-mail or WhatsApp, quoting your RFQ number.", filesLater: "You can add files here within an hour of sending the request.",
   },
   checkout: {
     title: "Checkout", signInFirst: "Please sign in or create an account to place an order.", delivery: "Delivery method", deliver: "Deliver to address", pickup: "Pickup from our office",
