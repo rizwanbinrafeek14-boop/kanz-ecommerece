@@ -1,5 +1,6 @@
 import "server-only";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { STOREFRONT_TAG } from "@/lib/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { slugify } from "@/lib/utils";
 
@@ -8,7 +9,7 @@ export const ok = <T,>(data: T): Result<T> => ({ ok: true, data });
 export const fail = (error: string): Result<never> => ({ ok: false, error });
 
 /** Make storefront pages reflect an admin change right away. */
-export function refreshStorefront() { revalidatePath("/", "layout"); }
+export function refreshStorefront() { revalidatePath("/", "layout"); revalidateTag(STOREFRONT_TAG, { expire: 0 }); }
 
 export async function audit(sb: SupabaseClient, actor: string, action: string, entity: string, entityId?: string, detail?: unknown) {
   await sb.from("audit_log").insert({ actor, action, entity, entity_id: entityId ?? null, detail: detail ?? null });

@@ -3,6 +3,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { cardPrice } from "@/lib/types";
 import { mainImage, thumbOf } from "@/lib/images/display";
 import type { Banner, Brand, Category, HomepageSection, MenuLink, Announcement, Product, ProductCard, Variant, AttributeDef, ProductDocument, ProductImage } from "@/lib/types";
+import { cached } from "@/lib/cache";
 
 /** All public reads degrade to empty data if Supabase is not configured, so the site still renders during setup. */
 function sb() { return createPublicClient(); }
@@ -16,7 +17,7 @@ async function safe<T>(fn: () => PromiseLike<{ data: T | null; error: unknown }>
 
 export interface CategoryNode extends Category { children: CategoryNode[]; product_count?: number }
 
-export async function getCategories(): Promise<Category[]> {
+async function getCategoriesUncached(): Promise<Category[]> {
   const c = sb(); if (!c) return [];
   return safe(() => c.from("categories").select("*").eq("is_active", true).order("sort_order").order("name_en"), [] as Category[]);
 }
@@ -28,13 +29,13 @@ export function buildTree(cats: Category[]): CategoryNode[] {
   return roots;
 }
 
-export async function getCategoryBySlug(slug: string) {
+async function getCategoryBySlugUncached(slug: string) {
   const c = sb(); if (!c) return null;
   const { data } = await c.from("categories").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
   return (data as Category | null) ?? null;
 }
 
-export async function getBrandBySlug(slug: string) {
+async function getBrandBySlugUncached(slug: string) {
   const c = sb(); if (!c) return null;
   const { data } = await c.from("brands").select("id, slug, name, name_ar, logo_path").eq("slug", slug).eq("is_active", true).maybeSingle();
   return (data as { id: string; slug: string; name: string; name_ar: string | null; logo_path: string | null } | null) ?? null;
@@ -50,7 +51,7 @@ export async function getProductCardsByIds(ids: string[]): Promise<ProductCard[]
 }
 
 export interface MaterialType { code: string; name_en: string; name_ar: string | null; sort_order: number }
-export async function getMaterialTypes(): Promise<MaterialType[]> {
+async function getMaterialTypesUncached(): Promise<MaterialType[]> {
   const c = sb(); if (!c) return [];
   return safe(() => c.from("material_types").select("code, name_en, name_ar, sort_order").order("sort_order"), [] as MaterialType[]);
 }
@@ -112,7 +113,7 @@ async function groupFamilies(cards: ProductCard[]): Promise<ProductCard[]> {
 export interface SearchParams {
   q?: string; category?: string; filters?: Record<string, string[]>; availability?: string; flag?: string; sort?: string; page?: number; pageSize?: number;
 }
-export async function searchProducts(p: SearchParams): Promise<{ products: ProductCard[]; total: number }> {
+async function searchProductsUncached(p: SearchParams): Promise<{ products: ProductCard[]; total: number }> {
   const c = sb(); if (!c) return { products: [], total: 0 };
   const pageSize = p.pageSize ?? 24;
   const rows = await safe<{ id: string; total: number }[]>(() => c.rpc("search_products", {
@@ -129,7 +130,7 @@ export interface Facet { key: string; name_en: string; name_ar: string | null; v
  * Counts = listing entries (a family counts once) with all OTHER active filters applied, so every number is what ticking that
  * box would show. Selected values always stay listed (with 0 when nothing else matches) so they can be unticked.
  */
-export async function getFacets(q?: string, category?: string, brand?: string, active: { filters?: Record<string, string[]>; availability?: string; flag?: string } = {}): Promise<Facet[]> {
+async function getFacetsUncached(q?: string, category?: string, brand?: string, active: { filters?: Record<string, string[]>; availability?: string; flag?: string } = {}): Promise<Facet[]> {
   const c = sb(); if (!c) return [];
   const filters = Object.fromEntries(Object.entries(active.filters ?? {}).filter(([, v]) => v.length));
   const rows = await safe(() => c.rpc("product_facets", { p_q: q || null, p_category: category || null, p_brand: brand || null, p_filters: filters, p_availability: active.availability || null, p_flag: active.flag || null }),
@@ -149,12 +150,12 @@ export async function getFacets(q?: string, category?: string, brand?: string, a
   return [...map.values()];
 }
 
-export async function getFlagged(flag: "featured" | "new" | "offer", limit = 8): Promise<ProductCard[]> {
+async function getFlaggedUncached(flag: "featured" | "new" | "offer", limit = 8): Promise<ProductCard[]> {
   const { products } = await searchProducts({ flag, pageSize: limit });
   return products;
 }
 
-export async function getBestSellers(limit = 8): Promise<ProductCard[]> {
+async function getBestSellersUncached(limit = 8): Promise<ProductCard[]> {
   const c = sb(); if (!c) return [];
   const rows = await safe<{ product_id: string }[]>(() => c.rpc("public_best_sellers", { p_limit: limit }), []);
   return getProductCardsByIds(rows.map((r) => r.product_id));
@@ -235,14 +236,14 @@ async function productDetail(c: NonNullable<ReturnType<typeof sb>>, product: Pro
 }
 
 /** Where an old product/category address now lives (kept automatically whenever a slug changes). */
-export async function getSlugRedirect(entity: "product" | "category", slug: string): Promise<string | null> {
+async function getSlugRedirectUncached(entity: "product" | "category", slug: string): Promise<string | null> {
   const c = sb(); if (!c) return null;
   const { data } = await c.from("slug_redirects").select("new_slug").eq("entity", entity).eq("old_slug", slug).maybeSingle();
   return data?.new_slug ?? null;
 }
 
 /** Published-product counts per category, including sub-categories. Empty categories are kept out of the sitemap and set to noindex until they have products. */
-export async function getCategoryProductCounts(): Promise<Map<string, number>> {
+async function getCategoryProductCountsUncached(): Promise<Map<string, number>> {
   const c = sb(); const out = new Map<string, number>(); if (!c) return out;
   // listing entries (a product family counts once) per category including sub-categories
   const rows = await safe(() => c.rpc("category_listing_counts"), [] as { category_id: string; n: number }[]);
@@ -273,30 +274,30 @@ export async function getAllSlugsForSitemap() {
 }
 
 // ── CMS ───────────────────────────────────────────────────────
-export async function getHomepageSections(): Promise<HomepageSection[]> {
+async function getHomepageSectionsUncached(): Promise<HomepageSection[]> {
   const c = sb(); if (!c) return [];
   return safe(() => c.from("homepage_sections").select("*").eq("is_enabled", true).order("sort_order"), [] as HomepageSection[]);
 }
-export async function getBanners(placement: string, categoryId?: string): Promise<Banner[]> {
+async function getBannersUncached(placement: string, categoryId?: string): Promise<Banner[]> {
   const c = sb(); if (!c) return [];
   // RLS already restricts to active + scheduled-now banners
   let q = c.from("banners").select("*").eq("placement", placement).order("sort_order");
   if (categoryId) q = q.eq("category_id", categoryId);
   return safe(() => q, [] as Banner[]);
 }
-export async function getMenu(menu: string): Promise<MenuLink[]> {
+async function getMenuUncached(menu: string): Promise<MenuLink[]> {
   const c = sb(); if (!c) return [];
   return safe(() => c.from("menu_links").select("*").eq("menu", menu).eq("is_active", true).order("sort_order"), [] as MenuLink[]);
 }
-export async function getAnnouncements(): Promise<Announcement[]> {
+async function getAnnouncementsUncached(): Promise<Announcement[]> {
   const c = sb(); if (!c) return [];
   return safe(() => c.from("announcements").select("*").order("sort_order"), [] as Announcement[]);
 }
-export async function getHomepageBrands(): Promise<Brand[]> {
+async function getHomepageBrandsUncached(): Promise<Brand[]> {
   const c = sb(); if (!c) return [];
   return safe(() => c.from("brands").select("*").eq("is_active", true).eq("show_on_homepage", true).order("sort_order"), [] as Brand[]);
 }
-export async function countPublishedProducts(): Promise<number> {
+async function countPublishedProductsUncached(): Promise<number> {
   const c = sb(); if (!c) return 0;
   const n = await safe(() => c.rpc("listing_count"), 0 as number);   // product families count once
   return Number(n) || 0;
@@ -310,3 +311,22 @@ export async function getDimensionRows(slug: string): Promise<{ id: string; rows
   const ts = (data as unknown as { dimension_tables: { id: string; sort_order: number; dimension_rows: { match: Record<string, string>; values: Record<string, string>; sort_order: number }[] }[] }).dimension_tables ?? [];
   return [...ts].sort((a, b) => a.sort_order - b.sort_order).map((t) => ({ id: t.id, rows: [...(t.dimension_rows ?? [])].sort((a, b) => a.sort_order - b.sort_order).map(({ match, values }) => ({ match, values })) }));
 }
+
+// ───────── cached public reads (see lib/cache.ts) ─────────
+export const getCategories = cached(getCategoriesUncached, "getCategories");
+export const getCategoryBySlug = cached(getCategoryBySlugUncached, "getCategoryBySlug");
+export const getBrandBySlug = cached(getBrandBySlugUncached, "getBrandBySlug");
+export const getMaterialTypes = cached(getMaterialTypesUncached, "getMaterialTypes");
+export const searchProducts = cached(searchProductsUncached, "searchProducts");
+export const getFacets = cached(getFacetsUncached, "getFacets");
+export const getSlugRedirect = cached(getSlugRedirectUncached, "getSlugRedirect");
+export const getBanners = cached(getBannersUncached, "getBanners");
+export const getMenu = cached(getMenuUncached, "getMenu");
+export const getAnnouncements = cached(getAnnouncementsUncached, "getAnnouncements");
+export const getHomepageBrands = cached(getHomepageBrandsUncached, "getHomepageBrands");
+export const getHomepageSections = cached(getHomepageSectionsUncached, "getHomepageSections");
+export const countPublishedProducts = cached(countPublishedProductsUncached, "countPublishedProducts");
+export const getFlagged = cached(getFlaggedUncached, "getFlagged");
+export const getBestSellers = cached(getBestSellersUncached, "getBestSellers");
+const countsEntries = cached(async () => [...(await getCategoryProductCountsUncached()).entries()], "categoryProductCounts");
+export async function getCategoryProductCounts(): Promise<Map<string, number>> { return new Map(await countsEntries()); }

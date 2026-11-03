@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
+import { cached } from "@/lib/cache";
 import type { SettingsMap } from "@/lib/types";
 
 export const FALLBACK_SETTINGS: SettingsMap = {
@@ -14,13 +15,13 @@ export const FALLBACK_SETTINGS: SettingsMap = {
 };
 
 /** Public site settings (company info, VAT, SEO defaults). Cached per request. */
-export const getSettings = cache(async (): Promise<SettingsMap> => {
+export const getSettings = cache(cached(async (): Promise<SettingsMap> => {
   const sb = createPublicClient();
   if (!sb) return FALLBACK_SETTINGS;
   const { data, error } = await sb.from("site_settings").select("key, value");
   if (error || !data?.length) return FALLBACK_SETTINGS;
   return { ...FALLBACK_SETTINGS, ...Object.fromEntries(data.map((r) => [r.key, r.value])) };
-});
+}, "settings"));
 
 export const s = (m: SettingsMap, key: string, fallback = ""): string => {
   const v = m[`public.${key}`] ?? m[key];

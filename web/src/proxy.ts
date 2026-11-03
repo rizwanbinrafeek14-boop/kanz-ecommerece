@@ -28,6 +28,12 @@ export async function proxy(request: NextRequest) {
   // 2. Keep the Supabase session fresh (only if configured) and do an optimistic admin check.
   let response = NextResponse.next({ request });
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return response;
+  // Only where the server reads the session: admin, APIs, sign-in callbacks, account / checkout / RFQ pages and server actions
+  // (POST). Catalogue pages are public and cached; checking the session there cost a Supabase round trip on every page view
+  // and link prefetch for signed-in visitors. The browser keeps its own session fresh.
+  const needsSession = isAdmin || isApi || pathname.startsWith("/auth/") || request.method === "POST"
+    || /^\/(en|ar)\/(account|checkout|rfq)(\/|$)/.test(pathname);
+  if (!needsSession) return response;
 
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
     cookies: {
