@@ -143,3 +143,14 @@ html[lang="ar"] .spec-label { font-family: var(--font-arabic); letter-spacing: 0
 .sheet-outline rect { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .7s cubic-bezier(.6,0,.2,1); }
 .group:hover .sheet-outline rect, .group:focus-visible .sheet-outline rect { stroke-dashoffset: 0; }
 @media (prefers-reduced-motion: reduce) { .sheet-outline rect { transition: none; } }
+
+/* Brands strip moving in a continuous loop (components/home/brand-marquee.tsx) */
+.marquee { mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent); }
+.marquee-track { display: flex; width: max-content; animation: marquee var(--marquee-duration, 40s) linear infinite; }
+.marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee { overflow-x: auto; mask-image: none; }
+  .marquee-track { animation: none; }
+  .marquee-track > [aria-hidden="true"], .marquee-toggle { display: none; }
+}

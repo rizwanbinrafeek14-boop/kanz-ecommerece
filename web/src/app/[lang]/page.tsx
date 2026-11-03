@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight, ArrowUpRight, Droplets, Factory, Flame, HardHat, ShieldCheck, Layers, Wrench, Languages } from "lucide-react";
 import { isLocale, loc, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { BrandMarquee } from "@/components/home/brand-marquee";
 import { buildTree, getBanners, getBestSellers, getCategories, getCategoryProductCounts, getFacets, getFlagged, getHomepageBrands, getHomepageSections, countPublishedProducts } from "@/lib/queries/catalog";
 import { getQualityCerts } from "@/lib/queries/certs";
 import { publicUrl } from "@/lib/format";
@@ -180,9 +181,8 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
         if (!brands.length) break;
         add("s-brands", title || dict.home.brands, (num) => (
           <Sheet num={num} id="s-brands" sheet={hx.sheet} title={title || dict.home.brands} subtitle={subtitle}>
-            <ul className="grid grid-cols-2 gap-px border border-steel-200 bg-steel-200 sm:grid-cols-3 lg:grid-cols-6">
-              {brands.map((b) => <li key={b.id} className="flex h-24 items-center justify-center bg-white p-4">{b.logo_path ? <ProductImage path={b.logo_path} bucket="brand-logos" alt={b.name} className="h-full w-full grayscale transition hover:grayscale-0" /> : <span className="text-sm font-semibold text-steel-600">{b.name}</span>}</li>)}
-            </ul>
+            <BrandMarquee brands={brands.map((b) => ({ id: b.id, name: (lang === "ar" && b.name_ar) || b.name, slug: b.slug, logo_path: b.logo_path }))} lang={lang}
+              labels={lang === "ar" ? { pause: "إيقاف الحركة", play: "تشغيل الحركة", region: "العلامات التجارية" } : { pause: "Pause", play: "Play", region: "Brands" }} />
           </Sheet>));
         break;
       case "certifications": {
