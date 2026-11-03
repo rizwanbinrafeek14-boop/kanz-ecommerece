@@ -5,21 +5,15 @@ import { requireStaff } from "@/lib/auth";
 import { PageHeader } from "@/components/admin/ui";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { RfqOwner } from "@/components/admin/rfq-owner";
+import { RfqAge } from "@/components/admin/rfq-age";
 import { Input, NativeSelect } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDateTime, formatSAR } from "@/lib/format";
-import { OPEN, RFQ_STATUSES, ageHours, rfqListQuery, staffList, type RfqFilter } from "@/lib/admin/rfq-list";
+import { OPEN, RFQ_STATUSES, rfqListQuery, staffList, type RfqFilter } from "@/lib/admin/rfq-list";
 
 export const metadata = { title: "Quotations" };
 const PAGE = 30;
-
-/** "3 h", "2 d" — how long an open request has been waiting; amber after a day, red after two. */
-function Age({ createdAt, open, now }: { createdAt: string; open: boolean; now: number }) {
-  const h = ageHours(createdAt, now); const label = h < 1 ? "< 1 h" : h < 48 ? `${Math.floor(h)} h` : `${Math.floor(h / 24)} d`;
-  if (!open) return <span className="text-muted-foreground">{label}</span>;
-  return <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${h >= 48 ? "bg-red-100 text-red-800" : h >= 24 ? "bg-amber-100 text-amber-900" : "bg-muted"}`} title="Waiting for a quotation">{label}</span>;
-}
 
 export default async function RfqsPage({ searchParams }: { searchParams: Promise<RfqFilter & { page?: string }> }) {
   const sp = await searchParams; const page = Math.max(1, Number(sp.page) || 1);
@@ -53,7 +47,7 @@ export default async function RfqsPage({ searchParams }: { searchParams: Promise
         <TableRow key={r.id} data-rfq-row={r.rfq_number}><TableCell><Link href={`/admin/rfqs/${r.id}`} className="font-mono font-medium hover:text-primary">{r.rfq_number}</Link></TableCell><TableCell>{r.company_name || r.contact_name}{r.company_name && <span className="text-muted-foreground"> · {r.contact_name}</span>}</TableCell>
           <TableCell className="text-end">{r.rfq_items?.[0]?.count ?? 0}</TableCell><TableCell><StatusBadge status={r.status} /></TableCell>
           <TableCell data-rfq-owner-cell>{r.assigned_to ? <span>{names.get(r.assigned_to) ?? "Former staff member"}{r.assigned_to === me.id && <span className="text-muted-foreground"> (me)</span>}</span> : (OPEN as readonly string[]).includes(r.status) ? <RfqOwner rfqId={r.id} owner={null} staff={staff} me={me.id} compact /> : <span className="text-muted-foreground">—</span>}</TableCell>
-          <TableCell><Age createdAt={r.created_at} open={(OPEN as readonly string[]).includes(r.status)} now={now} /></TableCell>
+          <TableCell><RfqAge createdAt={r.created_at} open={(OPEN as readonly string[]).includes(r.status)} now={now} /></TableCell>
           <TableCell className="text-end tabular-nums">{r.quoted_total != null ? formatSAR(r.quoted_total) : "—"}</TableCell><TableCell className="text-xs text-muted-foreground">{formatDateTime(r.created_at)}</TableCell></TableRow>))}
         {!data?.length && <TableRow><TableCell colSpan={8} className="py-10 text-center text-muted-foreground">{Object.keys(filters).length ? "No requests match these filters." : "No quotation requests yet."}</TableCell></TableRow>}</TableBody></Table></div>
     {pages > 1 && <nav className="mt-4 flex flex-wrap justify-center gap-1">{Array.from({ length: pages }, (_, i) => i + 1).map((n) => <Link key={n} href={`?${new URLSearchParams({ ...filters, page: String(n) })}`} className={`flex size-9 items-center justify-center rounded-md border text-sm ${n === page ? "bg-ink text-white" : "hover:bg-accent"}`}>{n}</Link>)}</nav>}

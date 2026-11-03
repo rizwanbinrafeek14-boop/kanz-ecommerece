@@ -4,11 +4,14 @@ import { formatDateTime, formatSAR } from "@/lib/format";
 import { PageHeader, Panel, Stat, Empty } from "@/components/admin/ui";
 import { SalesChart, HBarList } from "@/components/admin/charts";
 import { Badge } from "@/components/ui/badge";
+import { Today } from "@/components/admin/today";
+import { requireStaff } from "@/lib/auth";
 
 export const metadata = { title: "Dashboard" };
 
 export default async function Dashboard() {
-  const sb = await createClient();
+  const me = await requireStaff(); const sb = await createClient();
+  const now = Date.now();   // eslint-disable-line react-hooks/purity -- server component, rendered per request
   await sb.rpc("expire_overdue_quotations");
   const [stats, sales, top, orders, rfqs, customers, low] = await Promise.all([
     sb.rpc("admin_dashboard"), sb.rpc("admin_sales_by_day", { p_days: 30 }), sb.rpc("admin_top_products", { p_limit: 5 }),
@@ -24,7 +27,9 @@ export default async function Dashboard() {
 
   return (
     <>
-      <PageHeader title="Dashboard" description="Live figures from your orders, stock and visitor data." />
+      <PageHeader title="Dashboard" description="Today's quotation work first, then live figures from your orders, stock and visitors." />
+      <Today sb={sb} me={me.id} now={now} />
+      <h2 className="mb-3 text-lg font-semibold">Shop figures</h2>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
         <Stat label="Total revenue" value={formatSAR(s.revenue_total)} hint="Incl. VAT, excl. cancelled/refunded" />
         <Stat label="Sales today" value={formatSAR(s.sales_today)} />

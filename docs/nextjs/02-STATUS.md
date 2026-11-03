@@ -175,6 +175,12 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
      - *Fine as it is* hides an intentional gap (written to the audit log), and *Undo* brings it back.
    - The checks are computed by the database, never guessed, and only staff can run them.
    - **Tested locally:** 16 browser checks (`dq.mjs`) and SQL test T40.
+8. **Dashboard opens with "Today"**, the quotation work first; the shop figures follow below.
+   - **Counters:** new requests today (Riyadh time), waiting over 24 h, open without an owner, mine to quote, accepted and still to convert, and product data to fix first. Each opens the matching filtered list.
+   - **"Needs a quotation":** the 8 oldest open requests, with their waiting time and a *Take* button.
+   - **Quotations expiring within 7 days:** listed for follow-up.
+   - **Acceptance rate:** the 30-day rate (accepted or converted / quoted).
+   - **Tested locally:** 15 browser checks (`today.mjs`).
 
 ## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
 - `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.
