@@ -138,7 +138,7 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
   - 73 browser checks against a fictional test site, with a stand-in for the Claude API;
   - SQL test T37.
 
-## Added later: improvement round (migrations 0022–0024)
+## Added later: improvement round (migrations 0022–0025)
 1. **Smoke checks fixed:** the site now has a real `favicon.ico` and `apple-icon.png`. The expected 404 on `/en/nonexistent` is no longer reported as an error.
 2. **All categories in the main menu.**
    - The desktop bar shows the first 3–4 categories plus **More** for the rest.
@@ -166,6 +166,15 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
    - **Filters:** owner (mine / unassigned / a person), status (including "Open"), "waiting over 24 h / 48 h / 7 days", and newest or oldest first.
    - **Export:** *Excel* and *CSV* export exactly the filtered list (up to 5,000 rows), with waiting hours and owner. Customer-typed text that Excel would treat as a formula is neutralised. Staff only.
    - **Tested locally:** 22 browser checks (`rfqadmin.mjs`) and SQL test T39 (only staff can be owners; customers cannot change it).
+7. **Data quality queue** (Admin → Catalogue → *Data quality*, migration 0025): lists what each product is still missing, most important first.
+   - **Fix first:** a published, buyable (not quote-only) product with no price on the product or any size; a product without a category.
+   - **Should fix:** no image; no Arabic name; little or no description.
+   - **Nice to have:** only a temporary catalogue image; no brand; materials waiting for review; a draft untouched for 30 days.
+   - **Using it:** cards show counts (and how many are published) and filter the list; there is also a published / draft filter.
+     - *Fix* opens the right tab of the product editor.
+     - *Fine as it is* hides an intentional gap (written to the audit log), and *Undo* brings it back.
+   - The checks are computed by the database, never guessed, and only staff can run them.
+   - **Tested locally:** 16 browser checks (`dq.mjs`) and SQL test T40.
 
 ## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
 - `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.

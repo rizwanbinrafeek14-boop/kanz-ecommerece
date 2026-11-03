@@ -460,3 +460,16 @@ select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
 with u as (update rfqs set assigned_to = null where id = '59000000-0000-0000-0000-000000000001' returning 1) select count(*) as customer_changed from u;
 reset role; update rfqs set assigned_to = null where id = '59000000-0000-0000-0000-000000000001';
 select assigned_at as cleared_assigned_at from rfqs where id = '59000000-0000-0000-0000-000000000001';
+
+\echo '--- T40 data quality: staff see issues incl. unpriced buyable product; dismissal hides it; customers refused (expect unpriced 1 / after dismiss 0 / with dismissed 1 / ERROR staff only / 0 rows)'
+reset role;
+insert into products (id, slug, name_en, status, is_quote_only, published_at) values ('60000000-0000-0000-0000-000000000001', 'zzdq-unpriced', 'ZZDQ unpriced', 'published', false, now());
+set role authenticated; select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+select count(*) as unpriced from admin_data_quality() where slug = 'zzdq-unpriced' and check_code = 'unpriced';
+insert into data_quality_dismissed (product_id, check_code) values ('60000000-0000-0000-0000-000000000001', 'unpriced');
+select count(*) as after_dismiss from admin_data_quality() where slug = 'zzdq-unpriced' and check_code = 'unpriced';
+select count(*) as with_dismissed from admin_data_quality(true) where slug = 'zzdq-unpriced' and check_code = 'unpriced' and dismissed;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
+select count(*) from admin_data_quality();
+select count(*) as customer_sees_dismissals from data_quality_dismissed;
+reset role;
