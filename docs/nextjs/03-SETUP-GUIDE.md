@@ -125,6 +125,14 @@ See `docs/nextjs/09-PRODUCT-IMAGES.md`.
 ## Step 8j — Manufacturer website import (e.g. GALA)
 Run `supabase/migrations/0021_web_catalogue.sql` (contents) and redeploy. It only adds things and is safe to run again. The import uses the same `ANTHROPIC_API_KEY` as PDF extraction; no new environment variable is needed. Then use Admin → Catalogue → **Import from a manufacturer website**. See `docs/nextjs/10-WEBSITE-IMPORT.md`. Leave image / document copying off unless you have the manufacturer's permission.
 
+## Hosting on Hostinger with its Supabase connection
+Hostinger's "Connect from your Web App" provides `SUPABASE_URL` and `SUPABASE_API_KEY`. The app accepts these as well as its own names (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`). The rules are in `web/supabase-env.cjs`:
+- `SUPABASE_API_KEY` is passed to the browser only if it is the **public** key (anon / `sb_publishable_…`).
+- If it is the **secret** service-role key (`sb_secret_…`), it is used on the server only. You must then also add the public key as `NEXT_PUBLIC_SUPABASE_ANON_KEY`; the build log warns when it is missing.
+- Admin features that invite staff need the service-role key: add it as `SUPABASE_SERVICE_ROLE_KEY` (never as a `NEXT_PUBLIC_…` variable).
+- Check the connection on the server with `npm run db:check` (runs `web/db.js`: prints `Connected` and one category, never a key).
+- Hostinger rebuilds after each push to the branch it deploys from.
+
 ## Step 8c — New homepage
 Run `supabase/migrations/0013_homepage_sections.sql` (contents, not the file name) and redeploy. The new homepage blocks appear in Admin → Content & settings → Homepage sections, where you can reorder or disable them. Blocks without real data (featured products, brands, certificates, material/standard chips) stay hidden automatically.
 

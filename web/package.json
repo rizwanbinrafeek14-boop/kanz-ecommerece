@@ -10,7 +10,8 @@
     "security:check": "node scripts/security-check.mjs",
     "build:turbo": "next build",
     "predev": "node scripts/copy-pdfjs-assets.mjs",
-    "prebuild": "node scripts/copy-pdfjs-assets.mjs"
+    "prebuild": "node scripts/copy-pdfjs-assets.mjs",
+    "db:check": "node db.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.133.0",
