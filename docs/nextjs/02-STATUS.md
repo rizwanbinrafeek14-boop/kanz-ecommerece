@@ -144,7 +144,7 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
   - `minimatch` 11.0.4 for the TypeScript linter and `readdir-glob`;
   - `glob` 14 for `archiver-utils`;
   - `unzipper` 0.12 for `exceljs`, which removes the old `fstream` / `rimraf` / `glob@7` chain.
-- `exceljs` is now loaded by Node at runtime (`serverExternalPackages` in `next.config.ts`).
+- `exceljs` is now loaded by Node at runtime (`serverExternalPackages` in `next.config.mjs`).
 - Tested: Excel export, re-import of the exported file, Excel streaming reader, archive globbing, lint and build.
 - **Remaining (development tools only, not shipped to the website):**
   - `minimatch` 3.1.5 inside ESLint's React / import / accessibility plugins and `@eslint/eslintrc`. Their latest releases still require it, and it cannot be forced to 11 because they call the old API.

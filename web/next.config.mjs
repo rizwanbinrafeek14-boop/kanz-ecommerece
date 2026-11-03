@@ -1,5 +1,8 @@
-import type { NextConfig } from "next";
-import { resolveSupabaseEnv } from "./supabase-env.cjs";
+// Plain JavaScript (not next.config.ts) so Node loads it directly: a TypeScript config has to be compiled first, which
+// fails on build hosts where Next's native compiler cannot run (e.g. Hostinger: system glibc older than 2.29).
+import supabaseEnv from "./supabase-env.cjs";
+
+const { resolveSupabaseEnv } = supabaseEnv;
 
 // Supabase settings from this app's variable names or from Hostinger's Supabase integration (SUPABASE_URL / SUPABASE_API_KEY).
 // Only the URL and a PUBLIC key are passed to the browser; a secret key is never exposed (see supabase-env.cjs).
@@ -23,7 +26,8 @@ const csp = [
 // The admin catalogue importer renders PDFs in the browser with PDF.js, whose image decoders are WebAssembly.
 const adminCsp = csp.replace("script-src 'self' 'unsafe-inline'", "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'");
 
-const nextConfig: NextConfig = {
+/** @type {import("next").NextConfig} */
+const nextConfig = {
   // the public Supabase settings, whichever names the host provides them under
   env: { ...(sb.url ? { NEXT_PUBLIC_SUPABASE_URL: sb.url } : {}), ...(sb.anonKey ? { NEXT_PUBLIC_SUPABASE_ANON_KEY: sb.anonKey } : {}) },
   // Small hosts (e.g. Hostinger Node.js apps) limit processes/memory during build: keep the build single-worker.
