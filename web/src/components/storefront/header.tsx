@@ -2,7 +2,7 @@ import Link from "next/link";
 import { TrackedLink } from "./tracked-link";
 import Image from "next/image";
 import { Suspense } from "react";
-import { Phone, Mail, ChevronDown } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 import { buildTree, getCategories, getAnnouncements } from "@/lib/queries/catalog";
 import { getSettings, s } from "@/lib/settings";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -13,6 +13,7 @@ import { LangSwitch } from "./lang-switch";
 import { AccountMenu } from "./account-menu";
 import { CartButtons } from "./cart-button";
 import { MobileMenu } from "./mobile-menu";
+import { CategoryBar, CategoryMegaMenu, type NavCategory } from "./category-nav";
 import { SocialLinks } from "@/components/social-icon";
 import { getContact } from "@/lib/queries/contact";
 
@@ -22,6 +23,8 @@ export async function Header({ lang }: { lang: Locale }) {
   const tree = buildTree(cats);
   const nm = (c: { name_en: string; name_ar: string | null }) => (lang === "ar" && c.name_ar ? c.name_ar : c.name_en);
   const announcement = announcements[0];
+  const nav: NavCategory[] = tree.map((c) => ({ id: c.id, href: `/${lang}/category/${c.slug}`, name: nm(c), image: publicUrl("category-images", c.image_path),
+    children: c.children.map((ch) => ({ id: ch.id, href: `/${lang}/category/${ch.slug}`, name: nm(ch) })) }));
 
   return (
     <header className="sticky top-0 z-40 shadow-md">
@@ -63,33 +66,8 @@ export async function Header({ lang }: { lang: Locale }) {
       {/* Category bar + mega menu (CSS-only: opens on hover and keyboard focus) */}
       <nav className="hidden border-b bg-white lg:block" aria-label="Categories">
         <div className="mx-auto flex max-w-7xl items-stretch px-4">
-          <div className="group relative">
-            <button className="flex h-12 items-center gap-2 bg-primary px-5 text-sm font-semibold text-white">
-              {dict.nav.categories} <ChevronDown className="size-4" />
-            </button>
-            <div className="invisible absolute start-0 top-full z-50 w-[min(1100px,92vw)] border bg-white opacity-0 shadow-2xl transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-              <div className="grid max-h-[70vh] grid-cols-3 gap-x-6 gap-y-5 overflow-y-auto p-6 xl:grid-cols-4">
-                {tree.map((c) => (
-                  <div key={c.id}>
-                    <Link href={`/${lang}/category/${c.slug}`} className="mb-1.5 flex items-center gap-2 font-semibold text-ink hover:text-primary">
-                      {c.image_path && <Image src={publicUrl("category-images", c.image_path)!} alt="" width={28} height={28} className="size-7 rounded object-contain" unoptimized />}
-                      {nm(c)}
-                    </Link>
-                    <ul className="space-y-0.5 border-s ps-3">
-                      {c.children.slice(0, 8).map((ch) => (
-                        <li key={ch.id}><Link href={`/${lang}/category/${ch.slug}`} className="text-sm text-muted-foreground hover:text-primary">{nm(ch)}</Link></li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <ul className="flex flex-1 items-center gap-1 overflow-hidden ps-3 text-sm font-medium">
-            {tree.slice(0, 4).map((c, i) => (
-              <li key={c.id} className={i === 3 ? "hidden xl:block" : undefined}><Link href={`/${lang}/category/${c.slug}`} className="block whitespace-nowrap px-3 py-3.5 hover:text-primary">{nm(c)}</Link></li>
-            ))}
-          </ul>
+          <CategoryMegaMenu label={dict.nav.categories} viewAll={dict.common.viewAll} tree={nav} />
+          <CategoryBar more={dict.nav.more} tree={nav} />
           <Link href={`/${lang}/quality`} className="mx-1 flex items-center whitespace-nowrap px-3 text-sm font-medium hover:text-primary">{dict.nav.quality}</Link>
           <Link href={`/${lang}/rfq`} className="my-2 flex items-center rounded-md bg-ink px-4 text-sm font-semibold text-white hover:bg-ink-soft">{dict.nav.rfq}</Link>
         </div>

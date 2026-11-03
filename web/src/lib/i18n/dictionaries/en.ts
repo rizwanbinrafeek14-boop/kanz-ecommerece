@@ -9,7 +9,7 @@ const en = {
     noResults: "No results found.", page: "Page", of: "of", home: "Home", all: "All", sortBy: "Sort by",
   },
   nav: {
-    products: "Products", categories: "All categories", rfq: "Request a Quote", about: "About Us", contact: "Contact",
+    products: "Products", categories: "All categories", more: "More", rfq: "Request a Quote", about: "About Us", contact: "Contact",
     account: "Account", signIn: "Sign in", signOut: "Sign out", register: "Create account", cart: "Cart", myOrders: "My orders", myQuotes: "My quotations",
     profile: "Profile", whatsapp: "WhatsApp", quote: "Quote", quality: "Quality & Certifications", call: "Call us", contactUs: "Contact us", followUs: "Follow us",
   },

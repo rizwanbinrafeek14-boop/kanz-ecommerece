@@ -11,7 +11,7 @@ const ar: Dictionary = {
     noResults: "لا توجد نتائج.", page: "صفحة", of: "من", home: "الرئيسية", all: "الكل", sortBy: "ترتيب حسب",
   },
   nav: {
-    products: "المنتجات", categories: "جميع الفئات", rfq: "اطلب عرض سعر", about: "من نحن", contact: "اتصل بنا",
+    products: "المنتجات", categories: "جميع الفئات", more: "المزيد", rfq: "اطلب عرض سعر", about: "من نحن", contact: "اتصل بنا",
     account: "الحساب", signIn: "تسجيل الدخول", signOut: "تسجيل الخروج", register: "إنشاء حساب", cart: "السلة", myOrders: "طلباتي", myQuotes: "عروض الأسعار",
     profile: "الملف الشخصي", whatsapp: "واتساب", quote: "عرض سعر", quality: "الجودة والشهادات", call: "اتصل بنا", contactUs: "تواصل معنا", followUs: "تابعنا",
   },
