@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
+import { cached } from "@/lib/cache";
 import type { SocialLinkRow } from "@/components/social-icon";
 
 export interface ContactWidget {
@@ -9,13 +10,13 @@ export interface ContactWidget {
 }
 
 /** Contact widget + active social links, cached per request. Degrades to "nothing shown" if Supabase (or migration 0010) is missing. */
-export const getContact = cache(async (): Promise<{ widget: ContactWidget | null; links: SocialLinkRow[] }> => {
+export const getContact = cache(cached(async (): Promise<{ widget: ContactWidget | null; links: SocialLinkRow[] }> => {
   const sb = createPublicClient(); if (!sb) return { widget: null, links: [] };
   try {
     const [w, l] = await Promise.all([sb.from("contact_widget").select("*").eq("id", 1).maybeSingle(), sb.from("social_links").select("*").eq("is_active", true).order("sort_order")]);
     return { widget: (w.data as ContactWidget | null) ?? null, links: (l.data ?? []) as SocialLinkRow[] };
   } catch { return { widget: null, links: [] }; }
-});
+}, "contact"));
 
 /** WhatsApp number (digits, international) used for product enquiries: the admin widget if enabled, otherwise the legacy company setting. */
 export function whatsappNumber(widget: ContactWidget | null, legacy: string): string {

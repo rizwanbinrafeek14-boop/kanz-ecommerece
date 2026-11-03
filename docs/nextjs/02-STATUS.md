@@ -198,6 +198,18 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
     - **Search engines** see the first 20 rows of each large table. The full tables remain in the datasheet PDF.
     - **Tested locally:** 11 browser checks (`light.mjs`), plus the existing product-page, gasket and family suites.
 
+## Speed fix: pages that took a while to load (Nov 2026)
+- **Cause:** category, product list, search, brand and RFQ pages are built per visit, because they depend on filters or the session. Each one made 9–20 separate Supabase requests per visit. About half of those requests were for the same site-wide data (settings, menus, footer links, contact details, category tree, announcements). On the live host every request is a network round trip to Supabase, so these pages took seconds.
+- **Fix 1: server cache** (`web/src/lib/cache.ts`).
+  - **What is cached:** public catalogue and site data — never anything per customer.
+  - **Refresh:** every 60 seconds, and immediately when an admin saves.
+  - **Result** (measured locally with a simulated 100 ms network delay): these pages went from 0.40–0.71 s to 0.03–0.06 s on repeat visits; a filter combination opened for the first time takes about 0.14 s.
+- **Fix 2: session checks only where needed.** The middleware (`web/src/proxy.ts`) used to check the login session with Supabase on every request and link prefetch. It now does this only for admin, API, account, checkout and RFQ pages, and for form submissions.
+- **Hosting checks** (outside the code; these still matter on the first, uncached visit):
+  - Choose a Supabase region close to the Hostinger server.
+  - The Hostinger Node.js plan's CPU limits affect render time.
+  - Images are served straight from Supabase Storage.
+
 ## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
 - `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.
 - **Patched with npm overrides in `web/package.json`** (no upstream releases with the fix exist yet):
