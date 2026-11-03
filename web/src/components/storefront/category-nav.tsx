@@ -30,14 +30,16 @@ function useDisclosure() {
   const rootProps = { ref: root as React.RefObject<never>, onPointerEnter: hover(true), onPointerLeave: hover(false),
     // leaving the menu with the keyboard closes it
     onBlur: (e: React.FocusEvent) => { if (!root.current?.contains(e.relatedTarget as Node)) setOpen(false); } };
-  return { open, setOpen, button, rootProps };
+  // a click wins over a hover timer still pending from the pointer arriving (otherwise a quick click-to-close reopens 80 ms later)
+  const toggle = () => { if (hoverTimer.current) clearTimeout(hoverTimer.current); setOpen((o) => !o); };
+  return { open, setOpen, toggle, button, rootProps };
 }
 
 export function CategoryMegaMenu({ label, viewAll, tree }: { label: string; viewAll: string; tree: NavCategory[] }) {
-  const { open, setOpen, button, rootProps } = useDisclosure(); const id = React.useId();
+  const { open, setOpen, toggle, button, rootProps } = useDisclosure(); const id = React.useId();
   return (
     <div className="relative" {...rootProps}>
-      <button ref={button} type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen((o) => !o)} data-mega-menu
+      <button ref={button} type="button" aria-expanded={open} aria-controls={id} onClick={toggle} data-mega-menu
         className="flex h-12 items-center gap-2 bg-primary px-5 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
         {label} <ChevronDown className={cn("size-4 transition-transform motion-reduce:transition-none", open && "rotate-180")} aria-hidden="true" />
       </button>
@@ -63,7 +65,7 @@ export function CategoryMegaMenu({ label, viewAll, tree }: { label: string; view
 
 /** Top-level categories in the bar; the ones that do not fit (by screen width) are listed under "More". */
 export function CategoryBar({ more, tree }: { more: string; tree: NavCategory[] }) {
-  const { open, setOpen, button, rootProps } = useDisclosure(); const id = React.useId();
+  const { open, setOpen, toggle, button, rootProps } = useDisclosure(); const id = React.useId();
   // xl screens show 4 categories in the bar, lg screens 3; "More" lists the rest (the 4th only on lg)
   const rest = tree.slice(3);
   return (
@@ -74,7 +76,7 @@ export function CategoryBar({ more, tree }: { more: string; tree: NavCategory[] 
       {rest.length > 0 && (
         // with only 4 categories, xl screens show them all in the bar and need no "More"
         <li className={cn("relative", tree.length <= 4 && "xl:hidden")} {...rootProps}>
-          <button ref={button} type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen((o) => !o)} data-more-menu
+          <button ref={button} type="button" aria-expanded={open} aria-controls={id} onClick={toggle} data-more-menu
             className="flex items-center gap-1 whitespace-nowrap px-3 py-3.5 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             {more} <ChevronDown className={cn("size-4 transition-transform motion-reduce:transition-none", open && "rotate-180")} aria-hidden="true" />
           </button>
