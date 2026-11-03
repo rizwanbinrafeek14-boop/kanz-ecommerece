@@ -3054,6 +3054,255 @@ $$;
 revoke all on function products_by_source_keys(uuid, text[]) from public, anon;
 grant execute on function products_by_source_keys(uuid, text[]) to authenticated;
 
+-- ═════════ 0022_facets.sql ═════════
+-- 0022 Filter counts that respect the other active filters (additive replacement of product_facets).
+-- * Each filter group is counted with every OTHER active filter applied, but not its own: choosing "Class 3000" still shows
+--   how many results "Class 6000" would give, while the Size, Material, Brand … counts shrink to what is actually available.
+-- * Search text uses the same word matching as the results (product_matches_query, migration 0019), not a phrase match.
+-- * Availability (in stock / priced / quote only) and the featured / new / offer flags are applied like in search_products.
+-- The old 3-argument version is replaced; calls with only the first 3 arguments keep working through the defaults.
+
+drop function if exists product_facets(text, uuid, uuid);
+create or replace function product_facets(p_q text default null, p_category uuid default null, p_brand uuid default null,
+  p_filters jsonb default '{}'::jsonb, p_availability text default null, p_flag text default null)
+returns table (attr_key text, attr_name_en text, attr_name_ar text, value_en text, value_ar text, n bigint, label_en text, sort_key text)
+language sql stable as $$
+  with ctx as (   -- '*' = all filters; one more context per active filter group, without that group
+    select '*'::text as c, coalesce(p_filters, '{}'::jsonb) as f
+    union all
+    select k, coalesce(p_filters, '{}'::jsonb) - k from jsonb_object_keys(coalesce(p_filters, '{}'::jsonb)) k
+    where jsonb_typeof(p_filters->k) = 'array' and jsonb_array_length(p_filters->k) > 0
+  ),
+  base as (
+    select p.id, coalesce(product_listing_family(p.id), p.id) as entry, p.brand_id from products p
+    where p.status = 'published'
+      and (p_category is null or p.category_id in (select category_descendants(p_category)))
+      and (p_brand is null or p.brand_id = p_brand)
+      and (nullif(trim(p_q), '') is null or product_matches_query(p.id, trim(p_q)))
+      and (p_flag is null or (p_flag = 'featured' and p.is_featured) or (p_flag = 'new' and p.is_new_arrival) or (p_flag = 'offer' and p.is_special_offer))
+      and (p_availability is null
+           or (p_availability = 'quote_only' and p.is_quote_only)
+           or (p_availability = 'priced' and not p.is_quote_only)
+           or (p_availability = 'in_stock' and exists (select 1 from variant_availability va where va.product_id = p.id and va.available > 0)))
+  ),
+  scope as (   -- the products of each context (same filter rules as search_products)
+    select x.c, b.id, b.entry, b.brand_id from ctx x cross join base b
+    where product_matches_filters(b.id, x.f)
+      and not exists (
+        select 1 from jsonb_each(x.f) f
+        where f.key not in ('material', 'size', 'connection', 'pressure_class', 'brand', 'standard')
+          and jsonb_typeof(f.value) = 'array' and jsonb_array_length(f.value) > 0
+          and not exists (
+            select 1 from product_attribute_values a join attribute_defs d on d.id = a.attribute_id
+            where a.product_id = b.id and d.key = f.key and a.value_en in (select jsonb_array_elements_text(f.value))))
+  ),
+  raw as (
+    select 'material' k, mt.code v, mt.name_en le, coalesce(mt.name_ar, mt.name_en) la, lpad(mt.sort_order::text, 5, '0') sk, s.entry, s.c
+      from scope s join product_materials pm on pm.product_id = s.id and pm.status in ('auto','verified') join material_types mt on mt.code = pm.material_code
+    union all
+    select 'material', mt.code, mt.name_en, coalesce(mt.name_ar, mt.name_en), lpad(mt.sort_order::text, 5, '0'), s.entry, s.c
+      from scope s join product_variants v on v.product_id = s.id and v.is_active join material_types mt on mt.code = v.material_code
+    union all
+    select 'brand', b.name, b.name, coalesce(b.name_ar, b.name), lower(b.name), s.entry, s.c from scope s join brands b on b.id = s.brand_id
+    union all
+    select 'size', variant_size_key(v.options, v.size), variant_size_key(v.options, v.size) || '"', variant_size_key(v.options, v.size) || '"', '', s.entry, s.c
+      from scope s join product_variants v on v.product_id = s.id and v.is_active where variant_size_key(v.options, v.size) is not null
+    union all
+    select 'size', norm_size(a.value_en), norm_size(a.value_en) || '"', norm_size(a.value_en) || '"', '', s.entry, s.c
+      from scope s join product_attribute_values a on a.product_id = s.id join attribute_defs d on d.id = a.attribute_id and d.key = 'size'
+      where not exists (select 1 from product_variants v where v.product_id = s.id and v.is_active) and norm_size(a.value_en) is not null
+    union all
+    select 'connection', v.options->>'connection', coalesce(ov.label_en, v.options->>'connection'), coalesce(ov.label_ar, ov.label_en, v.options->>'connection'), v.options->>'connection', s.entry, s.c
+      from scope s join product_variants v on v.product_id = s.id and v.is_active
+      left join lateral (select x.label_en, x.label_ar from product_options o join product_option_values x on x.option_id = o.id
+                         where o.product_id = s.id and o.key = 'connection' and x.value = v.options->>'connection' limit 1) ov on true
+      where v.options ? 'connection'
+    union all
+    select 'pressure_class', variant_class_key(v.options, v.pressure_class),
+           case when variant_class_key(v.options, v.pressure_class) ~ '^\d+$' then 'Class ' || variant_class_key(v.options, v.pressure_class) else variant_class_key(v.options, v.pressure_class) end,
+           case when variant_class_key(v.options, v.pressure_class) ~ '^\d+$' then 'فئة ' || variant_class_key(v.options, v.pressure_class) else variant_class_key(v.options, v.pressure_class) end,
+           '', s.entry, s.c
+      from scope s join product_variants v on v.product_id = s.id and v.is_active where variant_class_key(v.options, v.pressure_class) is not null
+    union all
+    select 'standard', v.options->>'standard', coalesce(ov.label_en, v.options->>'standard'), coalesce(ov.label_ar, ov.label_en, v.options->>'standard'), v.options->>'standard', s.entry, s.c
+      from scope s join product_variants v on v.product_id = s.id and v.is_active
+      left join lateral (select x.label_en, x.label_ar from product_options o join product_option_values x on x.option_id = o.id
+                         where o.product_id = s.id and o.key = 'standard' and x.value = v.options->>'standard' limit 1) ov on true
+      where coalesce(v.options->>'standard', 'na') <> 'na'
+    union all
+    select d.key, a.value_en, a.value_en, coalesce(a.value_ar, a.value_en), lpad(d.sort_order::text, 5, '0'), s.entry, s.c
+      from scope s join product_attribute_values a on a.product_id = s.id join attribute_defs d on d.id = a.attribute_id and d.is_filterable
+      where d.key not in ('material', 'size', 'pressure_class', 'brand')
+  )
+  select r.k, coalesce(d.name_en, initcap(replace(r.k, '_', ' '))), d.name_ar, r.v, max(r.la), count(distinct r.entry), max(r.le), max(r.sk)
+  from raw r left join attribute_defs d on d.key = r.k
+  -- a group is counted in its own context (all other filters applied); groups without an active filter use the full filter set
+  where r.v is not null and (r.c = r.k or (r.c = '*' and r.k not in (select c from ctx where c <> '*')))
+  group by r.k, d.name_en, d.name_ar, r.v
+  order by case r.k when 'gasket_family' then 0 when 'material' then 1 when 'brand' then 2 when 'size' then 3 when 'connection' then 4 when 'pressure_class' then 5 when 'standard' then 6 when 'gasket_standard' then 7 else 9 end, r.k, max(r.sk), r.v
+$$;
+grant execute on function product_facets(text,uuid,uuid,jsonb,text,text) to anon, authenticated;
+
+-- ═════════ 0023_rfq_attachments.sql ═════════
+-- 0023 Files on quotation requests (additive). The rfq_attachments table and the private rfq-attachments bucket exist
+-- since 0002 / 0004; this adds the file size and the detected type, and lets the bucket take the files buyers usually send:
+-- drawings and datasheets (PDF, images) and bills of quantities (Excel, CSV, Word).
+-- Uploads go through the application (a one-time signed upload URL for the holder of the RFQ's access token, at most
+-- 5 files of up to 10 MB within an hour of submitting); the bucket stays private: staff read files through signed URLs.
+alter table rfq_attachments
+  add column if not exists size_bytes int check (size_bytes is null or size_bytes between 1 and 10485760),
+  add column if not exists content_type text;
+create index if not exists rfq_attachments_rfq_idx on rfq_attachments(rfq_id);
+
+update storage.buckets set public = false, file_size_limit = 10485760, allowed_mime_types = array[
+  'application/pdf', 'image/jpeg', 'image/png', 'image/webp',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword']
+where id = 'rfq-attachments';
+
+-- ═════════ 0024_rfq_owner.sql ═════════
+-- 0024: an owner (sales person) per quotation request, for the admin list's owner / age filters and export.
+-- Additive and safe to run again.
+alter table rfqs
+  add column if not exists assigned_to uuid references profiles(id) on delete set null,
+  add column if not exists assigned_at timestamptz;
+create index if not exists rfqs_assigned_idx on rfqs(assigned_to) where assigned_to is not null;
+create index if not exists rfqs_status_created_idx on rfqs(status, created_at);
+
+-- The owner must be an active staff member; assigned_at follows the owner.
+create or replace function rfq_owner_guard() returns trigger language plpgsql set search_path = public as $$
+begin
+  if tg_op = 'INSERT' or new.assigned_to is distinct from old.assigned_to then
+    if new.assigned_to is not null and not exists (select 1 from profiles where id = new.assigned_to and is_active and role in ('staff','admin')) then
+      raise exception 'The owner must be an active staff member' using errcode = '23514';
+    end if;
+    new.assigned_at := case when new.assigned_to is null then null else now() end;
+  end if;
+  return new;
+end $$;
+drop trigger if exists rfqs_owner_guard on rfqs;
+create trigger rfqs_owner_guard before insert or update of assigned_to on rfqs for each row execute function rfq_owner_guard();
+
+-- ═════════ 0025_data_quality.sql ═════════
+-- 0025: data-quality queue for staff. One function lists what each product is missing; staff can mark an item
+-- "fine as it is" (dismissed), which hides it until undone. Additive and safe to run again.
+create table if not exists data_quality_dismissed (
+  product_id uuid not null references products(id) on delete cascade,
+  check_code text not null,
+  dismissed_by uuid references profiles(id) on delete set null,
+  dismissed_at timestamptz not null default now(),
+  primary key (product_id, check_code)
+);
+alter table data_quality_dismissed enable row level security;
+drop policy if exists "dq dismissed staff" on data_quality_dismissed;
+create policy "dq dismissed staff" on data_quality_dismissed for all using (is_staff()) with check (is_staff());
+grant select, insert, delete on data_quality_dismissed to authenticated;
+
+-- Checks (code · severity 1 = must fix before it misleads a buyer, 2 = should fix, 3 = nice to have):
+--   unpriced      1  published, can be bought (not quote-only) but has no price on the product or any size
+--   no_category   1  not in any category (cannot be found by browsing)
+--   no_photo      2  no image at all (placeholder drawing shown)
+--   no_name_ar    2  no Arabic name
+--   thin_text     2  description and short description together under 40 characters
+--   temp_photo    3  only a temporary catalogue image or drawing
+--   no_brand      3  no brand / manufacturer
+--   materials     3  material suggestions waiting for review
+--   old_draft     3  draft not touched for 30 days
+create or replace function admin_data_quality(p_include_dismissed boolean default false)
+returns table (product_id uuid, slug text, name text, status text, check_code text, severity int, dismissed boolean, updated_at timestamptz)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not is_staff() then raise exception 'Staff only' using errcode = '42501'; end if;
+  return query
+  with issues as (
+    select p.id, 'unpriced'::text as code, 1 as sev from products p
+      where p.status = 'published' and not p.is_quote_only and p.base_price is null
+        and not exists (select 1 from product_variants v where v.product_id = p.id and v.price is not null)
+    union all select p.id, 'no_category', 1 from products p where p.category_id is null and p.status <> 'archived'
+    union all select p.id, 'no_photo', 2 from products p where p.image_status = 'none' and p.status <> 'archived'
+    union all select p.id, 'no_name_ar', 2 from products p where coalesce(btrim(p.name_ar), '') = '' and p.status <> 'archived'
+    union all select p.id, 'thin_text', 2 from products p
+      where length(coalesce(p.description_en, '') || coalesce(p.short_desc_en, '')) < 40 and p.status <> 'archived'
+    union all select p.id, 'temp_photo', 3 from products p where p.image_status = 'temporary' and p.status <> 'archived'
+    union all select p.id, 'no_brand', 3 from products p where p.brand_id is null and p.status <> 'archived'
+    union all select p.id, 'materials', 3 from products p
+      where exists (select 1 from product_materials m where m.product_id = p.id and m.status = 'unverified') and p.status <> 'archived'
+    union all select p.id, 'old_draft', 3 from products p where p.status = 'draft' and p.updated_at < now() - interval '30 days'
+  )
+  select p.id, p.slug, p.name_en, p.status::text, i.code, i.sev, (d.product_id is not null), p.updated_at
+  from issues i join products p on p.id = i.id
+  left join data_quality_dismissed d on d.product_id = i.id and d.check_code = i.code
+  where p_include_dismissed or d.product_id is null
+  order by i.sev, (p.status = 'published') desc, p.name_en;
+end $$;
+revoke all on function admin_data_quality(boolean) from public, anon;
+grant execute on function admin_data_quality(boolean) to authenticated;
+
+-- ═════════ 0026_undo_catalogue_import.sql ═════════
+-- 0026: undo a catalogue import run. Removes only products that are still exactly as the import left them:
+-- never published, still a draft, not edited afterwards (product, sizes, images, documents, materials, costs, certificates,
+-- audit log) and not used anywhere (quotation requests, orders, stock, other products' related links).
+-- Everything else is kept and reported with the reason. The extracted records go back to "approved" so they can be
+-- imported again. Returns the storage files that no remaining row uses, for the app to delete. Additive, safe to re-run.
+alter table catalogue_import_runs add column if not exists undone_at timestamptz, add column if not exists undone_by uuid references profiles(id) on delete set null;
+
+create or replace function catalogue_undo_import(p_run uuid, p_dry_run boolean default true) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  r catalogue_import_runs; t timestamptz; pid uuid; reason text; nm text;
+  gone jsonb := '[]'; kept jsonb := '[]'; files jsonb := '[]'; ids uuid[] := '{}';
+begin
+  if not is_staff() then raise exception 'Staff only' using errcode = '42501'; end if;
+  select * into r from catalogue_import_runs where id = p_run for update;
+  if r.id is null then raise exception 'Import run not found'; end if;
+  if r.undone_at is not null then raise exception 'This import was already undone'; end if;
+  t := r.created_at;
+  for pid in select (jsonb_array_elements_text(coalesce(r.summary->'product_ids', '[]')))::uuid loop
+    select name_en into nm from products where id = pid;
+    if nm is null then continue; end if;   -- already deleted by hand
+    reason := case
+      when exists (select 1 from products where id = pid and (status <> 'draft' or published_at is not null)) then 'has been published'
+      when exists (select 1 from products where id = pid and updated_at > t) then 'edited after the import'
+      when exists (select 1 from product_variants where product_id = pid and (updated_at > t or created_at > t)) then 'sizes edited after the import'
+      when exists (select 1 from product_images where product_id = pid and (updated_at > t or created_at > t)) then 'images changed after the import'
+      when exists (select 1 from product_documents where product_id = pid and created_at > t) then 'documents added after the import'
+      when exists (select 1 from product_materials where product_id = pid and (updated_at > t or edited_by_admin)) then 'materials reviewed after the import'
+      when exists (select 1 from product_certifications where product_id = pid) then 'certificates assigned'
+      when exists (select 1 from product_costs where product_id = pid)
+        or exists (select 1 from variant_costs c join product_variants v on v.id = c.variant_id where v.product_id = pid) then 'purchase costs entered'
+      when exists (select 1 from audit_log a where a.created_at > t and (a.entity_id = pid::text or a.detail->'ids' ? pid::text)) then 'edited after the import'
+      when exists (select 1 from rfq_items where product_id = pid) or exists (select 1 from rfq_items i join product_variants v on v.id = i.variant_id where v.product_id = pid) then 'used in a quotation request'
+      when exists (select 1 from order_items where product_id = pid) or exists (select 1 from order_items i join product_variants v on v.id = i.variant_id where v.product_id = pid) then 'used in an order'
+      when exists (select 1 from stock_movements m join product_variants v on v.id = m.variant_id where v.product_id = pid)
+        or exists (select 1 from stock_levels s join product_variants v on v.id = s.variant_id where v.product_id = pid and (s.on_hand <> 0 or s.reserved <> 0)) then 'has stock records'
+      else null end;
+    if reason is null and exists (select 1 from product_relations where related_id = pid
+        and product_id not in (select (jsonb_array_elements_text(coalesce(r.summary->'product_ids', '[]')))::uuid)) then reason := 'linked from another product'; end if;
+    if reason is null then gone := gone || jsonb_build_object('id', pid, 'name', nm); ids := ids || pid;
+    else kept := kept || jsonb_build_object('id', pid, 'name', nm, 'reason', reason); end if;
+  end loop;
+  if p_dry_run or cardinality(ids) = 0 then return jsonb_build_object('remove', gone, 'keep', kept, 'files', '[]'::jsonb); end if;
+
+  -- files of the removed products, kept only if another row still uses them
+  with f(bucket, path) as (
+    select 'product-images', x from product_images i, unnest(array[i.storage_path, i.thumb_path, i.previous_path, i.previous_thumb_path]) x where i.product_id = any(ids) and x is not null
+    union select 'product-images', drawing_path from dimension_tables where product_id = any(ids) and drawing_path is not null
+    union select 'product-docs', storage_path from product_documents where product_id = any(ids) and storage_path is not null
+  ) select coalesce(jsonb_agg(distinct jsonb_build_object('bucket', bucket, 'path', path)), '[]') into files from f;
+  update extracted_products set status = 'approved', updated_at = now() where imported_product_id = any(ids);
+  delete from products where id = any(ids);
+  select coalesce(jsonb_agg(x), '[]') into files from jsonb_array_elements(files) x
+    where not exists (select 1 from product_images i where x->>'path' in (i.storage_path, i.thumb_path, i.previous_path, i.previous_thumb_path))
+      and not exists (select 1 from dimension_tables d where d.drawing_path = x->>'path')
+      and not exists (select 1 from product_documents d where d.storage_path = x->>'path')
+      and not exists (select 1 from product_families pf where pf.image_path = x->>'path');
+  update catalogue_import_runs set undone_at = now(), undone_by = auth.uid(),
+    summary = summary || jsonb_build_object('undo', jsonb_build_object('removed', cardinality(ids), 'kept', kept)) where id = p_run;
+  return jsonb_build_object('remove', gone, 'keep', kept, 'files', files);
+end $$;
+revoke all on function catalogue_undo_import(uuid, boolean) from public, anon;
+grant execute on function catalogue_undo_import(uuid, boolean) to authenticated;
+
 -- ═════════ seed.sql ═════════
 -- Seed: structure only. NO products, prices, stock, certifications or SKUs are invented.
 

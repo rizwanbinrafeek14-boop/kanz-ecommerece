@@ -138,6 +138,66 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
   - 73 browser checks against a fictional test site, with a stand-in for the Claude API;
   - SQL test T37.
 
+## Added later: improvement round (migrations 0022–0026)
+1. **Smoke checks fixed:** the site now has a real `favicon.ico` and `apple-icon.png`. The expected 404 on `/en/nonexistent` is no longer reported as an error.
+2. **All categories in the main menu.**
+   - The desktop bar shows the first 3–4 categories plus **More** for the rest.
+   - Menus open by click, hover or keyboard and close with Escape.
+   - Mega menus with more than 8 children get a "View all" link. Mobile and Arabic are covered.
+3. **Facet counts respect other filters** (migration 0022, `product_facets` with filters).
+   - Each filter group is counted with every other active filter applied, but not its own, so choosing a value still shows how many products the alternatives would give.
+   - Selected values stay visible even at 0.
+4. **Files on quotation requests** (migration 0023):
+   - **Form:** customers can attach up to 5 drawings, datasheets or BOQs (PDF, JPG, PNG, WebP, Excel, CSV, Word; 10 MB each) to the RFQ form.
+   - **Adding later:** further files can be added on the quotation page for one hour after sending.
+   - **Upload and checks:** files go straight to the private `rfq-attachments` bucket via one-time signed upload links. The server then checks each file's size and that its content matches its type; a renamed web page or program is deleted and reported to the customer.
+   - **Where files appear:** in the RFQ history, on the customer's quotation page (download needs the RFQ link), and under Admin → RFQ → "Customer files" (links valid 10 minutes).
+   - **Needs** `SUPABASE_SERVICE_ROLE_KEY` on the server.
+   - **Tested locally:** 19 browser checks (`rfqfiles.mjs`).
+5. **Repeat this request** (signed-in customers): a *Repeat* button on My quotations and on the quotation page.
+   - It opens the RFQ form with the earlier lines, specifications and quantities, ready to edit.
+   - Products that are no longer published are kept as plain text (the customer is told how many). A size that is no longer offered is dropped from the line, but the product link stays.
+   - The customer's saved quotation list is not touched.
+   - Database permissions mean only the owner's own requests can be repeated; a guest or another customer gets an empty form.
+   - **Tested locally:** 13 browser checks (`repeat.mjs`).
+6. **Admin quotation list: owner, age, filters, export** (migration 0024):
+   - **Owner:** each request can have an owner (an active staff member). Set it with *Take* in the list or the *Owner* picker on the request page. Every change is recorded in the RFQ history.
+   - **Age:** open requests (submitted / under review) show how long they have waited, amber after 24 h and red after 48 h.
+   - **Filters:** owner (mine / unassigned / a person), status (including "Open"), "waiting over 24 h / 48 h / 7 days", and newest or oldest first.
+   - **Export:** *Excel* and *CSV* export exactly the filtered list (up to 5,000 rows), with waiting hours and owner. Customer-typed text that Excel would treat as a formula is neutralised. Staff only.
+   - **Tested locally:** 22 browser checks (`rfqadmin.mjs`) and SQL test T39 (only staff can be owners; customers cannot change it).
+7. **Data quality queue** (Admin → Catalogue → *Data quality*, migration 0025): lists what each product is still missing, most important first.
+   - **Fix first:** a published, buyable (not quote-only) product with no price on the product or any size; a product without a category.
+   - **Should fix:** no image; no Arabic name; little or no description.
+   - **Nice to have:** only a temporary catalogue image; no brand; materials waiting for review; a draft untouched for 30 days.
+   - **Using it:** cards show counts (and how many are published) and filter the list; there is also a published / draft filter.
+     - *Fix* opens the right tab of the product editor.
+     - *Fine as it is* hides an intentional gap (written to the audit log), and *Undo* brings it back.
+   - The checks are computed by the database, never guessed, and only staff can run them.
+   - **Tested locally:** 16 browser checks (`dq.mjs`) and SQL test T40.
+8. **Dashboard opens with "Today"**, the quotation work first; the shop figures follow below.
+   - **Counters:** new requests today (Riyadh time), waiting over 24 h, open without an owner, mine to quote, accepted and still to convert, and product data to fix first. Each opens the matching filtered list.
+   - **"Needs a quotation":** the 8 oldest open requests, with their waiting time and a *Take* button.
+   - **Quotations expiring within 7 days:** listed for follow-up.
+   - **Acceptance rate:** the 30-day rate (accepted or converted / quoted).
+   - **Tested locally:** 15 browser checks (`today.mjs`).
+9. **Undo a catalogue import** (Admin → Catalogue → a catalogue → Import history → *Undo…*, migration 0026).
+   - **Preview first:** shows which drafts would be removed and which are kept, with the reason.
+   - **Removed:** only products exactly as the import left them — never published, still a draft, not edited since (product, sizes, images, documents, materials, costs, certificates or the audit log), and not used in a quotation request, order, stock record or another product's links.
+   - **After undoing:**
+     - The extracted records return to "approved", so they can be imported again.
+     - Image and document files that nothing else uses are deleted.
+     - The run is marked as undone and cannot be undone twice. The action is in the audit log.
+   - **Tested locally:** 11 browser checks (`undo.mjs`) and SQL test T41.
+10. **Lighter product pages.** The largest pages (gasket families with 250–430 configurations) dropped from 0.8–1.2 MB of HTML to about 0.47–0.56 MB; the spiral wound page went from 1,142 KB to 533 KB.
+    - The variant list is sent once and shared by the gallery, *Your selection*, the dimension tables, the gasket explorer and the configurations list (it used to be sent four times).
+    - Dimension tables over 20 rows arrive with the first 20 rows plus the default configuration's row.
+      - The full table is fetched once from `/api/product/<slug>/dimensions` when needed: *Show all sizes*, or choosing a configuration whose row was not sent. That route serves published products only and is cached.
+      - Small products are unchanged.
+    - *Configurations (n)* is built in the browser and lists every configuration when opened.
+    - **Search engines** see the first 20 rows of each large table. The full tables remain in the datasheet PDF.
+    - **Tested locally:** 11 browser checks (`light.mjs`), plus the existing product-page, gasket and family suites.
+
 ## Dependency security: minimatch advisory GHSA-g3hv-75wg-m249 (Nov 2026)
 - `npm audit --omit=dev` (production dependencies) reports 0 vulnerabilities.
 - **Patched with npm overrides in `web/package.json`** (no upstream releases with the fix exist yet):

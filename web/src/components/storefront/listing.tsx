@@ -39,7 +39,7 @@ export async function Listing({ lang, dict, category, brand, sp, basePath }: { l
   if (brand) delete st.f.brand;   // a brand page is already limited to its brand
   const [{ products, total }, allFacets, cats, banners] = await Promise.all([
     searchProducts({ q: st.q, category: category?.id, filters: brand ? { ...st.f, brand: [brand.name] } : st.f, availability: st.avail, flag: st.flag, sort: st.sort, page: st.page, pageSize: PAGE_SIZE }),
-    getFacets(st.q, category?.id, brand?.id), getCategories(), category ? getBanners("category_top", category.id) : Promise.resolve([]),
+    getFacets(st.q, category?.id, brand?.id, { filters: st.f, availability: st.avail, flag: st.flag }), getCategories(), category ? getBanners("category_top", category.id) : Promise.resolve([]),
   ]);
   // nothing for the exact words: try the same words without sizes / classes / codes, so the customer sees the product type at least
   const looser = !total && st.q ? st.q.split(/\s+/).filter((w) => !/\d/.test(w)).join(" ").trim() : "";

@@ -430,3 +430,61 @@ select count(*) as external_doc from product_documents where external_url = 'htt
 set role anon; select pg_temp.as_user(null);
 select count(*) as anon_sees_draft_doc from product_documents where title = 'ZZ sheet';
 reset role;
+
+\echo '--- T38 filter counts: each group counted with the OTHER active filters, not its own; search words match like the results (expect 2 / 1 / 1 / 1 / 1 / 0)'
+reset role;
+insert into products (id, slug, name_en, status, published_at) values
+  ('58000000-0000-0000-0000-0000000000a1','zzfacet-a','ZZFacet Socket Elbow','published',now()),
+  ('58000000-0000-0000-0000-0000000000a2','zzfacet-b','ZZFacet Socket Tee','published',now());
+insert into product_variants (product_id, sku, options) values
+  ('58000000-0000-0000-0000-0000000000a1','ZZF-A1','{"size":"1/2","class":"3000"}'),
+  ('58000000-0000-0000-0000-0000000000a1','ZZF-A2','{"size":"1","class":"3000"}'),
+  ('58000000-0000-0000-0000-0000000000a2','ZZF-B1','{"size":"1/2","class":"6000"}');
+set role anon; select pg_temp.as_user(null);
+select n as size_half_no_filter from product_facets('zzfacet') where attr_key = 'size' and value_en = '1/2';
+select n as size_half_class3000 from product_facets('zzfacet', null, null, '{"pressure_class":["3000"]}') where attr_key = 'size' and value_en = '1/2';
+select n as class6000_own_group from product_facets('zzfacet', null, null, '{"pressure_class":["3000"]}') where attr_key = 'pressure_class' and value_en = '6000';
+select n as size1_class3000 from product_facets('zzfacet', null, null, '{"pressure_class":["3000"]}') where attr_key = 'size' and value_en = '1';
+select count(*) as words_any_order from product_facets('socket zzfacet') where attr_key = 'size' and value_en = '1/2' and n = 2;
+select count(*) as class6000_size1 from product_facets('zzfacet', null, null, '{"size":["1"]}') where attr_key = 'pressure_class' and value_en = '6000';
+reset role;
+
+\echo '--- T39 RFQ owner: staff can be owner (assigned_at set), a customer cannot, a customer cannot set it (expect true / ERROR owner / 0 rows changed / null)'
+reset role;
+insert into rfqs (id, contact_name, contact_email, user_id) values ('59000000-0000-0000-0000-000000000001', 'Owner test', 'o@test', '00000000-0000-0000-0000-0000000000c1');
+set role authenticated; select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+update rfqs set assigned_to = '00000000-0000-0000-0000-0000000000a1' where id = '59000000-0000-0000-0000-000000000001';
+select assigned_at is not null as staff_owner_set from rfqs where id = '59000000-0000-0000-0000-000000000001';
+update rfqs set assigned_to = '00000000-0000-0000-0000-0000000000c2' where id = '59000000-0000-0000-0000-000000000001';
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
+with u as (update rfqs set assigned_to = null where id = '59000000-0000-0000-0000-000000000001' returning 1) select count(*) as customer_changed from u;
+reset role; update rfqs set assigned_to = null where id = '59000000-0000-0000-0000-000000000001';
+select assigned_at as cleared_assigned_at from rfqs where id = '59000000-0000-0000-0000-000000000001';
+
+\echo '--- T40 data quality: staff see issues incl. unpriced buyable product; dismissal hides it; customers refused (expect unpriced 1 / after dismiss 0 / with dismissed 1 / ERROR staff only / 0 rows)'
+reset role;
+insert into products (id, slug, name_en, status, is_quote_only, published_at) values ('60000000-0000-0000-0000-000000000001', 'zzdq-unpriced', 'ZZDQ unpriced', 'published', false, now());
+set role authenticated; select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+select count(*) as unpriced from admin_data_quality() where slug = 'zzdq-unpriced' and check_code = 'unpriced';
+insert into data_quality_dismissed (product_id, check_code) values ('60000000-0000-0000-0000-000000000001', 'unpriced');
+select count(*) as after_dismiss from admin_data_quality() where slug = 'zzdq-unpriced' and check_code = 'unpriced';
+select count(*) as with_dismissed from admin_data_quality(true) where slug = 'zzdq-unpriced' and check_code = 'unpriced' and dismissed;
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
+select count(*) from admin_data_quality();
+select count(*) as customer_sees_dismissals from data_quality_dismissed;
+reset role;
+
+\echo '--- T41 undo import: untouched draft removed, published one kept; customers refused; no second undo (expect 1 removed / 1 kept / ERROR staff only / ERROR already undone)'
+reset role;
+insert into catalogue_sources (id, title) values ('61000000-0000-0000-0000-000000000001', 'T41');
+insert into products (id, slug, name_en, status, updated_at) values
+  ('61000000-0000-0000-0000-0000000000a1', 'zzt41-a', 'T41 a', 'draft', now() - interval '1 minute'),
+  ('61000000-0000-0000-0000-0000000000a2', 'zzt41-b', 'T41 b', 'published', now() - interval '1 minute');
+insert into catalogue_import_runs (id, source_id, summary, created_at) values ('61000000-0000-0000-0000-0000000000f1', '61000000-0000-0000-0000-000000000001',
+  '{"imported": 2, "product_ids": ["61000000-0000-0000-0000-0000000000a1", "61000000-0000-0000-0000-0000000000a2"]}', now());
+set role authenticated; select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
+select catalogue_undo_import('61000000-0000-0000-0000-0000000000f1', false);
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+select jsonb_array_length(x->'remove') as removed, jsonb_array_length(x->'keep') as kept from (select catalogue_undo_import('61000000-0000-0000-0000-0000000000f1', false) x) s;
+select catalogue_undo_import('61000000-0000-0000-0000-0000000000f1', false);
+reset role;

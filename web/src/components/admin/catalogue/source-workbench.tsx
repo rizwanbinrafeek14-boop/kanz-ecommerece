@@ -17,6 +17,7 @@ import { run } from "@/lib/admin/client";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { openPdf, renderPage } from "./pdf";
+import { ImportUndo } from "./import-undo";
 
 export interface PageRow { page_no: number; status: string; url: string | null; method: string | null; skip_reason: string | null; error: string | null; products_found: number }
 export interface ItemRow { id: string; status: string; confidence: number | null; pages: number[]; name: string; family: string; variants: number; tables: number; images: number; duplicate: { kind?: string; message?: string } | null; imported: string | null; errors: number; warnings: number;
@@ -25,7 +26,7 @@ const PAGE_TONE: Record<string, string> = { pending: "bg-muted text-muted-foregr
 // Claude Opus 5.5 list prices (USD per million tokens) used for the running cost estimate shown to the admin.
 const PRICE = { input: 4, output: 20 };
 
-export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, isAdmin, web }: { sourceId: string; pdfUrl: string | null; pages: PageRow[]; items: ItemRow[]; runs: { created_at: string; summary: { imported: number; failed: { name: string; error: string }[]; duplicates?: number; updatesWaiting?: number } }[]; claude: boolean; isAdmin: boolean; web?: { info: WebInfo; rows: WebPageRow[] } }) {
+export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, isAdmin, web }: { sourceId: string; pdfUrl: string | null; pages: PageRow[]; items: ItemRow[]; runs: { id: string; created_at: string; undone_at: string | null; summary: { undo?: { removed: number; kept: unknown[] }; imported: number; failed: { name: string; error: string }[]; duplicates?: number; updatesWaiting?: number } }[]; claude: boolean; isAdmin: boolean; web?: { info: WebInfo; rows: WebPageRow[] } }) {
   const router = useRouter();
   const [busy, setBusy] = React.useState(""); const [progress, setProgress] = React.useState<{ done: number; total: number } | null>(null);
   const [spent, setSpent] = React.useState({ input: 0, output: 0 });
@@ -148,7 +149,8 @@ export function SourceWorkbench({ sourceId, pdfUrl, pages, items, runs, claude, 
           <p className="mt-2 text-xs text-muted-foreground">JSON contains everything (re-loadable); CSV/Excel list one row per variant with its source page.</p>
         </Panel>
         <Panel title="Import history">
-          {!runs.length ? <p className="text-sm text-muted-foreground">No imports yet.</p> : <ul className="space-y-1 text-sm">{runs.map((r, i) => <li key={i}>{formatDateTime(r.created_at)}: {r.summary.imported} imported{r.summary.failed?.length ? `, ${r.summary.failed.length} failed` : ""}</li>)}</ul>}
+          {!runs.length ? <p className="text-sm text-muted-foreground">No imports yet.</p> : <ul className="space-y-1 text-sm">{runs.map((r) => <li key={r.id} className="flex flex-wrap items-center gap-x-2" data-import-run>{formatDateTime(r.created_at)}: {r.summary.imported} imported{r.summary.failed?.length ? `, ${r.summary.failed.length} failed` : ""}
+            {r.undone_at ? <span className="text-muted-foreground" data-import-undone>· undone {formatDateTime(r.undone_at)}: {r.summary.undo?.removed ?? 0} removed{r.summary.undo?.kept?.length ? `, ${r.summary.undo.kept.length} kept` : ""}</span> : r.summary.imported > 0 && <ImportUndo runId={r.id} />}</li>)}</ul>}
           {isAdmin && <Button className="mt-4" size="sm" variant="ghost" onClick={async () => { if (confirm("Delete this catalogue, its pages and unimported records? Imported products are kept.") && (await run(deleteSource(sourceId), "Deleted"))) router.push("/admin/catalogue"); }}><Trash2 className="size-4" />Delete catalogue</Button>}
         </Panel>
       </div>

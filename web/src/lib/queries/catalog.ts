@@ -124,15 +124,24 @@ export async function searchProducts(p: SearchParams): Promise<{ products: Produ
 }
 
 export interface Facet { key: string; name_en: string; name_ar: string | null; values: { value_en: string; label_en: string; value_ar: string | null; n: number }[] }
-/** Filter groups: Material, Brand, Size, Connection, Pressure class (from real variants), then other filterable attributes. Counts = listing entries (a family counts once). */
-export async function getFacets(q?: string, category?: string, brand?: string): Promise<Facet[]> {
+/**
+ * Filter groups: Material, Brand, Size, Connection, Pressure class (from real variants), then other filterable attributes.
+ * Counts = listing entries (a family counts once) with all OTHER active filters applied, so every number is what ticking that
+ * box would show. Selected values always stay listed (with 0 when nothing else matches) so they can be unticked.
+ */
+export async function getFacets(q?: string, category?: string, brand?: string, active: { filters?: Record<string, string[]>; availability?: string; flag?: string } = {}): Promise<Facet[]> {
   const c = sb(); if (!c) return [];
-  const rows = await safe(() => c.rpc("product_facets", { p_q: q || null, p_category: category || null, p_brand: brand || null }),
+  const filters = Object.fromEntries(Object.entries(active.filters ?? {}).filter(([, v]) => v.length));
+  const rows = await safe(() => c.rpc("product_facets", { p_q: q || null, p_category: category || null, p_brand: brand || null, p_filters: filters, p_availability: active.availability || null, p_flag: active.flag || null }),
     [] as { attr_key: string; attr_name_en: string; attr_name_ar: string | null; value_en: string; value_ar: string | null; n: number; label_en: string | null; sort_key: string | null }[]);
   const map = new Map<string, Facet>();
   for (const r of rows) {
     if (!map.has(r.attr_key)) map.set(r.attr_key, { key: r.attr_key, name_en: r.attr_name_en, name_ar: r.attr_name_ar, values: [] });
     map.get(r.attr_key)!.values.push({ value_en: r.value_en, label_en: r.label_en ?? r.value_en, value_ar: r.value_ar, n: Number(r.n) });
+  }
+  for (const [key, values] of Object.entries(filters)) for (const v of values) {
+    if (!map.has(key)) continue;   // unknown group: nothing to show it in
+    if (!map.get(key)!.values.some((x) => x.value_en === v)) map.get(key)!.values.push({ value_en: v, label_en: key === "size" ? `${v}"` : v, value_ar: null, n: 0 });
   }
   // sizes in numeric order (1/8", 1/4" … 1-1/2", 2" …), classes numerically
   const num = (v: string) => { const f = v.match(/^(?:(\d+)-)?(\d+)\/(\d+)/); if (f) return Number(f[1] ?? 0) + Number(f[2]) / Number(f[3]); const n = parseFloat(v); return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY; };
@@ -160,7 +169,7 @@ export interface ProductDetail {
   materials: { code: string; name_en: string; name_ar: string | null; grades: string[]; components: MaterialComponent[] }[];
 }
 export interface ProductOptionRow { key: string; name_en: string; name_ar: string | null; values: { value: string; label_en: string; label_ar: string | null }[] }
-export interface DimensionTableRow { id: string; title_en: string; title_ar: string | null; columns: { key: string; symbol?: string | null; label_en: string; label_ar?: string | null; unit?: string | null }[]; applies: Record<string, string>; notes: string[]; drawing_path: string | null; source_page: number | null; rows: { match: Record<string, string>; values: Record<string, string> }[] }
+export interface DimensionTableRow { id: string; title_en: string; title_ar: string | null; columns: { key: string; symbol?: string | null; label_en: string; label_ar?: string | null; unit?: string | null }[]; applies: Record<string, string>; notes: string[]; drawing_path: string | null; source_page: number | null; rows: { match: Record<string, string>; values: Record<string, string> }[]; /** full number of rows when `rows` was trimmed for the page */ rowCount?: number }
 
 export async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
   const c = sb(); if (!c) return null;
@@ -291,4 +300,13 @@ export async function countPublishedProducts(): Promise<number> {
   const c = sb(); if (!c) return 0;
   const n = await safe(() => c.rpc("listing_count"), 0 as number);   // product families count once
   return Number(n) || 0;
+}
+
+/** All dimension rows of a published product (fetched by the product page on demand). Only the public rows: RLS hides drafts. */
+export async function getDimensionRows(slug: string): Promise<{ id: string; rows: DimensionTableRow["rows"] }[] | null> {
+  const c = sb(); if (!c) return null;
+  const { data } = await c.from("products").select("id, dimension_tables(id, sort_order, dimension_rows(match, values, sort_order))").eq("slug", slug).eq("status", "published").maybeSingle();
+  if (!data) return null;
+  const ts = (data as unknown as { dimension_tables: { id: string; sort_order: number; dimension_rows: { match: Record<string, string>; values: Record<string, string>; sort_order: number }[] }[] }).dimension_tables ?? [];
+  return [...ts].sort((a, b) => a.sort_order - b.sort_order).map((t) => ({ id: t.id, rows: [...(t.dimension_rows ?? [])].sort((a, b) => a.sort_order - b.sort_order).map(({ match, values }) => ({ match, values })) }));
 }

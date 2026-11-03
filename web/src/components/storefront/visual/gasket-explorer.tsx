@@ -2,7 +2,7 @@
 import * as React from "react";
 import dynamic from "next/dynamic";
 import { Box, Eye, EyeOff, Pause, Play, Ruler, Layers } from "lucide-react";
-import { useSelectedVariant } from "@/lib/variant-store";
+import { useProductData, useSelectedLightVariant } from "@/lib/product-data";
 import { useSelectedChoices } from "@/lib/config-store";
 import type { DimensionTableRow } from "@/lib/queries/catalog";
 import { cn } from "@/lib/utils";
@@ -48,9 +48,9 @@ function dimsFor(tables: DimensionTableRow[], opts?: Record<string, string>): Ga
   return null;
 }
 
-export function GasketExplorer({ tables, variants, lang, enable3d }: { tables: DimensionTableRow[]; variants: { id: string; options?: Record<string, string>; label: string }[]; lang: string; enable3d: boolean }) {
+export function GasketExplorer({ lang, enable3d }: { lang: string; enable3d: boolean }) {
   const t = T[lang === "ar" ? "ar" : "en"]; const ar = lang === "ar";
-  const vid = useSelectedVariant(); const v = variants.find((x) => x.id === vid);
+  const tables = useProductData()?.tables ?? []; const v = useSelectedLightVariant();
   const style = ((v?.options?.style as Style) || "SW-IR/CR");
   const dims = dimsFor(tables, v?.options);
   const choices = useSelectedChoices();

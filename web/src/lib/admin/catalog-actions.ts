@@ -5,6 +5,7 @@ import { requireAdmin, requireStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { audit, fail, ok, refreshStorefront, uniqueSlug, type Result } from "./common";
 import { slugify } from "@/lib/utils";
+import { isDqCheck } from "./data-quality";
 
 const opt = (n: number) => z.string().trim().max(n).nullable();
 
@@ -78,5 +79,19 @@ export async function deleteAttribute(id: string): Promise<Result> {
   const { error } = await sb.from("attribute_defs").delete().eq("id", id);
   if (error) return fail(error.message);
   refreshStorefront(); revalidatePath("/admin/attributes");
+  return ok(null);
+}
+
+/** Data-quality queue: mark an issue as fine for this product (hidden until undone), or undo that. */
+export async function setDataQualityDismissed(productId: string, check: string, dismissed: boolean): Promise<Result> {
+  const user = await requireStaff();
+  if (!z.string().uuid().safeParse(productId).success || !isDqCheck(check)) return fail("Invalid request.");
+  const sb = await createClient();
+  const { error } = dismissed
+    ? await sb.from("data_quality_dismissed").upsert({ product_id: productId, check_code: check, dismissed_by: user.id })
+    : await sb.from("data_quality_dismissed").delete().eq("product_id", productId).eq("check_code", check);
+  if (error) return fail(error.message);
+  await audit(sb, user.id, dismissed ? "data_quality.dismiss" : "data_quality.undo", "product", productId, { check });
+  revalidatePath("/admin/data-quality"); revalidatePath("/admin");
   return ok(null);
 }

@@ -9,7 +9,7 @@ const en = {
     noResults: "No results found.", page: "Page", of: "of", home: "Home", all: "All", sortBy: "Sort by",
   },
   nav: {
-    products: "Products", categories: "All categories", rfq: "Request a Quote", about: "About Us", contact: "Contact",
+    products: "Products", categories: "All categories", more: "More", rfq: "Request a Quote", about: "About Us", contact: "Contact",
     account: "Account", signIn: "Sign in", signOut: "Sign out", register: "Create account", cart: "Cart", myOrders: "My orders", myQuotes: "My quotations",
     profile: "Profile", whatsapp: "WhatsApp", quote: "Quote", quality: "Quality & Certifications", call: "Call us", contactUs: "Contact us", followUs: "Follow us",
   },
@@ -80,6 +80,9 @@ const en = {
     addLine: "Add line", bulkPaste: "Paste lines from Excel", bulkHint: "One item per line: description, specification, quantity (tab- or comma-separated)", import: "Import lines",
     submit: "Submit RFQ", success: "Your request has been received", ref: "Your reference", successText: "We will review it and respond by email. Keep this reference for follow-up.",
     needItem: "Add at least one item.", viewQuote: "View quotation",
+    files: "Drawings, datasheets or bill of quantities (optional)", filesHint: "Up to 5 files, 10 MB each: PDF, JPG, PNG, WebP, Excel, CSV or Word.",
+    filesChoose: "Choose files", filesAttached: "Attached files", filesUploading: "Uploading files…", filesAdd: "Add files",
+    filesFailed: "Not attached", repeat: "Repeat this request", repeatFrom: "Lines copied from {n}. Check sizes and quantities, then send.", repeatUnlisted: "{n} product(s) are no longer listed and were kept as text for our sales team.", filesError: "Your request was sent, but the files could not be attached. Please send them by e-mail or WhatsApp, quoting your RFQ number.", filesLater: "You can add files here within an hour of sending the request.",
   },
   checkout: {
     title: "Checkout", signInFirst: "Please sign in or create an account to place an order.", delivery: "Delivery method", deliver: "Deliver to address", pickup: "Pickup from our office",

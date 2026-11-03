@@ -25,7 +25,7 @@ export default async function SourcePage({ params }: { params: Promise<{ id: str
     sb.from("catalogue_pages").select("page_no, status, image_path, method, skip_reason, error, products_found").eq("source_id", id).order("page_no"),
     sb.from("extracted_products").select("id, status, confidence, pages, duplicate_of, duplicate_info, imported_product_id, update_of, changes, data").eq("source_id", id).order("created_at"),
     sb.from("extraction_warnings").select("extracted_product_id, severity").eq("source_id", id).eq("resolved", false),
-    sb.from("catalogue_import_runs").select("created_at, summary").eq("source_id", id).order("created_at", { ascending: false }).limit(10),
+    sb.from("catalogue_import_runs").select("id, created_at, undone_at, summary").eq("source_id", id).order("created_at", { ascending: false }).limit(10),
   ]);
   // website sources: the URL manifest (text content stays on the server)
   const { data: web } = src.kind === "website" ? await sb.from("catalogue_web_pages").select("id, url, kind, status, http_status, title, products_found, skip_reason, error, attempts, fetched_at").eq("source_id", id).order("depth").order("created_at").limit(5000) : { data: null };
@@ -43,6 +43,6 @@ export default async function SourcePage({ params }: { params: Promise<{ id: str
       items={(items ?? []).map((r) => { const d = r.data as ExtractedProduct; return { id: r.id, status: r.status, confidence: r.confidence == null ? null : Number(r.confidence), pages: r.pages, name: d.name_en, family: d.family?.key, variants: d.variants?.length ?? 0, tables: d.dimension_tables?.length ?? 0, images: d.images?.length ?? 0, duplicate: (r.duplicate_info as { kind?: string; message?: string } | null) ?? null, imported: r.imported_product_id, errors: wc(r.id, "error"), warnings: wc(r.id, "warning"),
         model: d.manufacturer_ref ?? null, sourceUrl: d.source_url ?? null, updateOf: r.update_of ?? null, changes: (r.changes as Change[] | null) ?? null }; }) as ItemRow[]}
       web={web ? { info: { startUrl: src.start_url!, host: src.allowed_host!, settings: src.settings as WebSettings, crawlState: src.crawl_state, robots: src.robots ? { ...(src.robots as RobotsRules), rules: (src.robots as RobotsRules).rules.length } : null }, rows: web as WebPageRow[] } : undefined}
-      runs={(runs ?? []) as { created_at: string; summary: { imported: number; failed: { name: string; error: string }[] } }[]} />
+      runs={(runs ?? []) as { id: string; created_at: string; undone_at: string | null; summary: { imported: number; failed: { name: string; error: string }[] } }[]} />
   </>);
 }

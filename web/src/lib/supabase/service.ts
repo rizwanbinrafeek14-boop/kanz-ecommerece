@@ -3,9 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 import { resolveSupabaseEnv } from "../../../supabase-env.cjs";
 
 /**
- * PRIVILEGED client (bypasses RLS). Never import this from a client component or use it for
- * customer-triggered requests. It is only used by admin-only server actions that re-check the
- * caller's role first (e.g. inviting a staff member).
+ * PRIVILEGED client (bypasses RLS). Never import this from a client component. It is used only by
+ * admin-only server actions that re-check the caller's role first (e.g. inviting a staff member), and
+ * by RFQ file handling, which first proves the caller holds that RFQ's secret access token
+ * (rfq-file-actions.ts, api/rfq/[token]/file).
  */
 export function createServiceClient() {
   // SUPABASE_SERVICE_ROLE_KEY, or Hostinger's SUPABASE_API_KEY when that is a secret key (checked at runtime, server only)

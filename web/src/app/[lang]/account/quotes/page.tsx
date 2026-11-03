@@ -6,6 +6,7 @@ import { requireCustomer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, formatSAR } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+import { Repeat2 } from "lucide-react";
 
 export const metadata = { title: "My quotations", robots: { index: false } };
 
@@ -22,11 +23,12 @@ export default async function QuotesPage({ params }: { params: Promise<{ lang: s
       {!rfqs?.length ? <p className="text-muted-foreground">{dict.account.noQuotes}</p> : (
         <ul className="divide-y rounded-xl border">
           {rfqs.map((r) => (
-            <li key={r.id}><Link href={`/${lang}/rfq/view/${r.access_token}`} className="flex flex-wrap items-center justify-between gap-3 p-4 hover:bg-muted/40">
+            <li key={r.id} className="flex flex-wrap items-center hover:bg-muted/40" data-quote-row><Link href={`/${lang}/rfq/view/${r.access_token}`} className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-3 p-4">
               <div><p className="font-mono font-semibold" dir="ltr">{r.rfq_number}</p><p className="text-sm text-muted-foreground">{formatDate(r.created_at, lang)}</p></div>
               <Badge variant={r.status === "quoted" ? "info" : "secondary"}>{dict.status[r.status as keyof typeof dict.status]}</Badge>
               <p className="font-semibold">{r.quoted_total != null ? formatSAR(r.quoted_total, lang) : "—"}</p>
-            </Link></li>
+            </Link>
+              <Link href={`/${lang}/rfq?repeat=${r.id}`} className="me-3 inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-background" data-repeat-rfq><Repeat2 className="size-4" aria-hidden="true" />{dict.rfq.repeat}<span className="sr-only"> {r.rfq_number}</span></Link></li>
           ))}
         </ul>
       )}

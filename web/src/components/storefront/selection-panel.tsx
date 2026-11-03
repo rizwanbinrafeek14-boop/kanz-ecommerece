@@ -1,17 +1,15 @@
 "use client";
 import * as React from "react";
-import { useSelectedVariant } from "@/lib/variant-store";
-import type { DimensionTableRow } from "@/lib/queries/catalog";
-
-const fits = (want: Record<string, string>, have: Record<string, string>) => Object.entries(want).every(([k, v]) => have[k] === v);
+import { useProductData, useSelectedLightVariant } from "@/lib/product-data";
+import { fitsOptions as fits } from "@/lib/options-match";
 
 /**
  * "Your selection": the exact configuration and its key dimensions, next to the drawing, so an engineer does not have to open the
  * dimension tab. Values come only from the table row that applies to the selected configuration.
  */
-export function SelectionPanel({ tables, variants, lang, source }: { tables: DimensionTableRow[]; variants: { id: string; options?: Record<string, string>; label: string; sku: string }[]; lang: string; source: string }) {
+export function SelectionPanel({ lang, source }: { lang: string; source: string }) {
   const ar = lang === "ar";
-  const vid = useSelectedVariant(); const v = variants.find((x) => x.id === vid);
+  const tables = useProductData()?.tables ?? []; const v = useSelectedLightVariant();
   const rows = v?.options ? tables.filter((t) => fits(t.applies, v.options!)).map((t) => ({ t, r: t.rows.find((r) => fits(r.match, v.options!)) })).filter((x) => x.r) : [];
   return (
     <section aria-labelledby="sel-h" className="rounded-xl border bg-card p-4" data-selection-panel aria-live="polite">
