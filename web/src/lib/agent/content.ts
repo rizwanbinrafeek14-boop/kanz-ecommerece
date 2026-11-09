@@ -5,7 +5,7 @@ import "server-only";
  * Only published data, the same as the storefront. Prices appear only where the shop has set a real price; everything else
  * is "price on request" (quotation) — nothing is estimated.
  */
-import { buildTree, getBrandBySlug, getCategories, getCategoryBySlug, getFamilyBySlug, getFlagged, getProductBySlug, searchProducts, type CategoryNode } from "@/lib/queries/catalog";
+import { buildTree, getPricedProducts, getBrandBySlug, getCategories, getCategoryBySlug, getFamilyBySlug, getFlagged, getProductBySlug, searchProducts, type CategoryNode } from "@/lib/queries/catalog";
 import { getSettings, s } from "@/lib/settings";
 import { cardPrice, type ProductCard } from "@/lib/types";
 import { abs } from "@/lib/seo";
@@ -53,7 +53,7 @@ const productLine = (p: ProductSummary) => `- [${p.name}](${p.url})${p.brand ? `
 export async function homeMarkdown(lang: Lang) {
   const [tree, featured, contact] = await Promise.all([categoryTree(), getFlagged("featured", 12), contactLines()]);
   return [
-    `# ${COMPANY.name}`, "", `> ${COMPANY.summary}`, "", "## Pricing", "", COMPANY.pricing, "",
+    `# ${COMPANY.name}`, "", `> ${COMPANY.summary}`, "", "## Pricing", "", COMPANY.pricing, `Price list: ${abs(`/${lang}/prices`)} (Markdown: ${abs(`/md/${lang}/prices`)})`, "",
     "## Product categories", "", ...tree.map((c) => `- [${nm(c, lang)}](${abs(`/${lang}/category/${c.slug}`)})${c.children.length ? `: ${c.children.map((x) => nm(x, lang)).join(", ")}` : ""}`), "",
     ...(featured.length ? ["## Featured products", "", ...featured.map((p) => productLine(summarise(p, lang))), ""] : []),
     "## Request a quotation", "", `Send sizes, material grades, standards and quantities through the RFQ form: ${abs(`/${lang}/rfq`)} (drawings and BOQs can be attached). Search the catalogue: ${abs(`/${lang}/products?q=`)}<words>.`, "",
@@ -123,6 +123,12 @@ export async function productMarkdown(lang: Lang, slug: string, maxRows = 40): P
   return out.filter((x, i, a) => x !== "" || a[i - 1] !== "").join("\n");
 }
 
+export async function pricesMarkdown(lang: Lang) {
+  const items = (await getPricedProducts()).map((p) => summarise(p, lang));
+  return [`# Prices`, "", `Web page: ${abs(`/${lang}/prices`)}`, "", COMPANY.pricing, "", `## Products with published prices (${items.length})`, "",
+    ...(items.length ? items.map(productLine) : ["All items are currently priced by quotation."]), "", `Request a quotation: ${abs(`/${lang}/rfq`)}`, ""].join("\n");
+}
+
 // ───────── llms.txt ─────────
 export async function llmsTxt() {
   const [tree, contact] = await Promise.all([categoryTree(), contactLines()]);
@@ -132,6 +138,7 @@ export async function llmsTxt() {
     "## Key pages", "",
     `- [Home](${abs("/en")}): overview, featured products, how to request a quotation (Markdown: ${abs("/md/en")})`,
     `- [All products](${abs("/en/products")}): searchable catalogue, \`?q=\` for keywords (Markdown: ${abs("/md/en/products")})`,
+    `- [Prices](${abs("/en/prices")}): every product with a published price (SAR, ex. VAT) and how quotations are priced (Markdown: ${abs("/md/en/prices")})`,
     `- [Request for quotation](${abs("/en/rfq")}): send sizes, grades, standards and quantities; attach drawings or a BOQ`,
     `- [Quality & certifications](${abs("/en/quality")}): approvals and certificates`,
     `- [About](${abs("/en/about")}) and [Contact](${abs("/en/contact")})`, "",

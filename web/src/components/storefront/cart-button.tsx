@@ -2,14 +2,14 @@
 import Link from "next/link";
 import { ShoppingCart, ClipboardList } from "lucide-react";
 import { useCart } from "./cart-provider";
-import type { Dictionary } from "@/lib/i18n/dictionaries";
+import type { HeaderDict } from "@/lib/i18n/header-dict";
 import type { Locale } from "@/lib/i18n/config";
 
 function Badge({ n }: { n: number }) {
   if (!n) return null;
   return <span className="absolute -top-1.5 -end-2 flex min-w-4.5 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-primary">{n}</span>;
 }
-export function CartButtons({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+export function CartButtons({ lang, dict }: { lang: Locale; dict: HeaderDict }) {
   const { cart, quote } = useCart();
   return (
     <>

@@ -44,7 +44,8 @@ export function CategoryMegaMenu({ label, viewAll, tree }: { label: string; view
         {label} <ChevronDown className={cn("size-4 transition-transform motion-reduce:transition-none", open && "rotate-180")} aria-hidden="true" />
       </button>
       <div id={id} hidden={!open} className="absolute start-0 top-full z-50 w-[min(1100px,92vw)] border bg-white shadow-2xl">
-        <div className="grid max-h-[70vh] grid-cols-3 gap-x-6 gap-y-5 overflow-y-auto p-6 xl:grid-cols-4">
+        {/* contents only while open: every page would otherwise carry a hidden copy of the whole category list */}
+        {open && <div className="grid max-h-[70vh] grid-cols-3 gap-x-6 gap-y-5 overflow-y-auto p-6 xl:grid-cols-4">
           {tree.map((c) => (
             <div key={c.id}>
               <Link href={c.href} onClick={() => setOpen(false)} className="mb-1.5 flex items-center gap-2 font-semibold text-ink hover:text-primary">
@@ -57,7 +58,7 @@ export function CategoryMegaMenu({ label, viewAll, tree }: { label: string; view
               </ul>}
             </div>
           ))}
-        </div>
+        </div>}
       </div>
     </div>
   );
@@ -81,7 +82,7 @@ export function CategoryBar({ more, tree }: { more: string; tree: NavCategory[] 
             {more} <ChevronDown className={cn("size-4 transition-transform motion-reduce:transition-none", open && "rotate-180")} aria-hidden="true" />
           </button>
           <ul id={id} hidden={!open} className="absolute end-0 top-full z-50 min-w-60 border bg-white py-2 shadow-xl">
-            {rest.map((c, i) => (
+            {open && rest.map((c, i) => (
               <li key={c.id} className={i === 0 ? "xl:hidden" : undefined}><Link href={c.href} onClick={() => setOpen(false)} className="block px-4 py-2 hover:bg-muted hover:text-primary">{c.name}</Link></li>
             ))}
           </ul>

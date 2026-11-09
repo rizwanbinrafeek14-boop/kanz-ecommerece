@@ -1,4 +1,4 @@
-import { brandMarkdown, homeMarkdown, listingMarkdown, productMarkdown, type Lang } from "@/lib/agent/content";
+import { brandMarkdown, homeMarkdown, listingMarkdown, pricesMarkdown, productMarkdown, type Lang } from "@/lib/agent/content";
 
 export const revalidate = 60;
 const md = (body: string, status = 200) => new Response(body, { status, headers: {
@@ -17,6 +17,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ path?: s
   if ((lang0 !== "en" && lang0 !== "ar") || rest.length) return md("# Not found\n\nTry /md/en, /md/en/products?q=…, /md/en/category/<slug> or /md/en/product/<slug>.\n", 404);
   const sp = new URL(req.url).searchParams; const page = Number(sp.get("page")) || 1;
   if (!kind) return md(await homeMarkdown(lang));
+  if (kind === "prices" && !slug) return md(await pricesMarkdown(lang));
   if (kind === "products" && !slug) return md(await listingMarkdown(lang, { q: sp.get("q") ?? undefined, category: sp.get("category") ?? undefined, page }));
   if (slug && SLUG.test(slug)) {
     if (kind === "category") return md(await listingMarkdown(lang, { category: slug, page }));

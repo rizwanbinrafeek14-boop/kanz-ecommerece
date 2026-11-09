@@ -312,6 +312,18 @@ export async function getDimensionRows(slug: string): Promise<{ id: string; rows
   return [...ts].sort((a, b) => a.sort_order - b.sort_order).map((t) => ({ id: t.id, rows: [...(t.dimension_rows ?? [])].sort((a, b) => a.sort_order - b.sort_order).map(({ match, values }) => ({ match, values })) }));
 }
 
+/** Published, buyable products that have a real price (on the product or an active size). Used by the price list page. */
+async function getPricedProductsUncached(limit = 500): Promise<ProductCard[]> {
+  const c = sb(); if (!c) return [];
+  const [base, vars] = await Promise.all([
+    safe(() => c.from("products").select("id").eq("status", "published").eq("is_quote_only", false).not("base_price", "is", null).limit(limit), [] as { id: string }[]),
+    safe(() => c.from("product_variants").select("product_id, products!inner(status, is_quote_only)").eq("is_active", true).not("price", "is", null).eq("products.status", "published").eq("products.is_quote_only", false).limit(5000) as unknown as PromiseLike<{ data: { product_id: string }[] | null; error: unknown }>, [] as { product_id: string }[]),
+  ]);
+  const ids = [...new Set([...base.map((r) => r.id), ...vars.map((r) => r.product_id)])].slice(0, limit);
+  const cards = ids.length ? await getProductCardsByIds(ids) : [];
+  return cards.filter((p) => cardPrice(p) != null).sort((a, b) => a.name_en.localeCompare(b.name_en));
+}
+
 // ───────── cached public reads (see lib/cache.ts) ─────────
 export const getCategories = cached(getCategoriesUncached, "getCategories");
 export const getCategoryBySlug = cached(getCategoryBySlugUncached, "getCategoryBySlug");
@@ -330,3 +342,4 @@ export const getFlagged = cached(getFlaggedUncached, "getFlagged");
 export const getBestSellers = cached(getBestSellersUncached, "getBestSellers");
 const countsEntries = cached(async () => [...(await getCategoryProductCountsUncached()).entries()], "categoryProductCounts");
 export async function getCategoryProductCounts(): Promise<Map<string, number>> { return new Map(await countsEntries()); }
+export const getPricedProducts = cached(getPricedProductsUncached, "getPricedProducts");

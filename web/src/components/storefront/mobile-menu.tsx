@@ -3,11 +3,13 @@ import * as React from "react";
 import Link from "next/link";
 import { Menu, ChevronDown } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
-import type { CategoryNode } from "@/lib/queries/catalog";
 import type { Locale } from "@/lib/i18n/config";
-import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-export function MobileMenu({ tree, lang, dict, social }: { tree: CategoryNode[]; lang: Locale; dict: Dictionary; social?: React.ReactNode }) {
+/** Only what the menu shows: sent to the browser on every page, so no full category records or whole dictionary. */
+export interface MenuNode { id: string; slug: string; name_en: string; name_ar: string | null; children: MenuNode[] }
+export interface MenuDict { common: { viewAll: string }; nav: { about: string; categories: string; contact: string; followUs: string; quality: string; rfq: string } }
+
+export function MobileMenu({ tree, lang, dict, social }: { tree: MenuNode[]; lang: Locale; dict: MenuDict; social?: React.ReactNode }) {
   const nm = (c: { name_en: string; name_ar: string | null }) => (lang === "ar" && c.name_ar ? c.name_ar : c.name_en);
   return (
     <Sheet>

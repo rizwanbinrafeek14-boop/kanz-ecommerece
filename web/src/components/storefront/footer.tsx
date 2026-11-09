@@ -16,6 +16,9 @@ export async function Footer({ lang }: { lang: Locale }) {
   ]);
   // “Quality & Certifications” is always reachable from the footer, even if the menu was edited in the admin panel.
   if (!company.some((l) => l.url === "/quality")) company.push({ ...(company[0] ?? ({} as (typeof company)[number])), id: "quality-link", label_en: "Quality & Certifications", label_ar: "الجودة والشهادات", url: "/quality" });
+  // "Prices" (the price list: published prices and how quotations are priced) is always linked, for buyers and AI agents alike.
+  const priceCol = products.length ? products : company;
+  if (!priceCol.some((l) => l.url === "/prices")) priceCol.unshift({ ...(priceCol[0] ?? ({} as (typeof company)[number])), id: "prices-link", label_en: "Prices", label_ar: "الأسعار", url: "/prices" });
   const col = (title: string, links: typeof company) => links.length > 0 && (
     <div>
       <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">{title}</h3>

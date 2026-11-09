@@ -8,7 +8,7 @@ import { Search, Folder, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
 import { publicUrl } from "@/lib/format";
 import type { Locale } from "@/lib/i18n/config";
-import type { Dictionary } from "@/lib/i18n/dictionaries";
+import type { HeaderDict } from "@/lib/i18n/header-dict";
 
 interface Sugg { kind: "product" | "family" | "category"; id: string; slug: string; name_en: string; name_ar: string | null; image_path: string | null }
 
@@ -16,7 +16,7 @@ interface Sugg { kind: "product" | "family" | "category"; id: string; slug: stri
 const SEARCH_TOOL = { toolname: "search_catalogue", tooldescription: "Search the KANZ CORNER product catalogue (pipes, fittings, flanges, valves, gaskets, fasteners) and open the results page." };
 const Q_PARAM = { toolparamdescription: "Keywords: product type, size, material grade, standard or brand, e.g. 'weld neck flange 4 inch class 150'." };
 
-export function SearchBox({ lang, dict, className }: { lang: Locale; dict: Dictionary; className?: string }) {
+export function SearchBox({ lang, dict, className }: { lang: Locale; dict: HeaderDict; className?: string }) {
   const router = useRouter();
   const [q, setQ] = React.useState("");
   const [fetched, setItems] = React.useState<Sugg[]>([]);

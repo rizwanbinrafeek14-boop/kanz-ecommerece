@@ -13,7 +13,10 @@ export interface MarqueeBrand { id: string; name: string; slug: string; logo_pat
  */
 export function BrandMarquee({ brands, lang, labels }: { brands: MarqueeBrand[]; lang: string; labels: { pause: string; play: string; region: string } }) {
   const [paused, setPaused] = React.useState(false);
-  const reps = Math.max(1, Math.ceil(10 / brands.length));   // at least ~10 tiles per copy so the strip is always full
+  // The page HTML holds each brand once (short for search engines and AI agents); the repeated copies that make the loop
+  // seamless are added in the browser after it loads.
+  const live = React.useSyncExternalStore(() => () => {}, () => true, () => false);
+  const reps = live ? Math.max(1, Math.ceil(10 / brands.length)) : 1;   // at least ~10 tiles per copy so the strip is always full
   const one = Array.from({ length: reps }, () => brands).flat();
   const seconds = Math.max(20, one.length * 4);              // same speed whatever the number of brands
   const tile = (b: MarqueeBrand, i: number, copy: boolean) => (
@@ -28,9 +31,9 @@ export function BrandMarquee({ brands, lang, labels }: { brands: MarqueeBrand[];
   return (
     <div className="relative" data-brand-marquee>
       <div className="marquee overflow-hidden" role="region" aria-label={labels.region} dir="ltr">
-        <ul className="marquee-track py-2" style={{ "--marquee-duration": `${seconds}s`, animationPlayState: paused ? "paused" : undefined } as React.CSSProperties} data-paused={paused || undefined}>
+        <ul className={live ? "marquee-track py-2" : "flex flex-wrap py-2"} style={{ "--marquee-duration": `${seconds}s`, animationPlayState: paused ? "paused" : undefined } as React.CSSProperties} data-paused={paused || undefined}>
           {one.map((b, i) => tile(b, i, false))}
-          {one.map((b, i) => tile(b, i, true))}
+          {live && one.map((b, i) => tile(b, i, true))}
         </ul>
       </div>
       <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={paused} data-marquee-toggle

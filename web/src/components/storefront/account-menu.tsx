@@ -3,10 +3,10 @@ import * as React from "react";
 import Link from "next/link";
 import { User } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
-import type { Dictionary } from "@/lib/i18n/dictionaries";
+import type { HeaderDict } from "@/lib/i18n/header-dict";
 import type { Locale } from "@/lib/i18n/config";
 
-export function AccountMenu({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+export function AccountMenu({ lang, dict }: { lang: Locale; dict: HeaderDict }) {
   const configured = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
   const [email, setEmail] = React.useState<string | null | undefined>(configured ? undefined : null);
   React.useEffect(() => {

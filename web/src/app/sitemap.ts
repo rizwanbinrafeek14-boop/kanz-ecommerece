@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return langs.map((l) => ({ url: `${site}/${l}${path}`, lastModified: o.lastModified ? new Date(o.lastModified) : undefined, priority: o.priority ?? 0.6, alternates }));
   };
   return [
-    ...entry("", { priority: 1 }), ...entry("/products", { priority: 0.9 }), ...entry("/rfq", { priority: 0.8 }), ...entry("/quality", { priority: 0.6 }),
+    ...entry("", { priority: 1 }), ...entry("/products", { priority: 0.9 }), ...entry("/rfq", { priority: 0.8 }), ...entry("/quality", { priority: 0.6 }), ...entry("/prices", { priority: 0.7 }),
     ...entry("/contact", { priority: 0.6 }), ...entry("/about", { priority: 0.5 }),
     ...categories.flatMap((c) => entry(`/category/${c.slug}`, { lastModified: c.updated_at, priority: 0.8, ar: !!c.name_ar })),
     ...brands.flatMap((b) => entry(`/brand/${b.slug}`, { priority: 0.6 })),

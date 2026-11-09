@@ -75,7 +75,7 @@ const nextConfig = {
       // when an agent sends "Accept: text/markdown" (see src/proxy.ts), so caches must keep the two apart.
       { source: "/", headers: [{ key: "Vary", value: "Accept" }, { key: "Link", value: homeLink("en") }] },
       { source: "/:lang(en|ar)", headers: [{ key: "Vary", value: "Accept" }, { key: "Link", value: homeLink(":lang") }] },
-      ...["products", "category/:slug", "product/:slug", "brand/:slug"].map((p) => ({
+      ...["products", "prices", "category/:slug", "product/:slug", "brand/:slug"].map((p) => ({
         source: `/:lang(en|ar)/${p}`, headers: [{ key: "Vary", value: "Accept" }, { key: "Link", value: `</md/:lang/${p}>; rel="alternate"; type="text/markdown", </llms.txt>; rel="describedby"; type="text/plain"` }],
       })),
     ];
