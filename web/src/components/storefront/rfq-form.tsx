@@ -10,6 +10,7 @@ import { Input, Textarea, Label } from "@/components/ui/input";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/lib/i18n/config";
 import { FileResult, RfqFilePicker, uploadRfqFiles } from "./rfq-files";
+import { RFQ_DRAFT_KEY } from "@/components/agent/webmcp-tools";
 
 interface Line { product_id?: string; variant_id?: string; description: string; specification: string; quantity: string; unit: string }
 const blank = (): Line => ({ description: "", specification: "", quantity: "1", unit: "pcs" });
@@ -21,6 +22,14 @@ export function RfqForm({ lang, dict, defaults, repeat }: { lang: Locale; dict: 
     ? quote.map((q) => ({ product_id: q.productId, variant_id: q.variantId, description: q.name, specification: q.spec ?? "", quantity: String(q.qty), unit: q.unit }))
     : [blank()]), [quote]);
   const [edited, setEdited] = React.useState<Line[] | null>(repeat?.lines ?? null);   // a repeated request starts from its own lines
+  // items prepared by a browser AI agent (WebMCP prepare_quotation_request): shown for the visitor to review; nothing is sent
+  const [fromAgent, setFromAgent] = React.useState(false);
+  React.useEffect(() => {
+    if (repeat) return;
+    let draft: Line[] | null = null;
+    try { const raw = sessionStorage.getItem(RFQ_DRAFT_KEY); sessionStorage.removeItem(RFQ_DRAFT_KEY); draft = raw ? (JSON.parse(raw) as Line[]) : null; } catch { /* storage unavailable */ }
+    if (draft?.length) { setEdited(draft.map((l) => ({ description: String(l.description ?? ""), specification: String(l.specification ?? ""), quantity: String(l.quantity ?? "1"), unit: String(l.unit ?? "pcs") }))); setFromAgent(true); }   // eslint-disable-line react-hooks/set-state-in-effect -- read once from sessionStorage after hydration
+  }, [repeat]);
   const lines = edited ?? seed;
   const setLines = (fn: (ls: Line[]) => Line[]) => setEdited(fn(lines));
   const [paste, setPaste] = React.useState("");
@@ -61,7 +70,7 @@ export function RfqForm({ lang, dict, defaults, repeat }: { lang: Locale; dict: 
     if (!res.ok) { setBusy(false); setError(res.error); return; }
     // the request is saved first; files follow (a failed file never loses the request)
     if (files.length) { setUploading(true); setFileResult(await uploadRfqFiles(res.data.token, files).catch(() => ({ saved: [], rejected: [], error: dict.rfq.filesError }))); setUploading(false); }
-    setBusy(false); if (!repeat) clear("quote"); setDone(res.data);   // repeating leaves the saved quotation list alone
+    setBusy(false); if (!repeat && !fromAgent) clear("quote"); setDone(res.data);   // repeating leaves the saved quotation list alone
   }
 
   if (done) {
@@ -99,6 +108,7 @@ export function RfqForm({ lang, dict, defaults, repeat }: { lang: Locale; dict: 
       </section>
 
       <section className="rounded-xl border bg-card p-5">
+        {fromAgent && <p className="mb-4 rounded-lg border bg-muted/50 p-3 text-sm" role="status" data-rfq-agent>{dict.rfq.fromAgent}</p>}
         {repeat && <p className="mb-4 flex items-start gap-2 rounded-lg border bg-muted/50 p-3 text-sm" role="status" data-rfq-repeat><Repeat2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <span>{dict.rfq.repeatFrom.replace("{n}", repeat.number)}{repeat.unlisted > 0 && <> {dict.rfq.repeatUnlisted.replace("{n}", String(repeat.unlisted))}</>}</span></p>}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">

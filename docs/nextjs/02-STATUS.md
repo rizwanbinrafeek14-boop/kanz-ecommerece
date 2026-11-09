@@ -198,6 +198,17 @@ Implemented and verified locally (81 automated checks): unique titles/descriptio
     - **Search engines** see the first 20 rows of each large table. The full tables remain in the datasheet PDF.
     - **Tested locally:** 11 browser checks (`light.mjs`), plus the existing product-page, gasket and family suites.
 
+## Agent readiness (Nov 2026) — see `11-AGENT-READINESS.md`
+- **Discovery:**
+  - `robots.txt` declares `Content-Signal: search=yes, ai-input=yes, ai-train=no`.
+  - `/llms.txt` summarises the site.
+  - The homepage sends `Link` headers (llms.txt, Markdown version, MCP server card).
+- **Markdown:** every catalogue page is available as Markdown (`Accept: text/markdown`, or `/md/…`).
+- **Structured data:** the homepage adds `WebSite`/`SearchAction`, an `OfferCatalog` of categories and featured `Product`s. An `Offer` (price + SAR) appears only where a real price exists.
+- **MCP:** a read-only MCP server (`/mcp`) and its server card (`/.well-known/mcp/server-card.json`).
+- **WebMCP:** in-browser tools (search, product details, categories, prepare a quotation request — the visitor still submits), plus a declarative search form.
+- **Tested locally:** 37 browser/API checks (`agent.mjs`), plus smoke, menu, repeat-request, RFQ-files and SEO suites.
+
 ## Speed fix: pages that took a while to load (Nov 2026)
 - **Cause:** category, product list, search, brand and RFQ pages are built per visit, because they depend on filters or the session. Each one made 9–20 separate Supabase requests per visit. About half of those requests were for the same site-wide data (settings, menus, footer links, contact details, category tree, announcements). On the live host every request is a network round trip to Supabase, so these pages took seconds.
 - **Fix 1: server cache** (`web/src/lib/cache.ts`).

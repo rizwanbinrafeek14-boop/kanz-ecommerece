@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { WebMcpTools } from "@/components/agent/webmcp-tools";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import { LOCALES, isLocale, dirOf } from "@/lib/i18n/config";
@@ -57,6 +58,7 @@ export default async function RootLayout({ children, params }: { children: React
             menuLabel={widget ? (ar ? widget.menu_label_ar : widget.menu_label_en) : dict.nav.contactUs} closeLabel={dict.common.close}
             position={widget?.position ?? "right"} showDesktop={widget?.show_desktop ?? true} showMobile={widget?.show_mobile ?? true} links={links.filter((l) => l.show_floating)} />
           <PageTracker lang={lang} />
+          <WebMcpTools lang={lang} />
           <Toaster />
         </CartProvider>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />

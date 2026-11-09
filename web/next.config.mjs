@@ -26,6 +26,14 @@ const csp = [
 // The admin catalogue importer renders PDFs in the browser with PDF.js, whose image decoders are WebAssembly.
 const adminCsp = csp.replace("script-src 'self' 'unsafe-inline'", "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'");
 
+/** Link header for the homepage: site summary for language models, the Markdown version, the MCP server card and sitemap. */
+const homeLink = (lang) => [
+  `</llms.txt>; rel="describedby"; type="text/plain"`,
+  `</md/${lang}>; rel="alternate"; type="text/markdown"`,
+  `</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
+  `</sitemap.xml>; rel="sitemap"; type="application/xml"`,
+].join(", ");
+
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   // the public Supabase settings, whichever names the host provides them under
@@ -62,6 +70,14 @@ const nextConfig = {
         ],
       },
       ...(isProd ? [{ source: "/admin/:path*", headers: [{ key: "Content-Security-Policy", value: adminCsp }] }] : []),
+      // For AI agents (RFC 8288 Link headers): the homepage points at llms.txt, its Markdown version and the MCP server card;
+      // catalogue pages point at their Markdown version. "Vary: Accept" because the same URL also answers with Markdown
+      // when an agent sends "Accept: text/markdown" (see src/proxy.ts), so caches must keep the two apart.
+      { source: "/", headers: [{ key: "Vary", value: "Accept" }, { key: "Link", value: homeLink("en") }] },
+      { source: "/:lang(en|ar)", headers: [{ key: "Vary", value: "Accept" }, { key: "Link", value: homeLink(":lang") }] },
+      ...["products", "category/:slug", "product/:slug", "brand/:slug"].map((p) => ({
+        source: `/:lang(en|ar)/${p}`, headers: [{ key: "Vary", value: "Accept" }, { key: "Link", value: `</md/:lang/${p}>; rel="alternate"; type="text/markdown", </llms.txt>; rel="describedby"; type="text/plain"` }],
+      })),
     ];
   },
 };

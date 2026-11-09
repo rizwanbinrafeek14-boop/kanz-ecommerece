@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight, Droplets, Factory, Flame, HardHat, ShieldChec
 import { isLocale, loc, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { BrandMarquee } from "@/components/home/brand-marquee";
+import { homeGraph } from "@/lib/agent/home-jsonld";
 import { buildTree, getBanners, getBestSellers, getCategories, getCategoryProductCounts, getFacets, getFlagged, getHomepageBrands, getHomepageSections, countPublishedProducts } from "@/lib/queries/catalog";
 import { getQualityCerts } from "@/lib/queries/certs";
 import { publicUrl } from "@/lib/format";
@@ -26,9 +27,11 @@ export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params; const l = isLocale(lang) ? lang : "en";
-  return pageMetadata({ lang: l, path: "", absoluteTitle: true,
+  const m = pageMetadata({ lang: l, path: "", absoluteTitle: true,
     title: l === "ar" ? "كنز كورنر — مورّد الأنابيب والوصلات والفلنجات والمحابس الصناعية في الخبر" : "KANZ CORNER EST. — industrial pipes, fittings, flanges & valves supplier in Al Khobar",
     description: l === "ar" ? "تورّد مؤسسة كنز كورنر الأنابيب والوصلات والوصلات المخددة والفلنجات والمحابس (الصمامات) الصناعية من الخبر إلى المملكة. اطلب عرض سعر للصلب الكربوني والستانلس ستيل والدوبلكس." : "KANZ CORNER EST. supplies industrial pipes, pipe fittings, grooved fittings, flanges and valves from Al Khobar to customers across Saudi Arabia. Request a quotation for carbon steel, stainless steel and duplex products." });
+  // the Markdown version of this page, for AI agents
+  return { ...m, alternates: { ...m.alternates, types: { "text/markdown": `/md/${l}` } } };
 }
 
 type Sec = Pick<HomepageSection, "type" | "title_en" | "title_ar" | "subtitle_en" | "subtitle_ar" | "config" | "id">;
@@ -241,8 +244,10 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
 
   let n = 0;
   const numbered = blocks.map((b) => ({ ...b, num: String(++n).padStart(2, "0") }));
+  const graph = await homeGraph(lang, tree, nm);
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(graph).replace(/</g, "\\u003c") }} />
       {hero ?? <h1 className="sr-only">{hx.title}</h1>}
       {promo}
       <div className="mx-auto max-w-7xl px-4 xl:grid xl:grid-cols-[10.5rem_minmax(0,1fr)] xl:gap-10">
