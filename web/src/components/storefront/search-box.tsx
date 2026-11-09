@@ -12,6 +12,10 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 interface Sugg { kind: "product" | "family" | "category"; id: string; slug: string; name_en: string; name_ar: string | null; image_path: string | null }
 
+// WebMCP declarative form tool (draft): lets an in-browser agent use this search form; ignored by other browsers
+const SEARCH_TOOL = { toolname: "search_catalogue", tooldescription: "Search the KANZ CORNER product catalogue (pipes, fittings, flanges, valves, gaskets, fasteners) and open the results page." };
+const Q_PARAM = { toolparamdescription: "Keywords: product type, size, material grade, standard or brand, e.g. 'weld neck flange 4 inch class 150'." };
+
 export function SearchBox({ lang, dict, className }: { lang: Locale; dict: Dictionary; className?: string }) {
   const router = useRouter();
   const [q, setQ] = React.useState("");
@@ -37,18 +41,21 @@ export function SearchBox({ lang, dict, className }: { lang: Locale; dict: Dicti
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
-  function submit(e: React.FormEvent) {
+  const formRef = React.useRef<HTMLFormElement>(null);
+  function submit(e: React.SyntheticEvent) {
     e.preventDefault();
-    if (!q.trim()) return;
+    // the field's own value too: a browser agent (WebMCP form tool) may fill it without a React change event
+    const term = (q.trim() || String((formRef.current && new FormData(formRef.current).get("q")) ?? "")).trim();
+    if (!term) return;
     // the results page records the search together with its number of results
     setOpen(false);
-    router.push(`/${lang}/products?q=${encodeURIComponent(q.trim())}`);
+    router.push(`/${lang}/products?q=${encodeURIComponent(term)}`);
   }
 
   return (
     <div ref={box} className={`relative ${className ?? ""}`}>
-      <form onSubmit={submit} role="search" className="flex">
-        <input value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => items.length && setOpen(true)} type="search" autoComplete="off"
+      <form ref={formRef} onSubmit={submit} role="search" className="flex" {...(SEARCH_TOOL as object)}>
+        <input name="q" {...(Q_PARAM as object)} value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => items.length && setOpen(true)} type="search" autoComplete="off"
           placeholder={dict.search.placeholder} aria-label={dict.common.search}
           className="h-11 w-full rounded-s-md border border-e-0 border-input bg-white px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
         <button type="submit" className="flex h-11 w-12 items-center justify-center rounded-e-md bg-primary text-white hover:bg-primary/90" aria-label={dict.common.search}>
